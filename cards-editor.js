@@ -47,9 +47,14 @@ function queueCardAction(action) {
 }
 
 async function saveCards(change) {
-  library = await updateCardLibrary(change);
+  let changed;
+  library = await updateCardLibrary(state => {
+    const next = change(state);
+    changed = next !== state;
+    return next;
+  }, library);
   renderLibrary();
-  notifyCardViews();
+  if (changed) notifyCardViews();
 }
 
 function storageError() {
@@ -76,16 +81,10 @@ async function readCardImage(file) {
   const webp = ascii(0, 4) === 'RIFF' && ascii(8, 12) === 'WEBP';
   if (!png && !jpeg && !webp) throw new Error('Допустимы изображения PNG, JPG, JPEG и WEBP.');
   const blob = file.slice(0, file.size, png ? 'image/png' : jpeg ? 'image/jpeg' : 'image/webp');
-  const url = URL.createObjectURL(blob);
   try {
-    const image = new Image();
-    image.src = url;
-    await image.decode();
-    return blob;
+    return { image: blob, imageKey: await imageFingerprint(blob) };
   } catch {
     throw new Error('Не удалось прочитать изображение.');
-  } finally {
-    URL.revokeObjectURL(url);
   }
 }
 
@@ -211,16 +210,20 @@ function renderPlacement() {
   }));
   document.querySelector('#manual-cell-number').textContent = String(selectedCell + 1);
   const selectedId = occupied[selectedCell];
-  const unavailable = new Set(occupied);
-  unavailable.delete(selectedId);
-  manualCard.replaceChildren(new Option('Выбрать случайно', ''), ...library.cards
-    .filter(card => !unavailable.has(card.id))
+  const unavailable = new Set(occupied.flatMap((id, index) =>
+    index !== selectedCell && cards.has(id) ? [cardIdentity(cards.get(id))] : []
+  ));
+  const selected = cards.get(selectedId);
+  const choices = uniqueCards(selected ? [selected, ...library.cards] : library.cards);
+  manualCard.replaceChildren(new Option('Выбрать случайно', ''), ...choices
+    .filter(card => !unavailable.has(cardIdentity(card)))
     .map(card => new Option(card.label, card.id)));
-  manualCard.value = cards.has(selectedId) ? selectedId : '';
+  manualCard.value = selected ? selectedId : '';
 
+  const available = uniqueCards(library.cards).length;
   const shortage = document.querySelector('#card-shortage');
-  shortage.hidden = library.cards.length >= count;
-  shortage.textContent = shortage.hidden ? '' : cardShortage(library.cards.length, size);
+  shortage.hidden = available >= count;
+  shortage.textContent = shortage.hidden ? '' : cardShortage(available, size);
   document.querySelector('#shuffle-cards').disabled = !shortage.hidden;
 }
 
@@ -259,17 +262,36 @@ uploadCards.addEventListener('change', () => {
   uploadCards.value = '';
   if (!files.length) return;
   queueCardAction(async () => {
-    const results = await Promise.allSettled(files.map(readCardImage));
-    const added = results.flatMap((result, index) => result.status === 'fulfilled' ? [{
-      id: newCardId(),
-      label: files[index].name.replace(/\.[^.]+$/, '').slice(0, 100) || 'Изображение',
-      image: result.value,
-    }] : []);
-    if (added.length) await saveCards(state => ({ ...state, cards: [...state.cards, ...added] }));
-    const invalid = files.length - added.length;
-    libraryFeedback.textContent = invalid
-      ? `Добавлено: ${added.length}. Не удалось загрузить: ${invalid}. Проверьте формат (PNG, JPG, JPEG, WEBP).`
-      : `Добавлено карточек: ${added.length}.`;
+    const candidates = [];
+    let invalid = 0;
+    for (const file of files) {
+      try {
+        candidates.push({
+          id: newCardId(),
+          label: file.name.replace(/\.[^.]+$/, '').slice(0, 100) || 'Изображение',
+          ...await readCardImage(file),
+        });
+      } catch {
+        invalid++;
+      }
+    }
+    let added = 0;
+    if (candidates.length) await saveCards(state => {
+      const known = new Set(state.cards.map(cardIdentity));
+      const cards = candidates.filter(card => {
+        const key = cardIdentity(card);
+        if (known.has(key)) return false;
+        known.add(key);
+        return true;
+      });
+      added = cards.length;
+      return added ? { ...state, cards: [...state.cards, ...cards] } : state;
+    });
+    const messages = [`Добавлено карточек: ${added}.`];
+    const skipped = candidates.length - added;
+    if (skipped) messages.push(`Пропущено повторов: ${skipped}.`);
+    if (invalid) messages.push(`Не удалось загрузить: ${invalid}. Проверьте формат (PNG, JPG, JPEG, WEBP).`);
+    libraryFeedback.textContent = messages.join(' ');
   }).catch(storageError);
 });
 
@@ -293,18 +315,35 @@ editForm.addEventListener('submit', event => {
     const card = { id: current?.id ?? newCardId(), label: label.trim() };
     if (type !== 'text') {
       try {
-        card.image = image.size ? await readCardImage(image) : current?.image;
-        if (!card.image) throw new Error('Выберите изображение.');
+        if (image.size) {
+          Object.assign(card, await readCardImage(image));
+        } else {
+          if (!current?.image) throw new Error('Выберите изображение.');
+          card.image = current.image;
+          card.imageKey = current.imageKey;
+        }
       } catch (error) {
         editFeedback.textContent = error.message;
         return;
       }
     }
     if (type !== 'image') card.text = text.trim();
-    await saveCards(state => ({
-      ...state,
-      cards: current ? state.cards.map(saved => saved.id === card.id ? card : saved) : [...state.cards, card],
-    }));
+    let duplicate = false;
+    await saveCards(state => {
+      const previous = state.cards.find(saved => saved.id === card.id);
+      const identity = cardIdentity(card);
+      duplicate = (!previous || cardIdentity(previous) !== identity) &&
+        state.cards.some(saved => saved.id !== card.id && cardIdentity(saved) === identity);
+      if (duplicate) return state;
+      return {
+        ...state,
+        cards: current ? state.cards.map(saved => saved.id === card.id ? card : saved) : [...state.cards, card],
+      };
+    });
+    if (duplicate) {
+      editFeedback.textContent = 'Такая карточка уже есть в библиотеке.';
+      return;
+    }
     cardEditor.close();
   }).catch(() => {
     editFeedback.textContent = 'Не удалось сохранить карточку.';
@@ -333,16 +372,19 @@ manualCard.addEventListener('change', () => {
   const { size } = currentCardSettings();
   const index = selectedCell;
   changeCards(state => {
-    const fields = (state.placements[size] ?? [[], []]).map(field => [...field]);
-    if (id && (!state.cards.some(card => card.id === id) ||
-      fields[player].some((savedId, slot) => savedId === id && slot !== index))) return state;
+    const cards = new Map(state.cards.map(card => [card.id, card]));
+    const fields = (state.placements[size] ?? [[], []]).map(field => distinctPlacements(field, cards));
+    const selected = cards.get(id);
+    if (id && (!selected || fields[player].some((savedId, slot) =>
+      slot !== index && cards.has(savedId) && cardIdentity(cards.get(savedId)) === cardIdentity(selected)
+    ))) return state;
     fields[player][index] = id;
     return { ...state, placements: { ...state.placements, [size]: fields } };
   });
 });
 document.querySelector('#shuffle-cards').addEventListener('click', () => {
   queueCardAction(() => {
-    if (library.cards.length < currentCardSettings().size ** 2) return;
+    if (uniqueCards(library.cards).length < currentCardSettings().size ** 2) return;
     notifyCardViews();
     libraryFeedback.textContent = library.manual
       ? 'Свободные клетки перемешаны. Ручной выбор сохранён.'

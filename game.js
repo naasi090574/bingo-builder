@@ -37,21 +37,23 @@ class BingoGame {
     this.random = random;
     this.tasks = content.tasks;
     this.taskOrder = content.taskOrder;
+    const pool = uniqueCards(content.cards);
+    if (pool.length < this.size ** 2) throw new RangeError(cardShortage(pool.length, this.size));
     const cardById = new Map(content.cards.map(card => [card.id, card]));
     this.boards = Array.from({ length: 2 }, (_, player) => {
       const used = new Set();
       const assigned = content.placements?.[player] ?? [];
       const count = this.size ** 2;
       const slots = Array.from({ length: count }, (_, index) => {
-        const id = assigned[index];
-        if (!cardById.has(id) || used.has(id)) return null;
-        used.add(id);
-        return cardById.get(id);
+        const card = cardById.get(assigned[index]);
+        if (!card || used.has(cardIdentity(card))) return null;
+        used.add(cardIdentity(card));
+        return card;
       });
-      const available = shuffle(content.cards.filter(card => !used.has(card.id)), random);
+      const available = shuffle(pool.filter(card => !used.has(cardIdentity(card))), random);
       return slots.map(card => ({ card: card ?? available.pop(), marked: false }));
     });
-    this.cardsInPlay = [...new Set(this.boards.flat().map(cell => cell.card))];
+    this.cardsInPlay = uniqueCards(this.boards.flat().map(cell => cell.card));
     this.player = 0;
     this.drawn = null;
     this.pending = null;
@@ -63,7 +65,7 @@ class BingoGame {
   get canDraw() {
     return !this.pending && !this.winning.length &&
       (!this.drawn || !this.boards[this.player].some(cell =>
-        cell.card.id === this.drawn.id && !cell.marked
+        cardIdentity(cell.card) === cardIdentity(this.drawn) && !cell.marked
       ));
   }
 
@@ -71,8 +73,8 @@ class BingoGame {
     if (!this.canDraw) return null;
     if (!this.deck.length) {
       const marked = new Set(this.boards[this.player].filter(cell => cell.marked)
-        .map(cell => cell.card.id));
-      this.deck = shuffle(this.cardsInPlay.filter(card => !marked.has(card.id)), this.random);
+        .map(cell => cardIdentity(cell.card)));
+      this.deck = shuffle(this.cardsInPlay.filter(card => !marked.has(cardIdentity(card))), this.random);
     }
     this.drawn = this.deck.pop();
     return this.drawn;
@@ -84,7 +86,7 @@ class BingoGame {
     }
     const cell = this.boards[player][index];
     if (!cell || cell.marked) return 'ignored';
-    if (cell.card.id !== this.drawn.id) return 'wrong';
+    if (cardIdentity(cell.card) !== cardIdentity(this.drawn)) return 'wrong';
 
     if (!this.taskDeck.length) {
       this.taskDeck = this.taskOrder === 'sequential'

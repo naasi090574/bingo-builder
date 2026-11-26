@@ -136,13 +136,14 @@ function restart() {
   gameImageUrls = [];
   const { size, order, victory } = settings;
   const reset = document.querySelector('#reset');
-  reset.disabled = cardLibrary.cards.length < size ** 2;
+  const uniqueCount = uniqueCards(cardLibrary.cards).length;
+  reset.disabled = uniqueCount < size ** 2;
   if (reset.disabled) {
     game = null;
     boards.replaceChildren();
     drawSlot.replaceChildren();
     drawButton.disabled = true;
-    status.textContent = cardShortage(cardLibrary.cards.length, size);
+    status.textContent = cardShortage(uniqueCount, size);
     return;
   }
   const cards = cardLibrary.cards.map(card => {
