@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="preview.css">
   <script defer src="content.js"></script>
+  <script defer src="settings.js"></script>
   <script defer src="game.js"></script>
   <script defer src="app.js"></script>
 </head>
@@ -19,15 +20,13 @@
     <main>
       <div class="intro">
         <div>
-          <h1>Бинго<span>.</span></h1>
+          <h1 id="game-title">Бинго</h1>
           <p>Найди картинку и выполни задание вслух.</p>
         </div>
-        <label class="mode">Условие победы
-          <select id="mode">
-            <option value="line">Собрать линию</option>
-            <option value="full">Заполнить всё поле</option>
-          </select>
-        </label>
+        <dl class="game-rules">
+          <div><dt>Условие победы</dt><dd id="victory-rule"></dd></div>
+          <div><dt>Порядок заданий</dt><dd id="task-order"></dd></div>
+        </dl>
       </div>
       <div class="table">
         <div class="boards" id="boards"></div>

@@ -2,8 +2,7 @@
 
 const sections = {
   settings: {
-    description: 'Посмотрите, с какими правилами запускается текущая версия «Бинго».',
-    status: 'Настройки появятся на следующем этапе. Условие победы можно выбрать в самой игре перед первой карточкой.',
+    description: 'Изменения сразу применяются в предпросмотре и начинают новую партию.',
   },
   appearance: {
     description: 'Здесь будут настройки цветов, фона и оформления игровых полей.',
@@ -31,13 +30,17 @@ const sections = {
 const links = document.querySelectorAll('.sidebar a');
 const title = document.querySelector('#editor-title');
 const description = document.querySelector('#section-description');
-const status = document.querySelector('#section-status');
-const summary = document.querySelector('#game-summary');
+const availability = document.querySelector('.availability');
+const form = document.querySelector('#game-settings');
+const launch = document.querySelector('.launch');
+const stage = document.querySelector('.preview-stage');
+const frame = stage.querySelector('iframe');
+let previewTimer;
 
 function showSection() {
   const hash = window.location.hash.slice(1);
   const section = Object.hasOwn(sections, hash) ? hash : 'settings';
-  const { description: copy, status: note } = sections[section];
+  const { description: copy } = sections[section];
   for (const link of links) {
     if (link.hash === `#${section}`) {
       link.setAttribute('aria-current', 'location');
@@ -47,10 +50,41 @@ function showSection() {
     }
   }
   description.textContent = copy;
-  status.textContent = note ?? 'Раздел пока недоступен для редактирования.';
-  summary.hidden = section !== 'settings';
+  availability.hidden = section === 'settings';
+  form.hidden = section !== 'settings';
 }
 
-document.querySelector('#field-size').textContent = `${bingoContent.size} × ${bingoContent.size}`;
+function applySettings(delay = 0) {
+  const settings = readGameSettings(new FormData(form));
+  const params = new URLSearchParams(Object.entries(settings).filter(([key, value]) =>
+    value !== defaultGameSettings[key]
+  ));
+  const address = params.size ? `game.html?${params}` : 'game.html';
+  launch.setAttribute('href', address);
+  clearTimeout(previewTimer);
+  const updatePreview = () => {
+    const src = `${address}#preview`;
+    if (frame.getAttribute('src') !== src) frame.setAttribute('src', src);
+  };
+  if (delay) {
+    previewTimer = setTimeout(updatePreview, delay);
+  } else {
+    updatePreview();
+  }
+}
+
+function fitPreview() {
+  stage.style.setProperty('--preview-scale', stage.clientWidth / frame.width);
+}
+
+form.addEventListener('input', event => applySettings(event.target.matches('input') ? 300 : 0));
+form.addEventListener('change', () => applySettings());
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  applySettings();
+});
+new ResizeObserver(fitPreview).observe(stage);
+fitPreview();
+applySettings();
 window.addEventListener('hashchange', showSection);
 showSection();

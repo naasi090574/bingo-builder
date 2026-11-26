@@ -4,7 +4,8 @@ const boards = document.querySelector('#boards');
 const drawSlot = document.querySelector('#draw-slot');
 const drawButton = document.querySelector('#draw');
 const status = document.querySelector('#status');
-const mode = document.querySelector('#mode');
+const settings = readGameSettings(new URLSearchParams(window.location.search));
+const playerNames = [settings.player1, settings.player2];
 const task = document.querySelector('#task');
 const taskText = document.querySelector('#task-text');
 let game;
@@ -29,7 +30,7 @@ function renderBoard(cells, player) {
   heading.className = 'board-heading';
   const title = document.createElement('h2');
   title.id = `player-${player + 1}`;
-  title.textContent = `Игрок ${player + 1}`;
+  title.textContent = playerNames[player];
   const badge = document.createElement('span');
   badge.className = 'badge';
   badge.textContent = won ? 'Бинго!' : active ? 'Сейчас ходит' : 'Ожидает ход';
@@ -69,11 +70,10 @@ function render() {
   placeholder.textContent = '?';
   drawSlot.replaceChildren(game.drawn ? cardImage(game.drawn) : placeholder);
   drawButton.disabled = !game.canDraw;
-  mode.disabled = Boolean(game.drawn || game.boards.some(board => board.some(cell => cell.marked)));
   if (game.winning.length) {
-    status.textContent = `Игрок ${game.player + 1} победил!`;
+    status.textContent = `Победа — ${playerNames[game.player]}!`;
   } else if (!game.drawn) {
-    status.textContent = `Игрок ${game.player + 1}, достань карточку.`;
+    status.textContent = `${playerNames[game.player]}, достань карточку.`;
   } else if (game.canDraw) {
     status.textContent = 'Этой картинки нет на твоём поле. Достань следующую.';
   } else {
@@ -98,7 +98,7 @@ function choose(button, player, index) {
 }
 
 function restart() {
-  game = new BingoGame(bingoContent, mode.value);
+  game = new BingoGame({ ...bingoContent, size: settings.size, taskOrder: settings.order }, settings.victory);
   render();
 }
 
@@ -116,5 +116,8 @@ document.querySelector('#complete').addEventListener('click', () => {
   (game.winning.length ? document.querySelector('#reset') : drawButton).focus();
 });
 document.querySelector('#reset').addEventListener('click', restart);
-mode.addEventListener('change', restart);
+document.title = settings.title;
+document.querySelector('#game-title').textContent = settings.title;
+document.querySelector('#victory-rule').textContent = victoryLabels[settings.victory];
+document.querySelector('#task-order').textContent = taskOrderLabels[settings.order];
 restart();

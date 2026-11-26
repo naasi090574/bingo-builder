@@ -6,6 +6,7 @@
   <title>Бинго — редактор игры</title>
   <link rel="stylesheet" href="editor.css">
   <script defer src="content.js"></script>
+  <script defer src="settings.js"></script>
   <script defer src="editor.js"></script>
 </head>
 <body>
@@ -36,15 +37,44 @@
 
     <section class="editor" aria-labelledby="editor-title">
       <h1 id="editor-title" aria-live="polite">Настройки игры</h1>
-      <p id="section-description" class="description">Посмотрите, с какими правилами запускается текущая версия «Бинго».</p>
-      <dl id="game-summary" class="summary">
-        <div><dt>Игроки</dt><dd>2</dd></div>
-        <div><dt>Размер поля</dt><dd id="field-size">4 × 4</dd></div>
-        <div><dt>Режимы победы</dt><dd>Линия или всё поле</dd></div>
-      </dl>
-      <div class="availability">
+      <p id="section-description" class="description">Изменения сразу применяются в предпросмотре и начинают новую партию.</p>
+      <form id="game-settings" class="settings-form">
+        <label>Название игры
+          <input name="title" maxlength="60" value="Бинго">
+        </label>
+        <label>Имя первого игрока
+          <input name="player1" maxlength="32" value="Игрок 1">
+        </label>
+        <label>Имя второго игрока
+          <input name="player2" maxlength="32" value="Игрок 2">
+        </label>
+        <label>Размер игрового поля
+          <select name="size">
+            <option value="2">2 × 2</option>
+            <option value="3">3 × 3</option>
+            <option value="4" selected>4 × 4</option>
+            <option value="5">5 × 5</option>
+          </select>
+        </label>
+        <label>Порядок заданий
+          <select name="order">
+            <option value="random">Случайный</option>
+            <option value="sequential">Последовательный</option>
+          </select>
+        </label>
+        <label>Условие победы
+          <select name="victory">
+            <option value="horizontal">Горизонталь</option>
+            <option value="vertical">Вертикаль</option>
+            <option value="diagonal">Диагональ</option>
+            <option value="line" selected>Линия в любом направлении</option>
+            <option value="full">Всё поле</option>
+          </select>
+        </label>
+      </form>
+      <div class="availability" hidden>
         <span class="info" aria-hidden="true">i</span>
-        <p id="section-status">Настройки появятся на следующем этапе. Условие победы можно выбрать в самой игре перед первой карточкой.</p>
+        <p id="section-status">Раздел пока недоступен для редактирования.</p>
       </div>
     </section>
 
@@ -53,7 +83,9 @@
         <h2 id="preview-title">Предпросмотр</h2>
         <p id="preview-note">Играйте здесь или откройте игру в новой вкладке.</p>
       </div>
-      <iframe src="game.html#preview" title="Интерактивный предпросмотр игры «Бинго»" width="640" height="585"></iframe>
+      <div class="preview-stage">
+        <iframe src="game.html#preview" title="Интерактивный предпросмотр игры «Бинго»" width="1280" height="720"></iframe>
+      </div>
     </section>
   </main>
 </body>

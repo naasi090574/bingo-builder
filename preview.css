@@ -1,25 +1,17 @@
-body:target .shell { width: calc(100% - 24px); }
-body:target .topbar { min-height: 62px; }
-body:target main { padding: 20px 0; }
-body:target .intro { margin-bottom: 16px; }
-body:target h1 { font-size: clamp(2.5rem, 8vw, 3.3rem); }
-body:target .intro p { margin-top: 6px; }
-body:target .table { grid-template-columns: 1fr; }
-body:target .draw-panel {
-  grid-row: 1;
-  grid-template-columns: 66px minmax(0, 1fr);
-  gap: 6px 12px;
-  align-items: center;
+html:has(body:target) { overflow: hidden; }
+body:target .shell { width: min(1180px, 100% - 48px); }
+body:target .topbar { min-height: 64px; }
+body:target main { padding: 18px 0 10px; }
+body:target .intro { display: grid; grid-template-columns: minmax(0, 1fr) 260px; margin-bottom: 16px; }
+body:target h1 { font-size: 34px; }
+body:target .intro p { margin-top: 7px; }
+body:target .table { grid-template-columns: minmax(0, 1fr) 260px; }
+body:target .board, body:target .draw-panel { padding: 15px; }
+body:target .draw-slot { max-height: 195px; }
+body:target .board-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
 }
-body:target .draw-slot { grid-row: 1 / span 3; aspect-ratio: 1; }
-body:target .draw-panel .primary { justify-self: start; }
-body:target .status { min-height: 0; }
-body:target .boards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-body:target .grid { gap: 4px; }
-
-@media (max-width: 520px) {
-  body:target .intro { flex-direction: column; align-items: flex-start; gap: 10px; }
-}
-@media (max-width: 380px) {
-  body:target .boards { grid-template-columns: 1fr; }
-}
+body:target .board-heading h2 { font-size: 18px; }
+body:target .grid { max-width: 340px; margin-inline: auto; }

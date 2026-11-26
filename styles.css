@@ -18,9 +18,9 @@ body {
   background: radial-gradient(ellipse at 16% 0, #192f43 0, transparent 52%), var(--background);
 }
 
-button, select { font: inherit; }
+button { font: inherit; }
 button { cursor: pointer; }
-button:disabled, select:disabled { cursor: default; }
+button:disabled { cursor: default; }
 :focus-visible { outline: 3px solid #ffdc89; outline-offset: 4px; }
 
 .shell { width: min(100% - 64px, 1320px); margin: 0 auto; }
@@ -52,20 +52,18 @@ button:disabled, select:disabled { cursor: default; }
 main { padding: clamp(28px, 5vw, 60px) 0 40px; }
 .intro { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 30px; }
 h1 { margin: 0; font-size: clamp(3.2rem, 7vw, 6rem); letter-spacing: -.075em; line-height: .98; }
-h1 span { color: var(--mint); }
+h1 { overflow-wrap: anywhere; }
 .intro p { color: var(--muted); margin: 12px 0 0; }
-.mode { display: grid; gap: 6px; color: var(--muted); font-size: .875rem; }
-
-select {
-  appearance: none;
-  padding: 10px 36px 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: linear-gradient(45deg, transparent 50%, currentColor 50%) right 16px center / 5px 5px no-repeat,
-    linear-gradient(135deg, currentColor 50%, transparent 50%) right 11px center / 5px 5px no-repeat, var(--panel);
-  color: var(--text);
+.game-rules {
+  flex: 0 0 min(275px, 100%);
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted);
+  font-size: .875rem;
 }
-select:disabled { color: var(--muted); }
+.game-rules dd { margin: 0; color: var(--text); font-weight: 650; }
+.board-heading h2 { min-width: 0; overflow-wrap: anywhere; }
 
 .table { display: grid; grid-template-columns: minmax(0, 1fr) minmax(212px, 24%); align-items: start; gap: 20px; }
 .boards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
@@ -168,6 +166,8 @@ dialog::backdrop { background: rgb(6 11 20 / 80%); }
   .boards { gap: 12px; }
 }
 @media (max-width: 690px) {
+  .intro { align-items: start; flex-direction: column; }
+  .game-rules { flex: auto; }
   .table { grid-template-columns: 1fr; }
   .draw-panel { grid-row: 1; grid-template-columns: 78px minmax(0, 1fr); align-items: center; gap: 6px 12px; }
   .draw-slot { grid-row: 1 / span 3; aspect-ratio: 1; }
@@ -180,7 +180,6 @@ dialog::backdrop { background: rgb(6 11 20 / 80%); }
   .grid { gap: 8px; }
 }
 @media (max-width: 390px) {
-  .intro { align-items: start; flex-direction: column; }
   .shell { width: calc(100% - 24px); }
   .board { padding: 8px; }
   .boards { gap: 8px; }

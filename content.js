@@ -10,6 +10,7 @@ const bingoContent = {
     ['airplane', 'Самолёт'], ['boat', 'Парусник'], ['umbrella', 'Зонт'],
     ['balloon', 'Воздушный шар'], ['guitar', 'Гитара'], ['drum', 'Барабан'],
     ['butterfly', 'Бабочка'], ['bee', 'Пчела'], ['fish', 'Рыба'], ['turtle', 'Черепаха'],
+    ['duck', 'Утка'], ['snail', 'Улитка'],
   ].map(([id, label]) => ({ id, label, image: `assets/${id}.png` })),
   tasks: [
     'Назови три слова, которые начинаются на звук «С».',

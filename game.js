@@ -14,12 +14,19 @@ function winningCells(board, size, mode) {
     return board.every(cell => cell.marked) ? board.map((_, index) => index) : [];
   }
   const indices = Array.from({ length: size }, (_, index) => index);
-  const lines = [
-    ...indices.map(row => indices.map(column => row * size + column)),
-    ...indices.map(column => indices.map(row => row * size + column)),
-    indices.map(index => index * (size + 1)),
-    indices.map(index => index * size + size - 1 - index),
-  ];
+  const lines = [];
+  if (mode === 'horizontal' || mode === 'line') {
+    lines.push(...indices.map(row => indices.map(column => row * size + column)));
+  }
+  if (mode === 'vertical' || mode === 'line') {
+    lines.push(...indices.map(column => indices.map(row => row * size + column)));
+  }
+  if (mode === 'diagonal' || mode === 'line') {
+    lines.push(
+      indices.map(index => index * (size + 1)),
+      indices.map(index => index * size + size - 1 - index),
+    );
+  }
   return lines.find(line => line.every(index => board[index].marked)) ?? [];
 }
 
@@ -29,6 +36,7 @@ class BingoGame {
     this.mode = mode;
     this.random = random;
     this.tasks = content.tasks;
+    this.taskOrder = content.taskOrder;
     this.boards = Array.from({ length: 2 }, () =>
       shuffle(content.cards, random)
         .slice(0, this.size ** 2)
@@ -69,7 +77,11 @@ class BingoGame {
     if (!cell || cell.marked) return 'ignored';
     if (cell.card.id !== this.drawn.id) return 'wrong';
 
-    if (!this.taskDeck.length) this.taskDeck = shuffle(this.tasks, this.random);
+    if (!this.taskDeck.length) {
+      this.taskDeck = this.taskOrder === 'sequential'
+        ? [...this.tasks].reverse()
+        : shuffle(this.tasks, this.random);
+    }
     this.pending = { index, text: this.taskDeck.pop() };
     return 'task';
   }
