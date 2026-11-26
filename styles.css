@@ -139,8 +139,9 @@ h2 { margin: 0; font-size: clamp(1rem, 1.6vw, 1.35rem); }
 
 #task {
   --task-frame: var(--task-border-width, 1px);
-  width: 78%;
-  max-width: none;
+  width: fit-content;
+  min-width: min(19rem, 78%);
+  max-width: 78%;
   max-height: 94dvh;
   padding: 0;
   overflow: hidden;
@@ -150,6 +151,11 @@ h2 { margin: 0; font-size: clamp(1rem, 1.6vw, 1.35rem); }
   color: var(--text);
   box-shadow: 0 0 60px #6bf4c12b;
 }
+#task:has(#task-audio:not([hidden])) { width: 36rem; }
+#task:has(#task-images img) { width: 42rem; }
+#task:has(#task-images img:nth-child(2)) { width: 54rem; }
+#task:has(#task-images img:nth-child(3)) { width: 76rem; }
+
 #task::backdrop {
   background: color-mix(in srgb, #060b14 var(--task-backdrop, 80%), transparent);
 }
@@ -157,18 +163,20 @@ h2 { margin: 0; font-size: clamp(1rem, 1.6vw, 1.35rem); }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .8rem;
+  gap: 1rem;
   max-height: calc(94dvh - 2 * var(--task-frame));
-  padding: clamp(.65rem, 2.4vh, 1.7rem);
+  padding: 1.25rem 1.5rem;
 }
 [hidden] { display: none !important; }
 .task-body {
   display: grid;
   width: 100%;
   min-height: 0;
+  padding-block: 2px;
   gap: .8rem;
   justify-items: center;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: contain;
 }
 .task-text {
@@ -217,7 +225,6 @@ h2 { margin: 0; font-size: clamp(1rem, 1.6vw, 1.35rem); }
   #draw-title, .status { grid-column: 1 / -1; }
   .status { min-height: 0; }
   .primary { justify-self: start; }
-  #task { width: 92%; }
 }
 @media (max-width: 500px) {
   .boards { grid-template-columns: 1fr; }
