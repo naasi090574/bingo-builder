@@ -57,6 +57,13 @@ function applyAppearance({ values, image, imageVersion }) {
 
   for (const [key, property] of Object.entries(appearanceColors)) setColor(key, property);
   for (const [key, range] of Object.entries(appearanceScales)) setScale(key, ...range);
+  for (const [prefix, { fields }] of Object.entries(choiceAppearanceGroups)) {
+    for (const [field, [, , max, unit]] of Object.entries(fields)) {
+      const key = prefix + field;
+      if (max) setScale(key, `--${key}`, 0, max, unit);
+      else setColor(key, `--${key}`);
+    }
+  }
   for (const [key, style] of Object.entries(labelStyles)) {
     const fontKey = `${key}Font`;
     const font = Object.hasOwn(appearanceFonts, values[fontKey]) && appearanceFonts[values[fontKey]].css;

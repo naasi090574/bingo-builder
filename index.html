@@ -16,6 +16,7 @@
   <script defer src="appearance-editor.js"></script>
   <script defer src="cards-editor.js"></script>
   <script defer src="tasks-editor.js"></script>
+  <script defer src="choice-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -200,6 +201,9 @@
             </label>
           </div>
         </details>
+        <details class="appearance-group" id="choice-appearance">
+          <summary>Выбор правильного ответа</summary>
+        </details>
         <button class="secondary" type="reset">Сбросить оформление</button>
       </form>
       <section id="card-library" class="card-library" aria-label="Библиотека карточек" hidden>
@@ -238,8 +242,9 @@
           </div>
         </details>
       </section>
-      <section id="task-library" class="task-library" aria-label="Устные задания" hidden>
+      <section id="task-library" class="task-library" aria-label="Библиотека заданий" hidden>
         <button id="add-task" class="secondary" type="button">Добавить устное задание</button>
+        <button id="add-choice-task" class="secondary" type="button">Добавить выбор ответа</button>
         <p id="task-library-status" role="status"></p>
         <ol id="task-items" class="task-items"></ol>
       </section>
@@ -262,7 +267,7 @@
   <dialog id="task-editor" class="card-editor" aria-labelledby="task-editor-title">
     <form id="edit-task" class="settings-form">
       <h2 id="task-editor-title">Устное задание</h2>
-      <label>Текст задания <textarea name="text" rows="5"></textarea></label>
+      <label><span id="task-question-label">Текст задания</span> <textarea name="text" rows="5"></textarea></label>
       <div>
         <label class="secondary image-picker">Добавить картинки
           <input id="task-images-input" type="file" multiple accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
@@ -275,6 +280,24 @@
         </label>
         <span id="task-audio-name"></span>
         <button id="remove-task-audio" class="library-button" type="button" hidden>Удалить аудио</button>
+      </div>
+      <div id="choice-draft" hidden>
+        <label>Способ выполнения
+          <select id="choice-method">
+            <option value="click">Нажатие на варианты</option>
+            <option value="drag">Перетаскивание вариантов</option>
+          </select>
+        </label>
+        <label>Проверка
+          <select id="choice-check-mode">
+            <option value="instant">Мгновенно</option>
+            <option value="batch">Кнопкой «Проверить»</option>
+          </select>
+        </label>
+        <label class="choice-checkbox"><input id="choice-shuffle" type="checkbox">Перемешивать варианты</label>
+        <div id="choice-drop-draft" hidden></div>
+        <div id="choice-draft-options"></div>
+        <button id="choice-add-option" class="secondary" type="button">Добавить вариант</button>
       </div>
       <p id="task-editor-status" role="status"></p>
       <div class="library-actions">

@@ -7,11 +7,13 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="appearance.css">
   <link rel="stylesheet" href="preview.css">
+  <link rel="stylesheet" href="choice-game.css">
   <script defer src="content.js"></script>
   <script defer src="cards.js"></script>
   <script defer src="tasks.js"></script>
   <script defer src="settings.js"></script>
   <script defer src="game.js"></script>
+  <script defer src="choice-game.js"></script>
   <script defer src="app.js"></script>
   <script defer src="appearance.js"></script>
   <script defer src="appearance-game.js"></script>
@@ -48,8 +50,10 @@
       <div class="task-body" id="task-body" hidden>
         <p class="task-text" id="task-text" hidden></p>
         <div class="task-images" id="task-images" hidden></div>
+        <div id="task-choice" hidden></div>
       </div>
       <audio id="task-audio" controls aria-label="Аудио задания" hidden></audio>
+      <button id="check-choice" class="task-action" type="button" hidden>Проверить</button>
       <button id="complete" class="task-action" type="button">Задание выполнено</button>
     </div>
   </dialog>

@@ -19,6 +19,9 @@ const labelStyles = {
   text: { label: 'Вспомогательные надписи и сообщения', size: 16, min: 12, max: 22, color: '#adb9ce' },
   button: { label: 'Текст кнопок', size: 16, min: 12, max: 22, color: '#102822', colorKey: 'buttonText' },
   task: { label: 'Текст задания', size: 32, min: 16, max: 48, color: '#f6f8ff' },
+  choiceOption: { label: 'Текст вариантов', size: 18, min: 12, max: 32, color: '#f6f8ff' },
+  choiceDrop: { label: 'Текст принимающей области', size: 16, min: 12, max: 28, color: '#adb9ce' },
+  choiceCheck: { label: 'Текст кнопки «Проверить»', size: 18, min: 12, max: 32, color: '#102822' },
   taskButton: { label: 'Текст кнопки «Задание выполнено»', size: 18, min: 12, max: 32, color: '#102822' },
   activeBadge: { label: 'Сейчас ходит', size: 14, min: 12, max: 22, color: '#6bf4c1' },
   idleBadge: { label: 'Ожидает ход', size: 14, min: 12, max: 22, color: '#d1daea' },
@@ -27,6 +30,41 @@ const labelStyles = {
 function labelColorKey(key, style) {
   return style.colorKey ?? `${key}Color`;
 }
+
+const choiceAppearanceGroups = {
+  choiceOption: {
+    title: 'Варианты ответа',
+    fields: {
+      Background: ['Цвет фона', '#26374b'],
+      Opacity: ['Непрозрачность фона', '100', 100, '%'],
+      Border: ['Цвет рамки', '#50617a'],
+      BorderWidth: ['Толщина рамки', '1', 12, 'px'],
+      Radius: ['Скругление', '12', 40, 'px'],
+      Selected: ['Цвет выбора', '#aebcff'],
+      Right: ['Цвет правильного ответа', '#6bf4c1'],
+      Wrong: ['Цвет неправильного ответа', '#f19a9a'],
+    },
+  },
+  choiceDrop: {
+    title: 'Принимающая область',
+    fields: {
+      Background: ['Цвет фона', '#111c2d'],
+      Opacity: ['Непрозрачность фона', '100', 100, '%'],
+      Border: ['Цвет рамки', '#50617a'],
+      BorderWidth: ['Толщина рамки', '2', 12, 'px'],
+      Radius: ['Скругление', '14', 40, 'px'],
+    },
+  },
+  choiceCheck: {
+    title: 'Кнопка «Проверить»',
+    fields: {
+      Background: ['Цвет фона', '#6bf4c1'],
+      Border: ['Цвет рамки', '#6bf4c1'],
+      BorderWidth: ['Толщина рамки', '0', 12, 'px'],
+      Radius: ['Скругление', '10', 40, 'px'],
+    },
+  },
+};
 
 const defaultAppearance = {
   backgroundMode: 'default',
@@ -57,6 +95,8 @@ const defaultAppearance = {
     [`${key}Size`, String(style.size)],
     [labelColorKey(key, style), style.color],
   ])),
+  ...Object.fromEntries(Object.entries(choiceAppearanceGroups).flatMap(([prefix, { fields }]) =>
+    Object.entries(fields).map(([key, [, initial]]) => [prefix + key, initial]))),
   activeColor: '#6bf4c1',
   taskBackground: '#182235',
   taskOpacity: '100',

@@ -91,6 +91,11 @@ function renderTasks() {
       button('Изменить', () => openTaskEditor(task)),
       button('Дублировать', () => duplicateTask(task.id)),
       button('Удалить', () => updateTasks(tasks => tasks.filter(saved => saved.id !== task.id))));
+    if (task.type === 'choice') {
+      const kind = document.createElement('small');
+      kind.textContent = 'Выбери правильный ответ';
+      row.append(kind);
+    }
     row.append(title, actions);
     fragment.append(row);
   });
@@ -135,11 +140,22 @@ function renderTaskDraftMedia() {
   removeTaskAudio.hidden = !taskDraft.audio;
 }
 
-function openTaskEditor(task) {
+function openTaskEditor(task, type = 'oral') {
   taskDraft = task ? { ...task, images: [...task.images] }
-    : { id: newTaskId(), type: 'oral', text: '', images: [], audio: null };
+    : { id: newTaskId(), type, text: '', images: [], audio: null };
+  if (taskDraft.type === 'choice') {
+    taskDraft.options = task ? task.options.map(option => ({ ...option })) : [newChoiceOption(), newChoiceOption()];
+    taskDraft.method ??= 'click';
+    taskDraft.check ??= 'instant';
+    taskDraft.shuffle ??= false;
+  }
   taskForm.reset();
   taskForm.elements.text.value = taskDraft.text;
+  document.querySelector('#task-editor-title').textContent = taskDraft.type === 'choice'
+    ? 'Выбери правильный ответ' : 'Устное задание';
+  document.querySelector('#task-question-label').textContent = taskDraft.type === 'choice'
+    ? 'Текст вопроса или инструкция' : 'Текст задания';
+  renderChoiceDraft();
   taskEditorStatus.textContent = '';
   renderTaskDraftMedia();
   taskEditor.showModal();
@@ -148,7 +164,7 @@ function openTaskEditor(task) {
 async function runTaskDraftAction(action) {
   if (taskDraftBusy) return;
   taskDraftBusy = true;
-  const controls = [...taskForm.elements];
+  const controls = [...taskForm.elements].filter(control => !control.disabled);
   for (const control of controls) control.disabled = true;
   taskEditorStatus.textContent = '';
   try {
@@ -184,7 +200,10 @@ taskEditor.addEventListener('cancel', event => {
   if (taskDraftBusy) event.preventDefault();
 });
 taskEditor.addEventListener('close', () => {
-  if (!taskEditor.open) clearTaskThumbs();
+  if (!taskEditor.open) {
+    clearTaskThumbs();
+    clearChoiceThumbs();
+  }
 });
 
 taskImagesInput.addEventListener('change', () => {
@@ -227,6 +246,7 @@ taskForm.addEventListener('submit', event => {
     taskEditorStatus.textContent = 'Добавьте текст, картинку или аудио.';
     return;
   }
+  if (taskDraft.type === 'choice' && !validateChoiceDraft()) return;
   const task = taskDraft;
   runTaskDraftAction(async () => {
     try {

@@ -100,7 +100,29 @@ launch.addEventListener('click', event => {
   appearancePopups.add(popup);
 });
 
-function addLabelControls() {
+function addChoiceAppearance() {
+  const parent = document.querySelector('#choice-appearance');
+  return Object.fromEntries(Object.entries(choiceAppearanceGroups).map(([prefix, { title, fields }]) => {
+    const group = document.createElement('details');
+    group.className = 'appearance-group appearance-subgroup';
+    const summary = document.createElement('summary');
+    summary.textContent = title;
+    const formFields = document.createElement('div');
+    formFields.className = 'appearance-fields';
+    formFields.innerHTML = Object.entries(fields).map(([field, [label, , max, unit]]) => {
+      const key = prefix + field;
+      if (!max) return `<label class="color-setting">${label}<input name="${key}" type="color"></label>`;
+      return `<label class="range-setting"><span>${label}</span><output for="${key}"></output>
+        <input id="${key}" name="${key}" type="range" min="0" max="${max}" data-unit="${unit === 'px' ? ' пкс' : unit}">
+      </label>`;
+    }).join('');
+    group.append(summary, formFields);
+    parent.append(group);
+    return [prefix, group];
+  }));
+}
+
+function addLabelControls(choiceGroups) {
   const typography = document.querySelector('#typography-settings');
   const turns = document.querySelector('#turn-settings');
   const task = document.querySelector('#task-appearance');
@@ -129,10 +151,10 @@ function addLabelControls() {
         </label>`);
     }
     group.append(summary, fields);
-    const category = key === 'task' || key === 'taskButton' ? task : turn ? turns : typography;
+    const category = choiceGroups[key] ?? (key === 'task' || key === 'taskButton' ? task : turn ? turns : typography);
     category.append(group);
   }
 }
 
-addLabelControls();
+addLabelControls(addChoiceAppearance());
 resetAppearance();

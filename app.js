@@ -11,6 +11,10 @@ const taskText = document.querySelector('#task-text');
 const taskBody = document.querySelector('#task-body');
 const taskImages = document.querySelector('#task-images');
 const taskAudio = document.querySelector('#task-audio');
+const choiceArea = document.querySelector('#task-choice');
+const taskComplete = document.querySelector('#complete');
+const choiceCheckButton = document.querySelector('#check-choice');
+let disposeChoiceTask;
 let taskUrls = [];
 let previewingTask = false;
 let gameTasks = initialTaskLibrary();
@@ -150,6 +154,12 @@ function searchMessage(wrong = false) {
 }
 
 function clearTaskMedia() {
+  disposeChoiceTask?.();
+  disposeChoiceTask = undefined;
+  choiceArea.replaceChildren();
+  choiceArea.hidden = true;
+  choiceCheckButton.hidden = true;
+  task.classList.remove('has-choice');
   taskAudio.pause();
   if (taskAudio.hasAttribute('src')) {
     taskAudio.removeAttribute('src');
@@ -160,6 +170,12 @@ function clearTaskMedia() {
   taskUrls = [];
 }
 
+function taskMediaUrl(blob) {
+  const url = URL.createObjectURL(blob);
+  taskUrls.push(url);
+  return url;
+}
+
 function showTask(content, preview = false) {
   clearTaskMedia();
   previewingTask = preview;
@@ -167,20 +183,25 @@ function showTask(content, preview = false) {
   taskText.hidden = !taskText.textContent.trim();
   for (const item of content?.images ?? []) {
     const image = document.createElement('img');
-    const url = URL.createObjectURL(item.image);
-    taskUrls.push(url);
-    image.src = url;
+    image.src = taskMediaUrl(item.image);
     image.alt = item.name;
     taskImages.append(image);
   }
   taskImages.hidden = !taskImages.childElementCount;
   if (content?.audio) {
-    const url = URL.createObjectURL(content.audio.file);
-    taskUrls.push(url);
-    taskAudio.src = url;
+    taskAudio.src = taskMediaUrl(content.audio.file);
   }
   taskAudio.hidden = !content?.audio;
-  taskBody.hidden = taskText.hidden && taskImages.hidden;
+  const choice = content?.type === 'choice';
+  task.classList.toggle('has-choice', choice);
+  task.setAttribute('aria-label', choice ? 'Выбери правильный ответ' : 'Устное задание');
+  taskComplete.hidden = choice && !preview;
+  taskComplete.textContent = choice ? 'Закрыть предпросмотр' : 'Задание выполнено';
+  if (choice) {
+    choiceArea.hidden = false;
+    disposeChoiceTask = mountChoiceTask(content, choiceArea, choiceCheckButton, taskMediaUrl, finishTask);
+  }
+  taskBody.hidden = taskText.hidden && taskImages.hidden && choiceArea.hidden;
   if (!task.open) task.showModal();
   taskBody.scrollTop = 0;
 }
@@ -207,7 +228,7 @@ function choose(button, player, index) {
 function restart() {
   clearTimeout(turnTimer);
   turnNotice.hidden = true;
-  if (task.open) task.close();
+  if (task.open && !previewingTask) task.close();
   for (const url of gameImageUrls) URL.revokeObjectURL(url);
   gameImageUrls = [];
   const { size, order, victory, missedDraw } = settings;
@@ -247,7 +268,7 @@ task.addEventListener('cancel', event => {
 task.addEventListener('close', () => {
   if (!task.open) clearTaskMedia();
 });
-document.querySelector('#complete').addEventListener('click', () => {
+function finishTask() {
   if (previewingTask) {
     task.close();
     return;
@@ -258,6 +279,9 @@ document.querySelector('#complete').addEventListener('click', () => {
   task.close();
   renderAfterMove(player);
   if (game.outcome) document.querySelector('#reset').focus();
+}
+taskComplete.addEventListener('click', () => {
+  if (!taskComplete.hidden) finishTask();
 });
 document.querySelector('#reset').addEventListener('click', restart);
 document.title = settings.title;
