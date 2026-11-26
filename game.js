@@ -37,11 +37,20 @@ class BingoGame {
     this.random = random;
     this.tasks = content.tasks;
     this.taskOrder = content.taskOrder;
-    this.boards = Array.from({ length: 2 }, () =>
-      shuffle(content.cards, random)
-        .slice(0, this.size ** 2)
-        .map(card => ({ card, marked: false }))
-    );
+    const cardById = new Map(content.cards.map(card => [card.id, card]));
+    this.boards = Array.from({ length: 2 }, (_, player) => {
+      const used = new Set();
+      const assigned = content.placements?.[player] ?? [];
+      const count = this.size ** 2;
+      const slots = Array.from({ length: count }, (_, index) => {
+        const id = assigned[index];
+        if (!cardById.has(id) || used.has(id)) return null;
+        used.add(id);
+        return cardById.get(id);
+      });
+      const available = shuffle(content.cards.filter(card => !used.has(card.id)), random);
+      return slots.map(card => ({ card: card ?? available.pop(), marked: false }));
+    });
     this.cardsInPlay = [...new Set(this.boards.flat().map(cell => cell.card))];
     this.player = 0;
     this.drawn = null;

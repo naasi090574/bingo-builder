@@ -5,11 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Бинго — редактор игры</title>
   <link rel="stylesheet" href="editor.css">
+  <link rel="stylesheet" href="cards-editor.css">
   <script defer src="content.js"></script>
+  <script defer src="cards.js"></script>
   <script defer src="settings.js"></script>
   <script defer src="appearance.js"></script>
   <script defer src="editor.js"></script>
   <script defer src="appearance-editor.js"></script>
+  <script defer src="cards-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -170,6 +173,42 @@
         </details>
         <button class="secondary" type="reset">Сбросить оформление</button>
       </form>
+      <section id="card-library" class="card-library" aria-label="Библиотека карточек" hidden>
+        <div class="library-actions">
+          <label class="secondary image-picker">Загрузить картинки
+            <input id="upload-cards" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" multiple>
+          </label>
+          <button id="add-text-card" class="secondary" type="button">Добавить текст</button>
+        </div>
+        <p id="library-feedback" role="status"></p>
+        <div class="library-heading">
+          <h2>Карточки <span id="card-count"></span></h2>
+          <button id="clear-cards" class="library-button" type="button">Удалить все</button>
+        </div>
+        <p id="card-shortage" role="status" hidden></p>
+        <ol id="card-items" class="card-items"></ol>
+
+        <details class="appearance-group" open>
+          <summary>Заполнение полей</summary>
+          <div class="appearance-fields settings-form card-placement">
+            <label>Режим
+              <select id="card-mode">
+                <option value="auto">Случайное распределение</option>
+                <option value="manual">Ручное заполнение</option>
+              </select>
+            </label>
+            <div id="manual-cards" hidden>
+              <p>Незаполненные клетки будут выбраны случайно. Выберите клетку, затем карточку.</p>
+              <label>Поле игрока <select id="card-player"></select></label>
+              <div id="manual-grid" class="manual-grid" role="group" aria-label="Клетки поля"></div>
+              <label>Карточка для клетки <span id="manual-cell-number"></span>
+                <select id="manual-card"></select>
+              </label>
+            </div>
+            <button id="shuffle-cards" class="secondary" type="button">Перемешать картинки</button>
+          </div>
+        </details>
+      </section>
       <div class="availability" hidden>
         <span class="info" aria-hidden="true">i</span>
         <p id="section-status">Раздел пока недоступен для редактирования.</p>
@@ -186,5 +225,27 @@
       </div>
     </section>
   </main>
+  <dialog id="card-editor" class="card-editor" aria-labelledby="card-editor-title">
+    <form id="edit-card" class="settings-form">
+      <h2 id="card-editor-title">Карточка</h2>
+      <label>Название<input name="label" maxlength="100" required></label>
+      <label>Тип
+        <select name="type">
+          <option value="image">Только изображение</option>
+          <option value="caption">Изображение с подписью</option>
+          <option value="text">Только текст</option>
+        </select>
+      </label>
+      <label id="card-text-field">Текст карточки<textarea name="text" rows="3" maxlength="200"></textarea></label>
+      <label id="card-image-field">Загрузить или заменить изображение
+        <input name="image" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+      </label>
+      <p id="card-editor-feedback" role="status"></p>
+      <div class="library-actions">
+        <button class="secondary" type="submit">Сохранить карточку</button>
+        <button id="cancel-card-edit" class="library-button" type="button">Отмена</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>

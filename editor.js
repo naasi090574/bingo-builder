@@ -8,7 +8,7 @@ const sections = {
     description: 'Оформление применяется сразу, сохраняя текущую партию.',
   },
   cards: {
-    description: `Карточек с картинками в текущем наборе — ${bingoContent.cards.length}. Здесь можно будет собрать свой набор.`,
+    description: 'Соберите набор для игры. Изменения набора и заполнения начинают новую партию.',
   },
   tasks: {
     description: `Устных заданий в текущем наборе — ${bingoContent.tasks.length}. Здесь можно будет добавить свои задания и вопросы.`,
@@ -33,6 +33,7 @@ const description = document.querySelector('#section-description');
 const availability = document.querySelector('.availability');
 const form = document.querySelector('#game-settings');
 const appearanceForm = document.querySelector('#appearance-settings');
+const cardsSection = document.querySelector('#card-library');
 const launch = document.querySelector('.launch');
 const stage = document.querySelector('.preview-stage');
 const frame = stage.querySelector('iframe');
@@ -51,7 +52,8 @@ function showSection() {
     }
   }
   description.textContent = copy;
-  availability.hidden = section === 'settings' || section === 'appearance';
+  availability.hidden = ['settings', 'appearance', 'cards'].includes(section);
+  cardsSection.hidden = section !== 'cards';
   appearanceForm.hidden = section !== 'appearance';
   form.hidden = section !== 'settings';
 }

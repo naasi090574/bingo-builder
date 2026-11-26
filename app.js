@@ -9,6 +9,16 @@ const playerNames = [settings.player1, settings.player2];
 const task = document.querySelector('#task');
 const taskText = document.querySelector('#task-text');
 let game;
+let cardLibrary = initialCardLibrary();
+let gameImageUrls = [];
+let receivedCardUpdate = false;
+
+function applyCardLibrary(library) {
+  if (!Array.isArray(library?.cards)) return;
+  cardLibrary = library;
+  restart();
+}
+
 
 function cardImage(card) {
   const image = document.createElement('img');
@@ -16,6 +26,20 @@ function cardImage(card) {
   image.alt = card.label;
   image.draggable = false;
   return image;
+}
+
+function cardContent(card) {
+  if (!card.text) return cardImage(card);
+  const content = document.createElement('span');
+  content.className = card.image ? 'card-content has-caption' : 'card-content';
+  if (card.image) content.append(cardImage(card));
+  const text = document.createElement('span');
+  text.className = 'card-text';
+  text.textContent = card.text;
+  text.title = card.text;
+  text.style.setProperty('--text-scale', Math.min(0.48, 2 / Math.sqrt(card.text.length)));
+  content.append(text);
+  return content;
 }
 
 function renderBoard(cells, player) {
@@ -52,7 +76,8 @@ function renderBoard(cells, player) {
       button.setAttribute('aria-label', 'Закрыто фишкой');
       button.append(chip);
     } else {
-      button.append(cardImage(cell.card));
+      button.dataset.cardId = cell.card.id;
+      button.append(cardContent(cell.card));
     }
     button.classList.toggle('winning', Boolean(won && game.winning.includes(index)));
     button.addEventListener('click', () => choose(button, player, index));
@@ -71,17 +96,24 @@ function render() {
   placeholder.className = 'placeholder';
   placeholder.setAttribute('aria-hidden', 'true');
   placeholder.textContent = '?';
-  drawSlot.replaceChildren(game.drawn ? cardImage(game.drawn) : placeholder);
+  drawSlot.replaceChildren(game.drawn ? cardContent(game.drawn) : placeholder);
   drawButton.disabled = !game.canDraw;
   if (game.winning.length) {
     status.textContent = `Победа — ${playerNames[game.player]}!`;
   } else if (!game.drawn) {
     status.textContent = `${playerNames[game.player]}, достань карточку.`;
-  } else if (game.canDraw) {
-    status.textContent = 'Этой картинки нет на твоём поле. Достань следующую.';
   } else {
-    status.textContent = 'Найди такую же картинку на своём поле.';
+    status.textContent = searchMessage();
   }
+}
+
+function searchMessage(wrong = false) {
+  if (game.drawn.text) {
+    if (game.canDraw) return 'Этой карточки нет на твоём поле. Достань следующую.';
+    return wrong ? 'Попробуй ещё раз. Найди такую же карточку.' : 'Найди такую же карточку на своём поле.';
+  }
+  if (game.canDraw) return 'Этой картинки нет на твоём поле. Достань следующую.';
+  return wrong ? 'Попробуй ещё раз. Найди такую же картинку.' : 'Найди такую же картинку на своём поле.';
 }
 
 function choose(button, player, index) {
@@ -90,9 +122,7 @@ function choose(button, player, index) {
     button.classList.remove('shake');
     void button.offsetWidth;
     button.classList.add('shake');
-    status.textContent = game.canDraw
-      ? 'Этой картинки нет на твоём поле. Достань следующую.'
-      : 'Попробуй ещё раз. Найди такую же картинку.';
+    status.textContent = searchMessage(true);
   }
   if (result === 'task') {
     taskText.textContent = game.pending.text;
@@ -101,18 +131,41 @@ function choose(button, player, index) {
 }
 
 function restart() {
-  game = new BingoGame({ ...bingoContent, size: settings.size, taskOrder: settings.order }, settings.victory);
+  if (task.open) task.close();
+  for (const url of gameImageUrls) URL.revokeObjectURL(url);
+  gameImageUrls = [];
+  const { size, order, victory } = settings;
+  const reset = document.querySelector('#reset');
+  reset.disabled = cardLibrary.cards.length < size ** 2;
+  if (reset.disabled) {
+    game = null;
+    boards.replaceChildren();
+    drawSlot.replaceChildren();
+    drawButton.disabled = true;
+    status.textContent = cardShortage(cardLibrary.cards.length, size);
+    return;
+  }
+  const cards = cardLibrary.cards.map(card => {
+    if (!(card.image instanceof Blob)) return card;
+    const image = URL.createObjectURL(card.image);
+    gameImageUrls.push(image);
+    return { ...card, image };
+  });
+  game = new BingoGame({
+    ...bingoContent, cards, size, taskOrder: order, placements: libraryBoards(cardLibrary, size),
+  }, victory);
   render();
 }
 
 drawButton.addEventListener('click', () => {
-  if (!game.draw()) return;
+  if (!game?.draw()) return;
   render();
   if (!game.canDraw) boards.querySelector('.active .cell:not(:disabled)')?.focus();
 });
 
 task.addEventListener('cancel', event => event.preventDefault());
 document.querySelector('#complete').addEventListener('click', () => {
+  if (!game) return;
   game.completeTask();
   task.close();
   render();
@@ -122,4 +175,15 @@ document.querySelector('#reset').addEventListener('click', restart);
 document.title = settings.title;
 document.querySelector('#game-title').textContent = settings.title;
 document.querySelector('#victory-rule').textContent = victoryLabels[settings.victory];
-restart();
+const cardSource = window.parent !== window ? window.parent : window.opener;
+window.addEventListener('message', event => {
+  if (!cardSource || event.source !== cardSource || event.origin !== window.origin) return;
+  if (event.data?.type !== 'bingo:cards') return;
+  receivedCardUpdate = true;
+  applyCardLibrary(event.data.library);
+});
+readCardLibrary().then(library => {
+  if (!receivedCardUpdate) applyCardLibrary(library);
+}).catch(() => {
+  if (!receivedCardUpdate) restart();
+});
