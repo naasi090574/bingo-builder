@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="preview.css">
   <script defer src="content.js"></script>
   <script defer src="cards.js"></script>
+  <script defer src="tasks.js"></script>
   <script defer src="settings.js"></script>
   <script defer src="game.js"></script>
   <script defer src="app.js"></script>
@@ -42,12 +43,15 @@
     <strong>Переход хода</strong>
     <span id="next-player"></span>
   </div>
-  <dialog id="task" aria-labelledby="task-title" aria-describedby="task-text">
-    <button type="button" id="complete">
-      <span class="task-title" id="task-title">Задание вслух</span>
-      <span class="task-text" id="task-text"></span>
-      <span class="primary task-action">Задание выполнено</span>
-    </button>
+  <dialog id="task" aria-label="Устное задание">
+    <div class="task-sheet">
+      <div class="task-body" id="task-body" hidden>
+        <p class="task-text" id="task-text" hidden></p>
+        <div class="task-images" id="task-images" hidden></div>
+      </div>
+      <audio id="task-audio" controls aria-label="Аудио задания" hidden></audio>
+      <button id="complete" class="task-action" type="button">Задание выполнено</button>
+    </div>
   </dialog>
 </body>
 </html>

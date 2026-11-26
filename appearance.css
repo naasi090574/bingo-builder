@@ -54,13 +54,12 @@ body[data-background="transparent"] { background: transparent; }
   font-size: var(--label-drawTitle-size, clamp(1rem, 1.6vw, 1.35rem));
   color: var(--label-drawTitle-color, var(--text));
 }
-.status, .task-title, .winner-badge, .placeholder {
+.status, .winner-badge, .placeholder {
   font-family: var(--label-text-font, inherit);
   font-size: var(--label-text-size, var(--helper-size, 1rem));
   color: var(--label-text-color, var(--helper-color, var(--text)));
 }
 .status { --helper-color: var(--muted); }
-.task-title { --helper-color: var(--mint); }
 .placeholder { --helper-color: #9bacbf; --helper-size: 2.4rem; }
 .active .winner-badge {
   font-size: var(--label-text-size, .875rem);
@@ -68,7 +67,7 @@ body[data-background="transparent"] { background: transparent; }
 }
 .task-text {
   font-family: var(--label-task-font, inherit);
-  font-size: var(--label-task-size, clamp(1.45rem, 4vw, 2.35rem));
+  font-size: var(--label-task-size, 2rem);
   color: var(--label-task-color, var(--text));
 }
 .board:not(.active) .badge {

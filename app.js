@@ -8,6 +8,13 @@ const settings = readGameSettings(new URLSearchParams(window.location.search));
 const playerNames = [settings.player1, settings.player2];
 const task = document.querySelector('#task');
 const taskText = document.querySelector('#task-text');
+const taskBody = document.querySelector('#task-body');
+const taskImages = document.querySelector('#task-images');
+const taskAudio = document.querySelector('#task-audio');
+let taskUrls = [];
+let previewingTask = false;
+let gameTasks = initialTaskLibrary();
+let receivedTaskUpdate = false;
 const turnNotice = document.querySelector('#turn-notice');
 const nextPlayer = document.querySelector('#next-player');
 let turnTimer;
@@ -142,6 +149,50 @@ function searchMessage(wrong = false) {
   return wrong ? 'Попробуй ещё раз. Найди такую же картинку.' : 'Найди такую же картинку на своём поле.';
 }
 
+function clearTaskMedia() {
+  taskAudio.pause();
+  if (taskAudio.hasAttribute('src')) {
+    taskAudio.removeAttribute('src');
+    taskAudio.load();
+  }
+  taskImages.replaceChildren();
+  for (const url of taskUrls) URL.revokeObjectURL(url);
+  taskUrls = [];
+}
+
+function showTask(content, preview = false) {
+  clearTaskMedia();
+  previewingTask = preview;
+  taskText.textContent = typeof content === 'string' ? content : content?.text ?? '';
+  taskText.hidden = !taskText.textContent.trim();
+  for (const item of content?.images ?? []) {
+    const image = document.createElement('img');
+    const url = URL.createObjectURL(item.image);
+    taskUrls.push(url);
+    image.src = url;
+    image.alt = item.name;
+    taskImages.append(image);
+  }
+  taskImages.hidden = !taskImages.childElementCount;
+  if (content?.audio) {
+    const url = URL.createObjectURL(content.audio.file);
+    taskUrls.push(url);
+    taskAudio.src = url;
+  }
+  taskAudio.hidden = !content?.audio;
+  taskBody.hidden = taskText.hidden && taskImages.hidden;
+  if (!task.open) task.showModal();
+  taskBody.scrollTop = 0;
+}
+
+function replaceGameTasks(tasks) {
+  gameTasks = tasks;
+  if (game) {
+    game.tasks = tasks;
+    game.taskDeck = [];
+  }
+}
+
 function choose(button, player, index) {
   const result = game.choose(player, index);
   if (result === 'wrong') {
@@ -150,10 +201,7 @@ function choose(button, player, index) {
     button.classList.add('shake');
     status.textContent = searchMessage(true);
   }
-  if (result === 'task') {
-    taskText.textContent = game.pending.text;
-    task.showModal();
-  }
+  if (result === 'task') showTask(game.pending.task);
 }
 
 function restart() {
@@ -181,7 +229,7 @@ function restart() {
     return { ...card, image };
   });
   game = new BingoGame({
-    ...bingoContent, cards, size, taskOrder: order, missedDraw, placements: libraryBoards(cardLibrary, size),
+    ...bingoContent, cards, tasks: gameTasks, size, taskOrder: order, missedDraw, placements: libraryBoards(cardLibrary, size),
   }, victory);
   render();
 }
@@ -193,9 +241,18 @@ drawButton.addEventListener('click', () => {
   if (!game.canDraw) boards.querySelector('.active .cell:not(:disabled)')?.focus();
 });
 
-task.addEventListener('cancel', event => event.preventDefault());
+task.addEventListener('cancel', event => {
+  if (!previewingTask) event.preventDefault();
+});
+task.addEventListener('close', () => {
+  if (!task.open) clearTaskMedia();
+});
 document.querySelector('#complete').addEventListener('click', () => {
-  if (!game) return;
+  if (previewingTask) {
+    task.close();
+    return;
+  }
+  if (!game?.pending) return;
   const player = game.player;
   game.completeTask();
   task.close();
@@ -209,11 +266,22 @@ document.querySelector('#victory-rule').textContent = victoryLabels[settings.vic
 const cardSource = window.parent !== window ? window.parent : window.opener;
 window.addEventListener('message', event => {
   if (!cardSource || event.source !== cardSource || event.origin !== window.origin) return;
-  if (event.data?.type !== 'bingo:cards') return;
-  receivedCardUpdate = true;
-  applyCardLibrary(event.data.library);
+  if (event.data?.type === 'bingo:cards') {
+    receivedCardUpdate = true;
+    applyCardLibrary(event.data.library);
+  }
+  if (event.data?.type === 'bingo:tasks' && Array.isArray(event.data.tasks)) {
+    receivedTaskUpdate = true;
+    replaceGameTasks(event.data.tasks);
+  }
+  if (event.data?.type === 'bingo:preview-task' && (!task.open || previewingTask)) {
+    showTask(event.data.task, true);
+  }
 });
-readCardLibrary().then(library => {
+const loadTasks = readTaskLibrary().then(tasks => {
+  if (!receivedTaskUpdate) replaceGameTasks(tasks);
+}).catch(() => {});
+Promise.all([readCardLibrary(), loadTasks]).then(([library]) => {
   if (!receivedCardUpdate) applyCardLibrary(library);
 }).catch(() => {
   if (!receivedCardUpdate) restart();

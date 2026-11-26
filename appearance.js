@@ -18,7 +18,8 @@ const labelStyles = {
   drawTitle: { label: 'Заголовок «Выпавшая карточка»', size: 20, min: 12, max: 22, color: '#f6f8ff' },
   text: { label: 'Вспомогательные надписи и сообщения', size: 16, min: 12, max: 22, color: '#adb9ce' },
   button: { label: 'Текст кнопок', size: 16, min: 12, max: 22, color: '#102822', colorKey: 'buttonText' },
-  task: { label: 'Текст заданий', size: 32, min: 16, max: 38, color: '#f6f8ff' },
+  task: { label: 'Текст задания', size: 32, min: 16, max: 48, color: '#f6f8ff' },
+  taskButton: { label: 'Текст кнопки «Задание выполнено»', size: 18, min: 12, max: 32, color: '#102822' },
   activeBadge: { label: 'Сейчас ходит', size: 14, min: 12, max: 22, color: '#6bf4c1' },
   idleBadge: { label: 'Ожидает ход', size: 14, min: 12, max: 22, color: '#d1daea' },
 };
@@ -57,6 +58,13 @@ const defaultAppearance = {
     [labelColorKey(key, style), style.color],
   ])),
   activeColor: '#6bf4c1',
+  taskBackground: '#182235',
+  taskOpacity: '100',
+  taskBorder: '#6bf4c1',
+  taskBorderWidth: '1',
+  taskRadius: '24',
+  taskButtonBackground: '#6bf4c1',
+  taskBackdrop: '80',
 };
 
 function appearanceOrigin() {

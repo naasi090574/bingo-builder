@@ -136,3 +136,29 @@ test('a resampled copy shares an image identity when dealing and matching', () =
     assert.equal(game.choose(1, 0), 'task');
   }`, context);
 });
+
+test('oral tasks keep their media and selected order without affecting turn confirmation', () => {
+  vm.runInContext(`{
+    const cards = Array.from({ length: 4 }, (_, index) => ({ id: String(index) }));
+    const audio = { id: 'audio', type: 'oral', text: '', images: [], audio: { name: 'voice.wav' } };
+    const mixed = { id: 'mixed', type: 'oral', text: 'Первая строка\\nВторая строка', images: [{ name: 'image.png' }] };
+    const game = new BingoGame({ size: 2, cards, tasks: [audio, mixed], taskOrder: 'sequential' });
+    for (const task of [audio, mixed]) {
+      const player = game.player;
+      game.drawn = game.boards[player][0].card;
+      assert.equal(game.choose(player, 0), 'task');
+      assert.equal(game.pending.task, task);
+      assert.equal(game.boards[player][0].marked, false);
+      assert.equal(game.player, player);
+      game.completeTask();
+      assert.equal(game.boards[player][0].marked, true);
+      assert.equal(game.player, 1 - player);
+    }
+    const empty = new BingoGame({ size: 2, cards, tasks: [] });
+    empty.drawn = empty.boards[0][0].card;
+    assert.equal(empty.choose(0, 0), 'task');
+    assert.equal(empty.pending.task, undefined);
+    empty.completeTask();
+    assert.equal(empty.boards[0][0].marked, true);
+  }`, context);
+});

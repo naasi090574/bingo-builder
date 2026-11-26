@@ -6,13 +6,16 @@
   <title>Бинго — редактор игры</title>
   <link rel="stylesheet" href="editor.css">
   <link rel="stylesheet" href="cards-editor.css">
+  <link rel="stylesheet" href="tasks-editor.css">
   <script defer src="content.js"></script>
   <script defer src="cards.js"></script>
+  <script defer src="tasks.js"></script>
   <script defer src="settings.js"></script>
   <script defer src="appearance.js"></script>
   <script defer src="editor.js"></script>
   <script defer src="appearance-editor.js"></script>
   <script defer src="cards-editor.js"></script>
+  <script defer src="tasks-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -177,6 +180,26 @@
             <label class="color-setting">Цвет рамки<input type="color" name="activeColor"></label>
           </div>
         </details>
+        <details class="appearance-group" id="task-appearance">
+          <summary>Окно задания</summary>
+          <div class="appearance-fields">
+            <label class="color-setting">Цвет фона окна<input type="color" name="taskBackground"></label>
+            <label class="range-setting"><span>Непрозрачность окна</span><output for="taskOpacity"></output>
+              <input id="taskOpacity" name="taskOpacity" type="range" min="0" max="100" data-unit="%">
+            </label>
+            <label class="color-setting">Цвет рамки<input type="color" name="taskBorder"></label>
+            <label class="range-setting"><span>Толщина рамки</span><output for="taskBorderWidth"></output>
+              <input id="taskBorderWidth" name="taskBorderWidth" type="range" min="0" max="16" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Скругление рамки</span><output for="taskRadius"></output>
+              <input id="taskRadius" name="taskRadius" type="range" min="0" max="48" data-unit=" пкс">
+            </label>
+            <label class="color-setting">Фон кнопки подтверждения<input type="color" name="taskButtonBackground"></label>
+            <label class="range-setting"><span>Затемнение игрового поля</span><output for="taskBackdrop"></output>
+              <input id="taskBackdrop" name="taskBackdrop" type="range" min="0" max="100" data-unit="%">
+            </label>
+          </div>
+        </details>
         <button class="secondary" type="reset">Сбросить оформление</button>
       </form>
       <section id="card-library" class="card-library" aria-label="Библиотека карточек" hidden>
@@ -215,6 +238,11 @@
           </div>
         </details>
       </section>
+      <section id="task-library" class="task-library" aria-label="Устные задания" hidden>
+        <button id="add-task" class="secondary" type="button">Добавить устное задание</button>
+        <p id="task-library-status" role="status"></p>
+        <ol id="task-items" class="task-items"></ol>
+      </section>
       <div class="availability" hidden>
         <span class="info" aria-hidden="true">i</span>
         <p id="section-status">Раздел пока недоступен для редактирования.</p>
@@ -231,6 +259,30 @@
       </div>
     </section>
   </main>
+  <dialog id="task-editor" class="card-editor" aria-labelledby="task-editor-title">
+    <form id="edit-task" class="settings-form">
+      <h2 id="task-editor-title">Устное задание</h2>
+      <label>Текст задания <textarea name="text" rows="5"></textarea></label>
+      <div>
+        <label class="secondary image-picker">Добавить картинки
+          <input id="task-images-input" type="file" multiple accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+        </label>
+        <ul id="task-draft-images" class="task-draft-images"></ul>
+      </div>
+      <div class="task-audio-controls">
+        <label class="secondary image-picker">Добавить или заменить аудио
+          <input id="task-audio-input" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac,.opus">
+        </label>
+        <span id="task-audio-name"></span>
+        <button id="remove-task-audio" class="library-button" type="button" hidden>Удалить аудио</button>
+      </div>
+      <p id="task-editor-status" role="status"></p>
+      <div class="library-actions">
+        <button class="secondary" type="submit">Сохранить задание</button>
+        <button id="cancel-task-edit" class="library-button" type="button">Отмена</button>
+      </div>
+    </form>
+  </dialog>
   <dialog id="card-editor" class="card-editor" aria-labelledby="card-editor-title">
     <form id="edit-card" class="settings-form">
       <h2 id="card-editor-title">Карточка</h2>

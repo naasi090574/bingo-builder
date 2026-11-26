@@ -15,6 +15,9 @@ const appearanceColors = {
   drawSlotBorder: '--draw-slot-border',
   buttonColor: '--chosen-button',
   activeColor: '--chosen-active',
+  taskBackground: '--task-background',
+  taskBorder: '--task-border',
+  taskButtonBackground: '--task-button-background',
 };
 
 const appearanceScales = {
@@ -31,6 +34,10 @@ const appearanceScales = {
   drawSlotOpacity: ['--draw-slot-fill', 0, 100, '%'],
   drawSlotWidth: ['--draw-slot-width', 0, 12, 'px'],
   drawSlotRadius: ['--draw-slot-radius', 0, 40, 'px'],
+  taskOpacity: ['--task-opacity', 0, 100, '%'],
+  taskBorderWidth: ['--task-border-width', 0, 16, 'px'],
+  taskRadius: ['--task-radius', 0, 48, 'px'],
+  taskBackdrop: ['--task-backdrop', 0, 100, '%'],
 };
 
 function applyAppearance({ values, image, imageVersion }) {

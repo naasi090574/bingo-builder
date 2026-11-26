@@ -1,0 +1,27 @@
+.task-library { display: grid; gap: 10px; margin-top: 20px; }
+.task-items, .task-draft-images { list-style: none; margin: 0; padding: 0; }
+.task-items { display: grid; gap: 6px; max-height: 490px; overflow-y: auto; }
+.task-items li {
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.task-items p { margin-bottom: 7px; font-size: .9rem; }
+#task-library-status, #task-editor-status, #task-audio-name { color: var(--muted); font-size: .875rem; }
+#task-library-status:empty, #task-editor-status:empty, #task-audio-name:empty { display: none; }
+#task-editor .image-picker { position: relative; text-align: center; }
+.task-draft-images, .task-audio-controls { display: grid; gap: 6px; overflow-wrap: anywhere; }
+.task-draft-images:not(:empty) { margin-top: 6px; }
+.task-draft-images li { display: grid; grid-template-columns: 44px auto auto; align-items: center; gap: 6px; }
+.task-draft-images img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  background: var(--tint);
+  border-radius: 4px;
+}
+#remove-task-audio { justify-self: start; }
+@media (min-width: 1011px) {
+  .workspace:has(.task-library:not([hidden])) .preview { position: sticky; top: 18px; }
+}

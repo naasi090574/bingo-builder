@@ -103,6 +103,7 @@ launch.addEventListener('click', event => {
 function addLabelControls() {
   const typography = document.querySelector('#typography-settings');
   const turns = document.querySelector('#turn-settings');
+  const task = document.querySelector('#task-appearance');
   const fonts = Object.entries(appearanceFonts).map(([id, font]) =>
     `<option value="${id}">${font.label}</option>`
   ).join('');
@@ -128,7 +129,8 @@ function addLabelControls() {
         </label>`);
     }
     group.append(summary, fields);
-    (turn ? turns : typography).append(group);
+    const category = key === 'task' || key === 'taskButton' ? task : turn ? turns : typography;
+    category.append(group);
   }
 }
 

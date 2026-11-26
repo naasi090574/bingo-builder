@@ -11,7 +11,7 @@ const sections = {
     description: 'Соберите набор для игры. Изменения набора и заполнения начинают новую партию.',
   },
   tasks: {
-    description: `Устных заданий в текущем наборе — ${bingoContent.tasks.length}. Здесь можно будет добавить свои задания и вопросы.`,
+    description: 'Добавьте текст, картинки или аудио. Порядок списка используется в последовательном режиме.',
   },
   tokens: {
     description: 'Сейчас правильные ответы отмечаются круглыми фишками с галочкой. Здесь можно будет изменить их вид.',
@@ -34,6 +34,7 @@ const availability = document.querySelector('.availability');
 const form = document.querySelector('#game-settings');
 const appearanceForm = document.querySelector('#appearance-settings');
 const cardsSection = document.querySelector('#card-library');
+const tasksSection = document.querySelector('#task-library');
 const launch = document.querySelector('.launch');
 const stage = document.querySelector('.preview-stage');
 const frame = stage.querySelector('iframe');
@@ -52,8 +53,9 @@ function showSection() {
     }
   }
   description.textContent = copy;
-  availability.hidden = ['settings', 'appearance', 'cards'].includes(section);
+  availability.hidden = ['settings', 'appearance', 'cards', 'tasks'].includes(section);
   cardsSection.hidden = section !== 'cards';
+  tasksSection.hidden = section !== 'tasks';
   appearanceForm.hidden = section !== 'appearance';
   form.hidden = section !== 'settings';
 }

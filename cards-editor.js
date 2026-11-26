@@ -72,22 +72,6 @@ function newCardId() {
   return `card-${crypto.getRandomValues(new Uint32Array(4)).join('-')}`;
 }
 
-async function readCardImage(file) {
-  const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
-  const prefix = (...values) => values.every((value, index) => bytes[index] === value);
-  const ascii = (start, end) => String.fromCharCode(...bytes.slice(start, end));
-  const png = prefix(137, 80, 78, 71, 13, 10, 26, 10);
-  const jpeg = prefix(255, 216, 255);
-  const webp = ascii(0, 4) === 'RIFF' && ascii(8, 12) === 'WEBP';
-  if (!png && !jpeg && !webp) throw new Error('Допустимы изображения PNG, JPG, JPEG и WEBP.');
-  const blob = file.slice(0, file.size, png ? 'image/png' : jpeg ? 'image/jpeg' : 'image/webp');
-  try {
-    return await optimizeCardImage(blob);
-  } catch {
-    throw new Error('Не удалось прочитать изображение.');
-  }
-}
-
 function thumbnail(card) {
   const preview = document.createElement('span');
   preview.className = 'library-thumbnail';

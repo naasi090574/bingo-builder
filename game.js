@@ -112,7 +112,8 @@ class BingoGame {
         ? [...this.tasks].reverse()
         : shuffle(this.tasks, this.random);
     }
-    this.pending = { index, text: this.taskDeck.pop() };
+    const task = this.taskDeck.pop();
+    this.pending = { index, task, text: typeof task === 'string' ? task : task?.text };
     return 'task';
   }
 
