@@ -122,5 +122,4 @@ const instruction = document.querySelector('#game-instruction');
 instruction.textContent = settings.instruction;
 instruction.hidden = !settings.instruction;
 document.querySelector('#victory-rule').textContent = victoryLabels[settings.victory];
-document.querySelector('#task-order').textContent = taskOrderLabels[settings.order];
 restart();
