@@ -54,7 +54,10 @@ function applyAppearance({ values, image, imageVersion }) {
     const fontKey = `${key}Font`;
     const font = Object.hasOwn(appearanceFonts, values[fontKey]) && appearanceFonts[values[fontKey]].css;
     set(fontKey, `--label-${key}-font`, font);
-    setScale(`${key}Size`, `--label-${key}-size`, style.min, style.max, 'px');
+    const sizeKey = `${key}Size`;
+    const size = Number(values[sizeKey]);
+    set(sizeKey, `--label-${key}-size`, Number.isFinite(size)
+      ? `${Math.max(style.min, Math.min(style.max, size)) / 16}rem` : '');
     setColor(labelColorKey(key, style), `--label-${key}-color`);
   }
 
@@ -66,12 +69,7 @@ function applyAppearance({ values, image, imageVersion }) {
     else body.style.removeProperty('--chosen-image');
   }
   body.dataset.background = values.backgroundMode;
-  body.toggleAttribute('data-custom-layout',
-    values.boardSize !== defaultAppearance.boardSize ||
-    values.drawSlotWidth !== defaultAppearance.drawSlotWidth ||
-    Object.keys(labelStyles).some(key =>
-      values[`${key}Font`] !== defaultAppearance[`${key}Font`] ||
-      values[`${key}Size`] !== defaultAppearance[`${key}Size`]));
+
 }
 
 if (appearanceSource) {
@@ -80,13 +78,4 @@ if (appearanceSource) {
     if (event.data?.type === 'bingo:appearance') applyAppearance(event.data);
   });
   appearanceSource.postMessage({ type: 'bingo:appearance-ready' }, appearanceOrigin());
-}
-if (window.parent === window) {
-  function fitLandscape() {
-    const scale = Math.min(1, innerWidth / 1280, innerHeight / 720);
-    document.body.classList.toggle('landscape-game', innerWidth >= innerHeight * 1.7);
-    document.body.style.setProperty('--landscape-scale', scale);
-  }
-  window.addEventListener('resize', fitLandscape);
-  fitLandscape();
 }

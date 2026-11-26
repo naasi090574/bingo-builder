@@ -239,3 +239,38 @@ dialog::backdrop { background: rgb(6 11 20 / 80%); }
   position: absolute;
   inset: 0;
 }
+
+.turn-notice[hidden] { display: none; }
+.turn-notice {
+  position: fixed;
+  z-index: 1;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  display: grid;
+  gap: .35rem;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  padding: 1rem 1.6rem;
+  border: 1px solid var(--chosen-active, var(--mint));
+  border-radius: var(--board-radius, 20px);
+  background: var(--active-badge-background, var(--chosen-board, var(--panel)));
+  box-shadow: 0 12px 36px #0008;
+  text-align: center;
+  overflow-wrap: anywhere;
+  animation: turn-notice 1.5s ease-in-out both;
+}
+.turn-notice strong {
+  color: var(--label-activeBadge-color, var(--mint));
+  font: 750 var(--label-activeBadge-size, 1rem) / 1.25 var(--label-activeBadge-font, system-ui, sans-serif);
+}
+.turn-notice span {
+  color: var(--label-player-color, var(--text));
+  font: 750 var(--label-player-size, 1.45rem) / 1.25 var(--label-player-font, system-ui, sans-serif);
+}
+@keyframes turn-notice {
+  0%, 100% { opacity: 0; }
+  14%, 85% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .turn-notice { animation: none; }
+}

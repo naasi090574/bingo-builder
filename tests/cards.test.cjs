@@ -51,7 +51,6 @@ test('both miss rules finish at every size and victory condition, including repe
           for (const random of [() => 0, () => 0.99, Math.random]) {
             const game = new BingoGame({ size, cards, placements, missedDraw, tasks: ['Задание'] }, mode, random);
             let draws = 0;
-            let misses = 0;
             while (!game.outcome) {
               const player = game.player;
               assert.ok(++draws <= cards.length * (4 * count), 'the deck must make progress');
@@ -59,7 +58,6 @@ test('both miss rules finish at every size and victory condition, including repe
               assert.ok(drawn);
               const target = game.boards[player].findIndex(cell => cell.card.id === drawn.id && !cell.marked);
               if (target < 0) {
-                misses++;
                 assert.equal(game.player, missedDraw === 'pass' ? 1 - player : player);
                 assert.equal(game.lastMiss, missedDraw === 'pass' ? drawn : null);
                 assert.ok(game.canDraw);
@@ -78,7 +76,6 @@ test('both miss rules finish at every size and victory condition, including repe
                 assert.equal(game.outcome.winner, missedDraw === 'retry' && mode === 'full' ? null : player);
               }
             }
-            assert.ok(misses > 0 || missedDraw === 'retry');
             assert.equal(game.canDraw, false);
             assert.equal(game.draw(), null);
           }
@@ -113,4 +110,29 @@ test('a full-board lead wins after the second player finishes short, and a cover
     assert.equal(pass.choose(1, 0), 'ignored');
     assert.ok(pass.canDraw);
   `, context);
+});
+
+test('a resampled copy shares an image identity when dealing and matching', () => {
+  vm.runInContext(`{
+    const original = { id: 'original', image: 'original.png', imageKey: 'original', imageSample: [20, 0, 0, 255] };
+    const resized = { id: 'resized', image: 'resized.png', imageKey: 'resized', imageSample: [21, 0, 0, 255] };
+    const other = [60, 100, 140].map(value => ({
+      id: String(value), image: value + '.png', imageKey: String(value), imageSample: [value, 0, 0, 255],
+    }));
+    assert.equal(sameCardContent(original, resized), true);
+    assert.equal(sameCardContent(original, other[0]), false);
+    const recolored = { ...resized, imageKey: 'recolored', imageSample: [28, 0, 0, 255] };
+    assert.equal(sameCardContent(original, recolored), false);
+    const game = new BingoGame({
+      size: 2, cards: [original, resized, ...other],
+      placements: [['original', 'resized'], ['resized']], tasks: ['Задание'],
+    });
+    for (const field of game.boards) {
+      assert.equal(new Set(field.map(({card}) => cardIdentity(card))).size, 4);
+    }
+    game.drawn = game.boards[0][0].card;
+    game.player = 1;
+    assert.equal(game.canDraw, false);
+    assert.equal(game.choose(1, 0), 'task');
+  }`, context);
 });

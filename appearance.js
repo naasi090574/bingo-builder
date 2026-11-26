@@ -36,7 +36,7 @@ const defaultAppearance = {
   boardRadius: '20',
   cellColor: '#26374b',
   cellOpacity: '100',
-  imageSize: '80',
+  imageSize: '94',
   cellRadius: '13',
   buttonColor: '#6bf4c1',
   activeBadgeBackground: '#304853',

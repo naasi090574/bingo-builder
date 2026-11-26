@@ -38,9 +38,10 @@ class BingoGame {
     this.tasks = content.tasks;
     this.taskOrder = content.taskOrder;
     this.passOnMiss = content.missedDraw === 'pass';
-    const pool = uniqueCards(content.cards);
+    const cards = groupCardImages(content.cards);
+    const pool = uniqueCards(cards);
     if (pool.length < this.size ** 2) throw new RangeError(cardShortage(pool.length, this.size));
-    const cardById = new Map(content.cards.map(card => [card.id, card]));
+    const cardById = new Map(cards.map(card => [card.id, card]));
     this.boards = Array.from({ length: 2 }, (_, player) => {
       const used = new Set();
       const assigned = content.placements?.[player] ?? [];

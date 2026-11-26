@@ -82,7 +82,7 @@ async function readCardImage(file) {
   if (!png && !jpeg && !webp) throw new Error('Допустимы изображения PNG, JPG, JPEG и WEBP.');
   const blob = file.slice(0, file.size, png ? 'image/png' : jpeg ? 'image/jpeg' : 'image/webp');
   try {
-    return { image: blob, imageKey: await imageFingerprint(blob) };
+    return { image: blob, ...await imageFingerprint(blob) };
   } catch {
     throw new Error('Не удалось прочитать изображение.');
   }
@@ -277,11 +277,10 @@ uploadCards.addEventListener('change', () => {
     }
     let added = 0;
     if (candidates.length) await saveCards(state => {
-      const known = new Set(state.cards.map(cardIdentity));
+      const known = [...state.cards];
       const cards = candidates.filter(card => {
-        const key = cardIdentity(card);
-        if (known.has(key)) return false;
-        known.add(key);
+        if (known.some(existing => sameCardContent(existing, card))) return false;
+        known.push(card);
         return true;
       });
       added = cards.length;
@@ -321,6 +320,7 @@ editForm.addEventListener('submit', event => {
           if (!current?.image) throw new Error('Выберите изображение.');
           card.image = current.image;
           card.imageKey = current.imageKey;
+          card.imageSample = current.imageSample;
         }
       } catch (error) {
         editFeedback.textContent = error.message;
@@ -331,9 +331,8 @@ editForm.addEventListener('submit', event => {
     let duplicate = false;
     await saveCards(state => {
       const previous = state.cards.find(saved => saved.id === card.id);
-      const identity = cardIdentity(card);
-      duplicate = (!previous || cardIdentity(previous) !== identity) &&
-        state.cards.some(saved => saved.id !== card.id && cardIdentity(saved) === identity);
+      duplicate = (!previous || !sameCardContent(previous, card)) &&
+        state.cards.some(saved => saved.id !== card.id && sameCardContent(saved, card));
       if (duplicate) return state;
       return {
         ...state,

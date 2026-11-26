@@ -120,7 +120,7 @@ body[data-background="transparent"] { background: transparent; }
 .cell:not(:disabled):hover {
   background: color-mix(in srgb, var(--chosen-cell, #30465d) var(--cell-fill, 100%), transparent);
 }
-.cell img { width: var(--image-size, 80%); height: var(--image-size, 80%); }
+.cell img { width: var(--image-size, 94%); height: var(--image-size, 94%); }
 .cell.winning {
   background: color-mix(in srgb, color-mix(in srgb, var(--accent) 26%, var(--cell-background))
     var(--cell-fill, 100%), transparent);

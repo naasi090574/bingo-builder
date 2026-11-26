@@ -8,6 +8,9 @@ const settings = readGameSettings(new URLSearchParams(window.location.search));
 const playerNames = [settings.player1, settings.player2];
 const task = document.querySelector('#task');
 const taskText = document.querySelector('#task-text');
+const turnNotice = document.querySelector('#turn-notice');
+const nextPlayer = document.querySelector('#next-player');
+let turnTimer;
 let game;
 let cardLibrary = initialCardLibrary();
 let gameImageUrls = [];
@@ -44,7 +47,7 @@ function cardContent(card) {
 
 function renderBoard(cells, player) {
   const { outcome } = game;
-  const active = (outcome?.winner ?? game.player) === player;
+  const active = turnNotice.hidden && (outcome?.winner ?? game.player) === player;
   const won = outcome?.winner === player;
   const tied = outcome?.winner === null;
   const board = document.createElement('section');
@@ -100,7 +103,7 @@ function render() {
   placeholder.textContent = '?';
   const displayedCard = game.drawn ?? game.lastMiss;
   drawSlot.replaceChildren(displayedCard ? cardContent(displayedCard) : placeholder);
-  drawButton.disabled = !game.canDraw;
+  drawButton.disabled = !turnNotice.hidden || !game.canDraw;
   if (game.outcome) {
     const { winner } = game.outcome;
     status.textContent = winner === null ? 'Ничья! Оба игрока закрыли всё поле.'
@@ -114,12 +117,28 @@ function render() {
   }
 }
 
+function renderAfterMove(previousPlayer) {
+  if (game.outcome || previousPlayer === game.player) {
+    render();
+    return;
+  }
+  nextPlayer.textContent = `Ходит ${playerNames[game.player]}`;
+  turnNotice.hidden = false;
+  render();
+  turnTimer = setTimeout(() => {
+    turnNotice.hidden = true;
+    render();
+    drawButton.focus();
+  }, 1500);
+}
+
 function searchMessage(wrong = false) {
+  const available = game.hasOpenCard(game.drawn);
   if (game.drawn.text) {
-    if (game.canDraw) return 'Этой карточки нет на твоём поле. Достань следующую.';
+    if (!available) return 'Этой карточки нет на твоём поле. Достань следующую.';
     return wrong ? 'Попробуй ещё раз. Найди такую же карточку.' : 'Найди такую же карточку на своём поле.';
   }
-  if (game.canDraw) return 'Этой картинки нет на твоём поле. Достань следующую.';
+  if (!available) return 'Этой картинки нет на твоём поле. Достань следующую.';
   return wrong ? 'Попробуй ещё раз. Найди такую же картинку.' : 'Найди такую же картинку на своём поле.';
 }
 
@@ -138,6 +157,8 @@ function choose(button, player, index) {
 }
 
 function restart() {
+  clearTimeout(turnTimer);
+  turnNotice.hidden = true;
   if (task.open) task.close();
   for (const url of gameImageUrls) URL.revokeObjectURL(url);
   gameImageUrls = [];
@@ -166,18 +187,20 @@ function restart() {
 }
 
 drawButton.addEventListener('click', () => {
-  if (!game?.draw()) return;
-  render();
+  const player = game?.player;
+  if (!turnNotice.hidden || !game?.draw()) return;
+  renderAfterMove(player);
   if (!game.canDraw) boards.querySelector('.active .cell:not(:disabled)')?.focus();
 });
 
 task.addEventListener('cancel', event => event.preventDefault());
 document.querySelector('#complete').addEventListener('click', () => {
   if (!game) return;
+  const player = game.player;
   game.completeTask();
   task.close();
-  render();
-  (game.outcome ? document.querySelector('#reset') : drawButton).focus();
+  renderAfterMove(player);
+  if (game.outcome) document.querySelector('#reset').focus();
 });
 document.querySelector('#reset').addEventListener('click', restart);
 document.title = settings.title;

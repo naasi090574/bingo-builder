@@ -1,51 +1,53 @@
-html:has(body:is(:target, .landscape-game)) { overflow: hidden; }
+/* A landscape frame uses its own viewport, including when embedded cross-origin. */
+@media (min-aspect-ratio: 17/10) {
+  :root { font-size: calc(100vh / 45); overflow: hidden; }
 
-body.landscape-game .shell {
-  zoom: var(--landscape-scale);
-}
+  .shell {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    width: 100%;
+    height: 100vh;
+    padding: .35rem .8rem .7rem;
+  }
+  .topbar { min-height: 0; padding-bottom: .3rem; }
+  .reset { padding: .35rem .75rem; }
+  main {
+    --table-columns: minmax(0, 1fr) minmax(0, 22%);
+    --table-gap: .8rem;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    min-height: 0;
+    padding: .45rem 0 0;
+  }
 
-body:is(:target, .landscape-game) {
-  --scene: 1;
-}
-body.landscape-game { --scene: var(--landscape-scale); }
-body:is(:target, .landscape-game) .shell { width: min(1180px, calc(100vw / var(--scene) - 48px)); }
-body:is(:target, .landscape-game) .topbar { min-height: 64px; }
-body:is(:target, .landscape-game) main {
-  --table-columns: minmax(0, 1fr) 260px;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  height: calc(100vh / var(--scene) - 64px);
-  padding: 18px 0 10px;
-}
-body:is(:target, .landscape-game) .intro { margin-bottom: 16px; }
-body:is(:target, .landscape-game) #game-title { font-size: var(--label-title-size, 34px); }
-body:is(:target, .landscape-game) .table { container-type: size; }
-body:is(:target, .landscape-game) .boards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-body:is(:target, .landscape-game) .board,
-body:is(:target, .landscape-game) .draw-panel { padding: 15px; }
-body:is(:target, .landscape-game) .draw-panel { grid-row: auto; grid-template-columns: 1fr; }
-body:is(:target, .landscape-game) .draw-slot {
-  grid-row: auto;
-  max-height: clamp(64px, calc(100cqh - 215px), 195px);
-}
-body:is(:target, .landscape-game) .board-heading h2 { font-size: var(--label-player-size, 18px); }
-body:is(:target, .landscape-game) .grid {
-  max-width: min(340px, calc(100cqh - 124px));
-  margin-inline: auto;
-}
-body:is(:target, .landscape-game)[data-custom-layout] .board {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  height: min(100cqh, 450px);
-}
-body:is(:target, .landscape-game)[data-custom-layout] .board-cells { container-type: size; }
-body:is(:target, .landscape-game)[data-custom-layout] .grid { max-width: min(340px, 100cqh); }
-body:is(:target, .landscape-game)[data-custom-layout] .draw-panel {
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
-  height: min(100cqh, 420px);
-}
-body:is(:target, .landscape-game)[data-custom-layout] .draw-slot {
-  aspect-ratio: auto;
-  height: 100%;
-  max-height: 195px;
+  .intro { margin-bottom: .55rem; }
+  #game-title { font-size: var(--label-title-size, 2.65rem); }
+  .game-rules { font-size: var(--label-victory-size, 1rem); }
+  .table, .boards { align-items: stretch; min-height: 0; }
+  .boards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+  .board, .draw-panel { min-width: 0; min-height: 0; padding: .65rem; }
+  .board { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+  .board-heading { gap: .15rem; margin-bottom: .45rem; }
+  .board-heading h2 { font-size: var(--label-player-size, 1.35rem); }
+  .badge { font-size: var(--label-activeBadge-size, 1rem); }
+  .board:not(.active) .badge { font-size: var(--label-idleBadge-size, 1rem); }
+  .active .badge:not(.winner-badge) { font-size: var(--label-activeBadge-size, 1rem); }
+  .board-cells { min-width: 0; min-height: 0; }
+  .grid { height: 100%; grid-template-rows: repeat(var(--size), minmax(0, 1fr)); gap: .45rem; }
+  .cell { aspect-ratio: auto; min-height: 0; }
+  .cell img { width: var(--image-size, 94%); height: var(--image-size, 94%); }
+  .chip { max-height: 85%; }
+
+  .draw-panel {
+    grid-row: auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: .7rem;
+  }
+  #draw-title { font-size: var(--label-drawTitle-size, 1.35rem); }
+  .draw-slot { grid-row: auto; aspect-ratio: auto; height: 100%; min-height: 0; }
+  .draw-slot > img { width: 90%; height: 90%; inset: 5%; }
+  #draw { justify-self: stretch; padding: .6rem; }
+  .reset, .primary { font-size: var(--label-button-size, 1.05rem); }
+  .status { min-height: 2.8em; font-size: var(--label-text-size, 1.05rem); }
 }

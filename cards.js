@@ -5,8 +5,58 @@ function initialCardLibrary() {
 }
 
 function cardIdentity(card) {
-  if (card.image) return card.imageKey ? `image:${card.imageKey}` : `id:${card.id}`;
+  if (card.image) {
+    const key = card.imageGroup ?? card.imageKey;
+    return key ? `image:${key}` : `id:${card.id}`;
+  }
   return card.text ? `text:${card.text.normalize('NFC').trim().replace(/\s+/g, ' ')}` : `id:${card.id}`;
+}
+
+function sameCardContent(first, second) {
+  if (cardIdentity(first) === cardIdentity(second)) return true;
+  if (!first.image || !second.image) return false;
+  if (first.imageKey && first.imageKey === second.imageKey) return true;
+  const left = first.imageSample;
+  const right = second.imageSample;
+  if (!first.imageKey || !second.imageKey || !left || !right || left.length !== right.length) return false;
+
+  const aspect = card => {
+    const [width, height] = card.imageKey.split(':', 1)[0].split('x').map(Number);
+    return width / height;
+  };
+  if (Math.abs(Math.log(aspect(first) / aspect(second))) > .03) return false;
+
+  let difference = 0;
+  let changed = 0;
+  let visible = 0;
+  const colorShift = [0, 0, 0, 0];
+  for (let index = 0; index < left.length; index += 4) {
+    if (Math.max(left[index + 3], right[index + 3]) < 24) continue;
+    visible += 4;
+    for (let channel = index; channel < index + 4; channel++) {
+      const shift = left[channel] - right[channel];
+      colorShift[channel - index] += shift;
+      const delta = Math.abs(shift);
+      if (delta > 52) return false;
+      if (delta > 14) changed++;
+      difference += delta;
+    }
+  }
+  // Compare visible picture details so empty margins cannot drown out differences.
+  return difference <= visible * 3 && changed <= visible * .025 &&
+    colorShift.every(shift => Math.abs(shift) <= (visible / 4) * 2.5);
+}
+
+function groupCardImages(cards) {
+  const representatives = [];
+  return cards.map(card => {
+    if (!card.imageKey) return card;
+    const { imageGroup, ...original } = card;
+    const match = representatives.find(other => sameCardContent(other, original));
+    if (match) return { ...original, imageGroup: match.imageKey };
+    representatives.push(original);
+    return original;
+  });
 }
 
 function uniqueCards(cards) {
@@ -42,6 +92,16 @@ async function imageFingerprint(source) {
     context.drawImage(image, 0, 0);
     const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
     const dimensions = `${canvas.width}x${canvas.height}`;
+    const sample = document.createElement('canvas');
+    sample.width = sample.height = 32;
+    const sampleContext = sample.getContext('2d');
+    sampleContext.imageSmoothingQuality = 'high';
+    sampleContext.drawImage(image, 0, 0, 32, 32);
+    const imageSample = sampleContext.getImageData(0, 0, 32, 32).data;
+    for (let index = 0; index < imageSample.length; index += 4) {
+      const alpha = imageSample[index + 3] / 255;
+      for (let channel = 0; channel < 3; channel++) imageSample[index + channel] *= alpha;
+    }
     if (!crypto.subtle) {
       // Keep local HTTP installations usable without SubtleCrypto.
       let left = 2166136261;
@@ -50,10 +110,11 @@ async function imageFingerprint(source) {
         left = Math.imul(left ^ byte, 16777619);
         right = Math.imul(right + byte, 0x85ebca6b) ^ (right >>> 13);
       }
-      return `${dimensions}:${left >>> 0}:${right >>> 0}`;
+      return { imageKey: `${dimensions}:${left >>> 0}:${right >>> 0}`, imageSample };
     }
     const digest = await crypto.subtle.digest('SHA-256', data);
-    return `${dimensions}:${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')}`;
+    const imageKey = `${dimensions}:${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')}`;
+    return { imageKey, imageSample };
   } finally {
     if (source instanceof Blob) URL.revokeObjectURL(url);
   }
@@ -62,14 +123,14 @@ async function imageFingerprint(source) {
 async function identifyLibraryImages(library) {
   const cards = [];
   for (const card of library.cards) {
-    if (card.image && !card.imageKey) {
-      const imageKey = await imageFingerprint(card.image).catch(() => null);
-      cards.push(imageKey ? { ...card, imageKey } : card);
+    if (card.image && !card.imageSample) {
+      const properties = await imageFingerprint(card.image).catch(() => null);
+      cards.push(properties ? { ...card, ...properties } : card);
     } else {
       cards.push(card);
     }
   }
-  return { ...library, cards };
+  return { ...library, cards: groupCardImages(cards) };
 }
 
 let cardDatabase;
@@ -104,7 +165,7 @@ async function readCardLibrary() {
 }
 
 async function updateCardLibrary(update, knownLibrary) {
-  const knownKeys = new Map(knownLibrary.cards.map(card => [card.id, card.imageKey]));
+  const knownCards = new Map(knownLibrary.cards.map(card => [card.id, card]));
   const database = await openCardDatabase();
   return new Promise((resolve, reject) => {
     const tx = database.transaction('library', 'readwrite');
@@ -114,10 +175,14 @@ async function updateCardLibrary(update, knownLibrary) {
     request.onsuccess = () => {
       try {
         const library = request.result ?? initialCardLibrary();
-        const cards = library.cards.map(card => !card.imageKey && knownKeys.get(card.id)
-          ? { ...card, imageKey: knownKeys.get(card.id) }
-          : card);
-        next = update({ ...library, cards });
+        const cards = library.cards.map(card => {
+          const known = knownCards.get(card.id);
+          return !card.imageSample && known?.imageSample && (!card.imageKey || card.imageKey === known.imageKey)
+            ? { ...card, imageKey: known.imageKey, imageSample: known.imageSample }
+            : card;
+        });
+        next = update({ ...library, cards: groupCardImages(cards) });
+        next = { ...next, cards: groupCardImages(next.cards) };
         store.put(next, 'current');
       } catch (error) {
         reject(error);
