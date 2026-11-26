@@ -18,6 +18,7 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, finish) {
   layout.className = dragMode ? 'choice-layout is-drag' : 'choice-layout';
   const pool = document.createElement('div');
   pool.className = 'choice-options';
+  pool.dataset.count = String(options.length);
   pool.setAttribute('role', 'group');
   pool.setAttribute('aria-label', 'Варианты ответа');
   pool.style.setProperty('--choice-columns', options.length > 4 ? Math.ceil(options.length / 2) : options.length);

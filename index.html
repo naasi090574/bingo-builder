@@ -269,9 +269,10 @@
       <h2 id="task-editor-title">Устное задание</h2>
       <label><span id="task-question-label">Текст задания</span> <textarea name="text" rows="5"></textarea></label>
       <div>
-        <label class="secondary image-picker">Добавить картинки
+        <label class="secondary image-picker"><span id="task-images-label">Добавить картинки</span>
           <input id="task-images-input" type="file" multiple accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
         </label>
+        <p id="task-images-help" class="task-field-help" hidden>Используйте, если для выполнения задания ребёнку необходимо рассмотреть дополнительное изображение</p>
         <ul id="task-draft-images" class="task-draft-images"></ul>
       </div>
       <div class="task-audio-controls">
@@ -296,6 +297,7 @@
         </label>
         <label class="choice-checkbox"><input id="choice-shuffle" type="checkbox">Перемешивать варианты</label>
         <div id="choice-drop-draft" hidden></div>
+        <h3 class="choice-options-heading">Варианты ответа</h3>
         <div id="choice-draft-options"></div>
         <button id="choice-add-option" class="secondary" type="button">Добавить вариант</button>
       </div>

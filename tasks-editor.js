@@ -155,6 +155,12 @@ function openTaskEditor(task, type = 'oral') {
     ? 'Выбери правильный ответ' : 'Устное задание';
   document.querySelector('#task-question-label').textContent = taskDraft.type === 'choice'
     ? 'Текст вопроса или инструкция' : 'Текст задания';
+  const isChoice = taskDraft.type === 'choice';
+  document.querySelector('#task-images-label').textContent = isChoice
+    ? 'Добавить иллюстрации к вопросу (необязательно)' : 'Добавить картинки';
+  document.querySelector('#task-images-help').hidden = !isChoice;
+  if (isChoice) taskImagesInput.setAttribute('aria-describedby', 'task-images-help');
+  else taskImagesInput.removeAttribute('aria-describedby');
   renderChoiceDraft();
   taskEditorStatus.textContent = '';
   renderTaskDraftMedia();

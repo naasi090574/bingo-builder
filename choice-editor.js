@@ -18,7 +18,7 @@ function clearChoiceThumbs() {
   choiceThumbUrls = [];
 }
 
-function choiceImageField(media, label, update) {
+function choiceImageField(media, label, update, answerNumber) {
   const group = document.createElement('div');
   group.className = 'choice-draft-media';
   const input = document.createElement('input');
@@ -41,8 +41,11 @@ function choiceImageField(media, label, update) {
     img.alt = media.name;
     group.append(img);
   }
-  group.append(input, libraryButton(media ? 'Заменить картинку' : label, label, () => input.click()));
-  if (media) group.append(libraryButton('Удалить картинку', `Удалить: ${label}`, () => {
+  const uploadLabel = media ? 'Заменить картинку' : label;
+  const uploadName = answerNumber ? `${uploadLabel} (вариант ${answerNumber})` : label;
+  group.append(input, libraryButton(uploadLabel, uploadName, () => input.click()));
+  const removeName = answerNumber ? `Удалить картинку ответа (вариант ${answerNumber})` : `Удалить: ${label}`;
+  if (media) group.append(libraryButton('Удалить картинку', removeName, () => {
     update(null);
     renderChoiceDraft();
   }));
@@ -102,7 +105,7 @@ function renderChoiceDraft() {
     remove.disabled = taskDraft.options.length <= 2;
     actions.append(move(-1, '↑', 'Поднять'), move(1, '↓', 'Опустить'), remove);
     row.append(legend, textLabel, correctLabel,
-      choiceImageField(option.media, `Картинка варианта ${index + 1}`, image => { option.media = image; }),
+      choiceImageField(option.media, 'Добавить картинку ответа', image => { option.media = image; }, index + 1),
       actions);
     return row;
   }));

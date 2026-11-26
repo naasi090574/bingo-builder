@@ -1,4 +1,12 @@
-#task.has-choice { width: 68rem; }
+#task.has-choice { width: 68rem; --answer-image-height: clamp(2.8rem, 15dvh, 10rem); }
+#task.has-choice:has(.choice-options[data-count="2"]) {
+  width: 54rem;
+  --answer-image-height: min(27dvh, 18rem);
+}
+#task.has-choice:has(#task-images[hidden]) { --answer-image-height: min(19dvh, 13rem); }
+#task.has-choice:has(#task-images[hidden]):has(.choice-options[data-count="2"]) {
+  --answer-image-height: min(40dvh, 26rem);
+}
 #task.has-choice .task-sheet { gap: .55rem; padding-block: .9rem; }
 #task.has-choice .task-body { gap: .55rem; }
 #task.has-choice .task-images img { height: clamp(4rem, 17dvh, 11rem); }
@@ -36,7 +44,7 @@
 .choice-option img {
   display: block;
   width: 100%;
-  height: clamp(2.8rem, 15dvh, 10rem);
+  height: var(--answer-image-height);
   object-fit: contain;
   pointer-events: none;
 }
