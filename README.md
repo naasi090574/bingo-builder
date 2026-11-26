@@ -13,13 +13,4 @@
 
 ### Дополнительные шрифты
 
-Все девять списков шрифтов в редакторе используют общий каталог в `appearance.js`. Сейчас в нём системный шрифт, Arial, Georgia и Courier New. Для четырёх дополнительных гарнитур в проекте пока нет файлов, лицензий и правил `@font-face`.
-
-Для подключения нужны оригинальные файлы `.ttf`, `.otf` или `.woff2` с кириллицей. Для каждого файла приложите исходную лицензию SIL Open Font License из комплекта, сведения об авторе и ссылку на авторский релиз.
-
-| Шрифт | Какой файл нужен | Статус разрешения |
-| --- | --- | --- |
-| Gogono Cocoa Mochi Cyrillic | Кириллическое начертание Regular | Разрешение для конкретной кириллической версии не подтверждено. |
-| Itim Cyrillic | Кириллический Regular v1.002, адаптация Дениса Игнатова | OFL указана на [странице версии](https://localfonts.eu/freefonts/handwritten-cyrillic-free-fonts/itim-cyrillic/). Нужен исходный архив с файлом и лицензией. |
-| Ruthless Sketch Italic | `RuthlessSketch-Italic.ttf` или оригинальный OTF/WOFF2 того же начертания | OFL 1.1 указана на [странице авторского выпуска GGBotNet](https://ggbot.itch.io/ruthless-sketch-font). Нужен исходный архив с файлом и лицензией. |
-| Sol Kol | Оригинальный файл гарнитуры Amina Nugymanova | Авторство указано в [портфолио](https://dprofile.ru/case/180686/sol-kol-rukopisnyi-srift). Разрешение для конкретного файла не подтверждено. |
+Все девять списков шрифтов в редакторе используют общий каталог в `appearance.js`. Помимо системного шрифта, Arial, Georgia и Courier New доступны Gogono Cocoa Mochi Cyrillic, Itim Cyrillic, Ruthless Sketch Italic и Sol Kol. Файлы загружаются из проекта. Версии, авторы и лицензия указаны в [описании шрифтов](assets/fonts/README.md).

@@ -1,3 +1,27 @@
+@font-face {
+  font-family: "Gogono Cocoa Mochi Cyrillic";
+  src: url("assets/fonts/gogono-cocoa-mochi-cyrillic.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Itim Cyrillic";
+  src: url("assets/fonts/itimcyrillic.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ruthless Sketch Italic";
+  src: url("assets/fonts/RuthlessSketchItalic.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sol Kol";
+  src: url("assets/fonts/Sol-Kol.ttf") format("truetype");
+  font-display: swap;
+}
+
 body[data-background="color"], body[data-background="image"] {
   background: var(--chosen-background, var(--background));
 }

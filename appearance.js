@@ -5,6 +5,10 @@ const appearanceFonts = {
   sans: { label: 'Arial', css: 'Arial, sans-serif' },
   serif: { label: 'Georgia', css: 'Georgia, serif' },
   mono: { label: 'Courier New', css: '"Courier New", monospace' },
+  gogono: { label: 'Gogono Cocoa Mochi Cyrillic', css: '"Gogono Cocoa Mochi Cyrillic", sans-serif' },
+  itim: { label: 'Itim Cyrillic', css: '"Itim Cyrillic", sans-serif' },
+  ruthless: { label: 'Ruthless Sketch Italic', css: '"Ruthless Sketch Italic", sans-serif' },
+  solKol: { label: 'Sol Kol', css: '"Sol Kol", sans-serif' },
 };
 
 const labelStyles = {
