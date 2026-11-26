@@ -1,0 +1,120 @@
+'use strict';
+
+const boards = document.querySelector('#boards');
+const drawSlot = document.querySelector('#draw-slot');
+const drawButton = document.querySelector('#draw');
+const status = document.querySelector('#status');
+const mode = document.querySelector('#mode');
+const task = document.querySelector('#task');
+const taskText = document.querySelector('#task-text');
+let game;
+
+function cardImage(card) {
+  const image = document.createElement('img');
+  image.src = card.image;
+  image.alt = card.label;
+  image.draggable = false;
+  return image;
+}
+
+function renderBoard(cells, player) {
+  const active = game.player === player;
+  const won = active && game.winning.length > 0;
+  const board = document.createElement('section');
+  board.className = `board player-${player + 1}`;
+  board.classList.toggle('active', active);
+  board.setAttribute('aria-labelledby', `player-${player + 1}`);
+
+  const heading = document.createElement('div');
+  heading.className = 'board-heading';
+  const title = document.createElement('h2');
+  title.id = `player-${player + 1}`;
+  title.textContent = `Игрок ${player + 1}`;
+  const badge = document.createElement('span');
+  badge.className = 'badge';
+  badge.textContent = won ? 'Бинго!' : active ? 'Сейчас ходит' : 'Ожидает ход';
+  heading.append(title, badge);
+
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+  grid.style.setProperty('--size', game.size);
+  cells.forEach((cell, index) => {
+    const button = document.createElement('button');
+    button.className = 'cell';
+    button.type = 'button';
+    button.disabled = !active || !game.drawn || cell.marked || won;
+    if (cell.marked) {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = '✓';
+      chip.setAttribute('aria-hidden', 'true');
+      button.setAttribute('aria-label', 'Закрыто фишкой');
+      button.append(chip);
+    } else {
+      button.append(cardImage(cell.card));
+    }
+    button.classList.toggle('winning', Boolean(won && game.winning.includes(index)));
+    button.addEventListener('click', () => choose(button, player, index));
+    grid.append(button);
+  });
+  board.append(heading, grid);
+  return board;
+}
+
+function render() {
+  boards.replaceChildren(...game.boards.map(renderBoard));
+  const placeholder = document.createElement('span');
+  placeholder.className = 'placeholder';
+  placeholder.setAttribute('aria-hidden', 'true');
+  placeholder.textContent = '?';
+  drawSlot.replaceChildren(game.drawn ? cardImage(game.drawn) : placeholder);
+  drawButton.disabled = !game.canDraw;
+  mode.disabled = Boolean(game.drawn || game.boards.some(board => board.some(cell => cell.marked)));
+  if (game.winning.length) {
+    status.textContent = `Игрок ${game.player + 1} победил!`;
+  } else if (!game.drawn) {
+    status.textContent = `Игрок ${game.player + 1}, достань карточку.`;
+  } else if (game.canDraw) {
+    status.textContent = 'Этой картинки нет на твоём поле. Достань следующую.';
+  } else {
+    status.textContent = 'Найди такую же картинку на своём поле.';
+  }
+}
+
+function choose(button, player, index) {
+  const result = game.choose(player, index);
+  if (result === 'wrong') {
+    button.classList.remove('shake');
+    void button.offsetWidth;
+    button.classList.add('shake');
+    status.textContent = game.canDraw
+      ? 'Этой картинки нет на твоём поле. Достань следующую.'
+      : 'Попробуй ещё раз. Найди такую же картинку.';
+  }
+  if (result === 'task') {
+    taskText.textContent = game.pending.text;
+    task.showModal();
+  }
+}
+
+function restart() {
+  game = new BingoGame(bingoContent, mode.value);
+  render();
+}
+
+drawButton.addEventListener('click', () => {
+  if (!game.draw()) return;
+  render();
+  if (!game.canDraw) boards.querySelector('.active .cell:not(:disabled)')?.focus();
+});
+
+task.addEventListener('cancel', event => event.preventDefault());
+document.querySelector('#complete').addEventListener('click', () => {
+  game.completeTask();
+  task.close();
+  render();
+  (game.winning.length ? document.querySelector('#reset') : drawButton).focus();
+});
+document.querySelector('#reset').addEventListener('click', restart);
+mode.addEventListener('change', restart);
+restart();
