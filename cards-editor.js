@@ -82,7 +82,7 @@ async function readCardImage(file) {
   if (!png && !jpeg && !webp) throw new Error('Допустимы изображения PNG, JPG, JPEG и WEBP.');
   const blob = file.slice(0, file.size, png ? 'image/png' : jpeg ? 'image/jpeg' : 'image/webp');
   try {
-    return { image: blob, ...await imageFingerprint(blob) };
+    return await optimizeCardImage(blob);
   } catch {
     throw new Error('Не удалось прочитать изображение.');
   }
@@ -233,7 +233,7 @@ function renderLibrary() {
     .map(card => [card.id, URL.createObjectURL(card.image)]));
   cardItems.replaceChildren(...library.cards.map(renderCardRow));
   for (const url of previous.values()) URL.revokeObjectURL(url);
-  document.querySelector('#card-count').textContent = String(library.cards.length);
+  document.querySelector('#card-count').textContent = String(uniqueCards(library.cards).length);
   document.querySelector('#clear-cards').disabled = library.cards.length === 0;
   renderPlacement();
 }

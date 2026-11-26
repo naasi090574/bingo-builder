@@ -79,45 +79,74 @@ function distinctPlacements(field, cards) {
   });
 }
 
-async function imageFingerprint(source) {
+async function withDecodedImage(source, useImage) {
   const url = source instanceof Blob ? URL.createObjectURL(source) : source;
   try {
     const image = new Image();
     image.src = url;
     await image.decode();
-    const canvas = document.createElement('canvas');
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
-    const context = canvas.getContext('2d', { willReadFrequently: true });
-    context.drawImage(image, 0, 0);
-    const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
-    const dimensions = `${canvas.width}x${canvas.height}`;
-    const sample = document.createElement('canvas');
-    sample.width = sample.height = 32;
-    const sampleContext = sample.getContext('2d');
-    sampleContext.imageSmoothingQuality = 'high';
-    sampleContext.drawImage(image, 0, 0, 32, 32);
-    const imageSample = sampleContext.getImageData(0, 0, 32, 32).data;
-    for (let index = 0; index < imageSample.length; index += 4) {
-      const alpha = imageSample[index + 3] / 255;
-      for (let channel = 0; channel < 3; channel++) imageSample[index + channel] *= alpha;
-    }
-    if (!crypto.subtle) {
-      // Keep local HTTP installations usable without SubtleCrypto.
-      let left = 2166136261;
-      let right = 0x9e3779b9;
-      for (const byte of data) {
-        left = Math.imul(left ^ byte, 16777619);
-        right = Math.imul(right + byte, 0x85ebca6b) ^ (right >>> 13);
-      }
-      return { imageKey: `${dimensions}:${left >>> 0}:${right >>> 0}`, imageSample };
-    }
-    const digest = await crypto.subtle.digest('SHA-256', data);
-    const imageKey = `${dimensions}:${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')}`;
-    return { imageKey, imageSample };
+    return await useImage(image);
   } finally {
     if (source instanceof Blob) URL.revokeObjectURL(url);
   }
+}
+
+function imageCanvas(image, scale = 1) {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+  canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  context.imageSmoothingQuality = 'high';
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return { canvas, context };
+}
+
+async function fingerprintPixels({ canvas, context }, sampleSource) {
+  const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+  const dimensions = `${canvas.width}x${canvas.height}`;
+  const sample = document.createElement('canvas');
+  sample.width = sample.height = 32;
+  const sampleContext = sample.getContext('2d');
+  sampleContext.imageSmoothingQuality = 'high';
+  sampleContext.drawImage(sampleSource, 0, 0, 32, 32);
+  const imageSample = sampleContext.getImageData(0, 0, 32, 32).data;
+  for (let index = 0; index < imageSample.length; index += 4) {
+    const alpha = imageSample[index + 3] / 255;
+    for (let channel = 0; channel < 3; channel++) imageSample[index + channel] *= alpha;
+  }
+  if (!crypto.subtle) {
+    // Keep local HTTP installations usable without SubtleCrypto.
+    let left = 2166136261;
+    let right = 0x9e3779b9;
+    for (const byte of data) {
+      left = Math.imul(left ^ byte, 16777619);
+      right = Math.imul(right + byte, 0x85ebca6b) ^ (right >>> 13);
+    }
+    return { imageKey: `${dimensions}:${left >>> 0}:${right >>> 0}`, imageSample };
+  }
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  const imageKey = `${dimensions}:${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')}`;
+  return { imageKey, imageSample };
+}
+
+function imageFingerprint(source) {
+  return withDecodedImage(source, image => fingerprintPixels(imageCanvas(image), image));
+}
+
+function optimizeCardImage(blob) {
+  return withDecodedImage(blob, async image => {
+    const scale = Math.min(1, 512 / Math.max(image.naturalWidth, image.naturalHeight));
+    const pixels = imageCanvas(image, scale);
+    const metadata = await fingerprintPixels(pixels, image);
+    // Keep small WebP files as-is to avoid recompressing them.
+    if (scale === 1 && blob.type === 'image/webp' && blob.size <= 100 * 1024) {
+      return { image: blob, ...metadata };
+    }
+    const encoded = await new Promise(resolve => pixels.canvas.toBlob(resolve, 'image/webp', 0.94));
+    if (!encoded && scale < 1) throw new Error('Не удалось уменьшить изображение.');
+    const optimized = encoded && (scale < 1 || encoded.size < blob.size) ? encoded : blob;
+    return { image: optimized, ...metadata };
+  });
 }
 
 async function identifyLibraryImages(library) {
