@@ -21,8 +21,8 @@ body:is(:target, .landscape-game) .intro {
   grid-template-columns: minmax(0, 1fr) 260px;
   margin-bottom: 16px;
 }
-body:is(:target, .landscape-game) #game-title { font-size: var(--chosen-title-size, 34px); }
-body:is(:target, .landscape-game) .intro p { margin-top: 7px; font-size: var(--chosen-text-size, .875rem); }
+body:is(:target, .landscape-game) #game-title { font-size: var(--label-title-size, 34px); }
+body:is(:target, .landscape-game) #game-instruction { margin-top: 7px; font-size: var(--label-instruction-size, .875rem); }
 body:is(:target, .landscape-game) .table {
   grid-template-columns: minmax(0, 1fr) 260px;
   container-type: size;
@@ -40,7 +40,7 @@ body:is(:target, .landscape-game) .board-heading {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
 }
-body:is(:target, .landscape-game) .board-heading h2 { font-size: var(--chosen-text-size, 18px); }
+body:is(:target, .landscape-game) .board-heading h2 { font-size: var(--label-player-size, 18px); }
 body:is(:target, .landscape-game) .grid {
   max-width: min(340px, calc(100cqh - 124px));
   margin-inline: auto;

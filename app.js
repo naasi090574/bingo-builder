@@ -32,7 +32,7 @@ function renderBoard(cells, player) {
   title.id = `player-${player + 1}`;
   title.textContent = playerNames[player];
   const badge = document.createElement('span');
-  badge.className = 'badge';
+  badge.className = won ? 'badge winner-badge' : 'badge';
   badge.textContent = won ? 'Бинго!' : active ? 'Сейчас ходит' : 'Ожидает ход';
   heading.append(title, badge);
 

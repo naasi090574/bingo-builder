@@ -9,28 +9,77 @@ body[data-background="image"] {
 }
 body[data-background="transparent"] { background: transparent; }
 
-body {
-  font-family: var(--chosen-text-font, system-ui, sans-serif);
-  font-size: var(--chosen-text-size, 1rem);
-  color: var(--chosen-text-color, var(--text));
-}
 #game-title {
-  font-family: var(--chosen-title-font, system-ui, sans-serif);
-  color: var(--chosen-title-color, var(--text));
+  font-family: var(--label-title-font, inherit);
+  font-size: var(--label-title-size, clamp(3.2rem, 7vw, 6rem));
+  color: var(--label-title-color, var(--text));
 }
-body #game-title { font-size: var(--chosen-title-size, clamp(3.2rem, 7vw, 6rem)); }
-.intro p, .game-rules, .status { color: var(--chosen-text-color, var(--muted)); }
-.game-rules dd, dialog { color: var(--chosen-text-color, var(--text)); }
-.badge { color: var(--chosen-text-color, #d1daea); }
-.active .badge { color: var(--chosen-text-color, var(--accent)); }
-.placeholder { color: var(--chosen-text-color, #9bacbf); }
-.task-title { color: var(--chosen-text-color, var(--mint)); }
-.game-rules, .badge, h2, .task-text {
-  font-size: var(--chosen-text-size, var(--label-size));
+#game-instruction {
+  font-family: var(--label-instruction-font, inherit);
+  font-size: var(--label-instruction-size, 1rem);
+  color: var(--label-instruction-color, var(--muted));
 }
-.game-rules, .badge { --label-size: .875rem; }
-h2 { --label-size: clamp(1rem, 1.6vw, 1.35rem); }
-.task-text { --label-size: clamp(1.45rem, 4vw, 2.35rem); }
+.board-heading h2 {
+  font-family: var(--label-player-font, inherit);
+  font-size: var(--label-player-size, clamp(1rem, 1.6vw, 1.35rem));
+  color: var(--label-player-color, var(--text));
+}
+.game-rules {
+  font-family: var(--label-victory-font, inherit);
+  font-size: var(--label-victory-size, .875rem);
+  color: var(--label-victory-color, var(--muted));
+}
+.game-rules dd { color: var(--label-victory-color, var(--text)); }
+#draw-title {
+  font-family: var(--label-drawTitle-font, inherit);
+  font-size: var(--label-drawTitle-size, clamp(1rem, 1.6vw, 1.35rem));
+  color: var(--label-drawTitle-color, var(--text));
+}
+.status, .brand, .task-title, .winner-badge, .placeholder {
+  font-family: var(--label-text-font, inherit);
+  font-size: var(--label-text-size, var(--helper-size, 1rem));
+  color: var(--label-text-color, var(--helper-color, var(--text)));
+}
+.status { --helper-color: var(--muted); }
+.task-title { --helper-color: var(--mint); }
+.placeholder { --helper-color: #9bacbf; --helper-size: 2.4rem; }
+.active .winner-badge {
+  font-size: var(--label-text-size, .875rem);
+  color: var(--label-text-color, var(--accent));
+}
+.task-text {
+  font-family: var(--label-task-font, inherit);
+  font-size: var(--label-task-size, clamp(1.45rem, 4vw, 2.35rem));
+  color: var(--label-task-color, var(--text));
+}
+.board:not(.active) .badge {
+  font-family: var(--label-idleBadge-font, inherit);
+  font-size: var(--label-idleBadge-size, .875rem);
+  color: var(--label-idleBadge-color, #d1daea);
+  background: color-mix(in srgb, var(--idle-badge-background, #29354b) var(--idle-badge-fill, 100%), transparent);
+}
+.active .badge:not(.winner-badge) {
+  font-family: var(--label-activeBadge-font, inherit);
+  font-size: var(--label-activeBadge-size, .875rem);
+  color: var(--label-activeBadge-color, var(--accent));
+  background: color-mix(in srgb,
+    var(--active-badge-background, color-mix(in srgb, var(--accent) 18%, var(--panel)))
+    var(--active-badge-fill, 100%), transparent);
+}
+.draw-panel {
+  border-radius: var(--draw-panel-radius, 20px);
+  background: color-mix(in srgb, var(--draw-panel-color, var(--panel)) var(--draw-panel-fill, 100%), transparent);
+}
+.draw-slot {
+  border-color: var(--draw-slot-border, #50617a);
+  border-width: var(--draw-slot-width, 1px);
+  border-radius: var(--draw-slot-radius, 13px);
+  background: color-mix(in srgb, var(--draw-slot-color, #111c2d) var(--draw-slot-fill, 100%), transparent);
+}
+.reset, .primary {
+  font-family: var(--label-button-font, inherit);
+  font-size: var(--label-button-size, 1rem);
+}
 
 .board {
   width: var(--board-width, 100%);
@@ -59,16 +108,16 @@ h2 { --label-size: clamp(1rem, 1.6vw, 1.35rem); }
 }
 .reset {
   background: var(--chosen-button, #182235);
-  color: var(--chosen-button-text, var(--text));
+  color: var(--label-button-color, var(--text));
 }
-.reset span { color: var(--chosen-button-text, var(--mint)); }
+.reset span { color: var(--label-button-color, var(--mint)); }
 .reset:hover { background: var(--chosen-button, #23314a); }
 .primary {
   background: var(--chosen-button, var(--mint));
-  color: var(--chosen-button-text, #102822);
+  color: var(--label-button-color, #102822);
 }
 .primary:not(:disabled):hover { background: var(--chosen-button, #9bffd9); }
 .primary:disabled {
   background: color-mix(in srgb, var(--chosen-button, #2d4053) 65%, #2d4053);
-  color: var(--chosen-button-text, #bfcadd);
+  color: var(--label-button-color, #bfcadd);
 }

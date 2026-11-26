@@ -8,10 +8,12 @@ const appearanceColors = {
   backgroundColor: '--chosen-background',
   boardColor: '--chosen-board',
   cellColor: '--chosen-cell',
-  titleColor: '--chosen-title-color',
-  textColor: '--chosen-text-color',
+  activeBadgeBackground: '--active-badge-background',
+  idleBadgeBackground: '--idle-badge-background',
+  drawPanelColor: '--draw-panel-color',
+  drawSlotColor: '--draw-slot-color',
+  drawSlotBorder: '--draw-slot-border',
   buttonColor: '--chosen-button',
-  buttonText: '--chosen-button-text',
   activeColor: '--chosen-active',
 };
 
@@ -22,8 +24,13 @@ const appearanceScales = {
   cellOpacity: ['--cell-fill', 0, 100, '%'],
   imageSize: ['--image-size', 25, 100, '%'],
   cellRadius: ['--cell-radius', 0, 40, 'px'],
-  titleSize: ['--chosen-title-size', 20, 48, 'px'],
-  textSize: ['--chosen-text-size', 12, 22, 'px'],
+  activeBadgeOpacity: ['--active-badge-fill', 0, 100, '%'],
+  idleBadgeOpacity: ['--idle-badge-fill', 0, 100, '%'],
+  drawPanelOpacity: ['--draw-panel-fill', 0, 100, '%'],
+  drawPanelRadius: ['--draw-panel-radius', 0, 40, 'px'],
+  drawSlotOpacity: ['--draw-slot-fill', 0, 100, '%'],
+  drawSlotWidth: ['--draw-slot-width', 0, 12, 'px'],
+  drawSlotRadius: ['--draw-slot-radius', 0, 40, 'px'],
 };
 
 function applyAppearance({ values, image, imageVersion }) {
@@ -34,15 +41,22 @@ function applyAppearance({ values, image, imageVersion }) {
     else body.style.removeProperty(property);
   };
 
-  for (const [key, property] of Object.entries(appearanceColors)) {
+  const setColor = (key, property) =>
     set(key, property, /^#[0-9a-f]{6}$/i.test(values[key]) ? values[key] : '');
-  }
-  for (const [key, [property, min, max, unit]] of Object.entries(appearanceScales)) {
+  const setScale = (key, property, min, max, unit) => {
     const value = Number(values[key]);
     set(key, property, Number.isFinite(value) ? Math.max(min, Math.min(max, value)) + unit : '');
+  };
+
+  for (const [key, property] of Object.entries(appearanceColors)) setColor(key, property);
+  for (const [key, range] of Object.entries(appearanceScales)) setScale(key, ...range);
+  for (const [key, style] of Object.entries(labelStyles)) {
+    const fontKey = `${key}Font`;
+    const font = Object.hasOwn(appearanceFonts, values[fontKey]) && appearanceFonts[values[fontKey]].css;
+    set(fontKey, `--label-${key}-font`, font);
+    setScale(`${key}Size`, `--label-${key}-size`, style.min, style.max, 'px');
+    setColor(labelColorKey(key, style), `--label-${key}-color`);
   }
-  set('titleFont', '--chosen-title-font', Object.hasOwn(appearanceFonts, values.titleFont) && appearanceFonts[values.titleFont]);
-  set('textFont', '--chosen-text-font', Object.hasOwn(appearanceFonts, values.textFont) && appearanceFonts[values.textFont]);
 
   if (imageVersion !== activeImageVersion) {
     if (activeImageUrl) URL.revokeObjectURL(activeImageUrl);
@@ -53,9 +67,11 @@ function applyAppearance({ values, image, imageVersion }) {
   }
   body.dataset.background = values.backgroundMode;
   body.toggleAttribute('data-custom-layout',
-    values.textFont !== defaultAppearance.textFont ||
-    Number(values.textSize) > Number(defaultAppearance.textSize) ||
-    Number(values.boardSize) < Number(defaultAppearance.boardSize));
+    values.boardSize !== defaultAppearance.boardSize ||
+    values.drawSlotWidth !== defaultAppearance.drawSlotWidth ||
+    Object.keys(labelStyles).some(key =>
+      values[`${key}Font`] !== defaultAppearance[`${key}Font`] ||
+      values[`${key}Size`] !== defaultAppearance[`${key}Size`]));
 }
 
 if (appearanceSource) {

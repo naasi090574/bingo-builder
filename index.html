@@ -78,91 +78,99 @@
         </label>
       </form>
       <form id="appearance-settings" class="settings-form appearance-form" hidden>
-        <fieldset>
-          <legend>Фон игры</legend>
-          <label>Вид фона
-            <select name="backgroundMode">
-              <option value="default">Исходный</option>
-              <option value="color">Однотонный</option>
-              <option value="image">Изображение</option>
-              <option value="transparent">Прозрачный</option>
-            </select>
-          </label>
-          <label class="color-setting">Цвет фона<input type="color" name="backgroundColor"></label>
-          <div id="background-image-controls" hidden>
-            <label class="secondary image-picker">
-              Выбрать изображение
-              <input id="background-image" type="file" accept="image/*" aria-describedby="background-status">
+        <details class="appearance-group" open>
+          <summary>Фон игры</summary>
+          <div class="appearance-fields">
+            <label>Вид фона
+              <select name="backgroundMode">
+                <option value="default">Исходный</option>
+                <option value="color">Однотонный</option>
+                <option value="image">Изображение</option>
+                <option value="transparent">Прозрачный</option>
+              </select>
             </label>
-            <button id="remove-background" class="secondary" type="button" disabled>Удалить изображение</button>
-            <p id="background-status" role="status"></p>
+            <label class="color-setting">Цвет фона<input type="color" name="backgroundColor"></label>
+            <div id="background-image-controls" hidden>
+              <label class="secondary image-picker">
+                Выбрать изображение
+                <input id="background-image" type="file" accept="image/*" aria-describedby="background-status">
+              </label>
+              <button id="remove-background" class="secondary" type="button" disabled>Удалить изображение</button>
+              <p id="background-status" role="status"></p>
+            </div>
           </div>
-        </fieldset>
-        <fieldset>
-          <legend>Игровые поля</legend>
-          <label class="color-setting">Цвет поля<input type="color" name="boardColor"></label>
-          <label class="range-setting"><span>Непрозрачность поля</span><output for="boardOpacity"></output>
-            <input id="boardOpacity" name="boardOpacity" type="range" min="0" max="100" data-unit="%">
-          </label>
-          <label class="range-setting"><span>Размер поля</span><output for="boardSize"></output>
-            <input id="boardSize" name="boardSize" type="range" min="65" max="100" data-unit="%">
-          </label>
-          <label class="range-setting"><span>Скругление поля</span><output for="boardRadius"></output>
-            <input id="boardRadius" name="boardRadius" type="range" min="0" max="40" data-unit=" пкс">
-          </label>
-        </fieldset>
-        <fieldset>
-          <legend>Игровые ячейки</legend>
-          <label class="color-setting">Цвет ячейки<input type="color" name="cellColor"></label>
-          <label class="range-setting"><span>Непрозрачность ячейки</span><output for="cellOpacity"></output>
-            <input id="cellOpacity" name="cellOpacity" type="range" min="0" max="100" data-unit="%">
-          </label>
-          <label class="range-setting"><span>Размер изображения</span><output for="imageSize"></output>
-            <input id="imageSize" name="imageSize" type="range" min="25" max="100" data-unit="%">
-          </label>
-          <label class="range-setting"><span>Скругление ячейки</span><output for="cellRadius"></output>
-            <input id="cellRadius" name="cellRadius" type="range" min="0" max="40" data-unit=" пкс">
-          </label>
-        </fieldset>
-        <fieldset>
-          <legend>Название игры</legend>
-          <label>Шрифт названия
-            <select name="titleFont">
-              <option value="system">Системный</option>
-              <option value="sans">Arial</option>
-              <option value="serif">Georgia</option>
-              <option value="mono">Courier New</option>
-            </select>
-          </label>
-          <label class="range-setting"><span>Размер названия</span><output for="titleSize"></output>
-            <input id="titleSize" name="titleSize" type="range" min="20" max="48" data-unit=" пкс">
-          </label>
-          <label class="color-setting">Цвет названия<input type="color" name="titleColor"></label>
-        </fieldset>
-        <fieldset>
-          <legend>Остальные надписи</legend>
-          <label>Шрифт надписей
-            <select name="textFont">
-              <option value="system">Системный</option>
-              <option value="sans">Arial</option>
-              <option value="serif">Georgia</option>
-              <option value="mono">Courier New</option>
-            </select>
-          </label>
-          <label class="range-setting"><span>Размер надписей</span><output for="textSize"></output>
-            <input id="textSize" name="textSize" type="range" min="12" max="22" data-unit=" пкс">
-          </label>
-          <label class="color-setting">Цвет надписей<input type="color" name="textColor"></label>
-        </fieldset>
-        <fieldset>
-          <legend>Кнопки</legend>
-          <label class="color-setting">Цвет фона кнопок<input type="color" name="buttonColor"></label>
-          <label class="color-setting">Цвет текста кнопок<input type="color" name="buttonText"></label>
-        </fieldset>
-        <fieldset>
-          <legend>Активный игрок</legend>
-          <label class="color-setting">Цвет рамки<input type="color" name="activeColor"></label>
-        </fieldset>
+        </details>
+        <details class="appearance-group">
+          <summary>Игровые поля</summary>
+          <div class="appearance-fields">
+            <label class="color-setting">Цвет поля<input type="color" name="boardColor"></label>
+            <label class="range-setting"><span>Непрозрачность поля</span><output for="boardOpacity"></output>
+              <input id="boardOpacity" name="boardOpacity" type="range" min="0" max="100" data-unit="%">
+            </label>
+            <label class="range-setting"><span>Размер поля</span><output for="boardSize"></output>
+              <input id="boardSize" name="boardSize" type="range" min="65" max="100" data-unit="%">
+            </label>
+            <label class="range-setting"><span>Скругление поля</span><output for="boardRadius"></output>
+              <input id="boardRadius" name="boardRadius" type="range" min="0" max="40" data-unit=" пкс">
+            </label>
+          </div>
+        </details>
+        <details class="appearance-group">
+          <summary>Игровые ячейки</summary>
+          <div class="appearance-fields">
+            <label class="color-setting">Цвет ячейки<input type="color" name="cellColor"></label>
+            <label class="range-setting"><span>Непрозрачность ячейки</span><output for="cellOpacity"></output>
+              <input id="cellOpacity" name="cellOpacity" type="range" min="0" max="100" data-unit="%">
+            </label>
+            <label class="range-setting"><span>Размер изображения</span><output for="imageSize"></output>
+              <input id="imageSize" name="imageSize" type="range" min="25" max="100" data-unit="%">
+            </label>
+            <label class="range-setting"><span>Скругление ячейки</span><output for="cellRadius"></output>
+              <input id="cellRadius" name="cellRadius" type="range" min="0" max="40" data-unit=" пкс">
+            </label>
+          </div>
+        </details>
+        <details class="appearance-group" id="typography-settings">
+          <summary>Надписи</summary>
+        </details>
+        <details class="appearance-group" id="turn-settings">
+          <summary>Индикаторы хода</summary>
+        </details>
+        <details class="appearance-group">
+          <summary>Выпавшая карточка</summary>
+          <div class="appearance-fields">
+            <label class="color-setting">Цвет фона блока<input type="color" name="drawPanelColor"></label>
+            <label class="range-setting"><span>Непрозрачность блока</span><output for="drawPanelOpacity"></output>
+              <input id="drawPanelOpacity" name="drawPanelOpacity" type="range" min="0" max="100" data-unit="%">
+            </label>
+            <label class="range-setting"><span>Скругление блока</span><output for="drawPanelRadius"></output>
+              <input id="drawPanelRadius" name="drawPanelRadius" type="range" min="0" max="40" data-unit=" пкс">
+            </label>
+            <label class="color-setting">Цвет фона области картинки<input type="color" name="drawSlotColor"></label>
+            <label class="range-setting"><span>Непрозрачность фона области</span><output for="drawSlotOpacity"></output>
+              <input id="drawSlotOpacity" name="drawSlotOpacity" type="range" min="0" max="100" data-unit="%">
+            </label>
+            <label class="color-setting">Цвет рамки области<input type="color" name="drawSlotBorder"></label>
+            <label class="range-setting"><span>Толщина рамки области</span><output for="drawSlotWidth"></output>
+              <input id="drawSlotWidth" name="drawSlotWidth" type="range" min="0" max="12" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Скругление области картинки</span><output for="drawSlotRadius"></output>
+              <input id="drawSlotRadius" name="drawSlotRadius" type="range" min="0" max="40" data-unit=" пкс">
+            </label>
+          </div>
+        </details>
+        <details class="appearance-group">
+          <summary>Кнопки</summary>
+          <div class="appearance-fields">
+            <label class="color-setting">Цвет фона кнопок<input type="color" name="buttonColor"></label>
+          </div>
+        </details>
+        <details class="appearance-group">
+          <summary>Активный игрок</summary>
+          <div class="appearance-fields">
+            <label class="color-setting">Цвет рамки<input type="color" name="activeColor"></label>
+          </div>
+        </details>
         <button class="secondary" type="reset">Сбросить оформление</button>
       </form>
       <div class="availability" hidden>
