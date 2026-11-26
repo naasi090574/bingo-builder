@@ -54,7 +54,7 @@ body[data-background="transparent"] { background: transparent; }
   font-size: var(--label-drawTitle-size, clamp(1rem, 1.6vw, 1.35rem));
   color: var(--label-drawTitle-color, var(--text));
 }
-.status, .brand, .task-title, .winner-badge, .placeholder {
+.status, .task-title, .winner-badge, .placeholder {
   font-family: var(--label-text-font, inherit);
   font-size: var(--label-text-size, var(--helper-size, 1rem));
   color: var(--label-text-color, var(--helper-color, var(--text)));

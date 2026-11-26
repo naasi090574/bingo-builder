@@ -11,21 +11,15 @@ body.landscape-game { --scene: var(--landscape-scale); }
 body:is(:target, .landscape-game) .shell { width: min(1180px, calc(100vw / var(--scene) - 48px)); }
 body:is(:target, .landscape-game) .topbar { min-height: 64px; }
 body:is(:target, .landscape-game) main {
+  --table-columns: minmax(0, 1fr) 260px;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   height: calc(100vh / var(--scene) - 64px);
   padding: 18px 0 10px;
 }
-body:is(:target, .landscape-game) .intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 260px;
-  margin-bottom: 16px;
-}
+body:is(:target, .landscape-game) .intro { margin-bottom: 16px; }
 body:is(:target, .landscape-game) #game-title { font-size: var(--label-title-size, 34px); }
-body:is(:target, .landscape-game) .table {
-  grid-template-columns: minmax(0, 1fr) 260px;
-  container-type: size;
-}
+body:is(:target, .landscape-game) .table { container-type: size; }
 body:is(:target, .landscape-game) .boards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 body:is(:target, .landscape-game) .board,
 body:is(:target, .landscape-game) .draw-panel { padding: 15px; }
@@ -33,11 +27,6 @@ body:is(:target, .landscape-game) .draw-panel { grid-row: auto; grid-template-co
 body:is(:target, .landscape-game) .draw-slot {
   grid-row: auto;
   max-height: clamp(64px, calc(100cqh - 215px), 195px);
-}
-body:is(:target, .landscape-game) .board-heading {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
 }
 body:is(:target, .landscape-game) .board-heading h2 { font-size: var(--label-player-size, 18px); }
 body:is(:target, .landscape-game) .grid {
@@ -51,10 +40,6 @@ body:is(:target, .landscape-game)[data-custom-layout] .board {
 }
 body:is(:target, .landscape-game)[data-custom-layout] .board-cells { container-type: size; }
 body:is(:target, .landscape-game)[data-custom-layout] .grid { max-width: min(340px, 100cqh); }
-body:is(:target, .landscape-game)[data-custom-layout] .board-heading {
-  grid-template-columns: minmax(0, 1fr);
-  justify-items: start;
-}
 body:is(:target, .landscape-game)[data-custom-layout] .draw-panel {
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   height: min(100cqh, 420px);
