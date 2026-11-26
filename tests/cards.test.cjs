@@ -39,3 +39,78 @@ test('each board has unique card content in auto and manual deals, including red
     }
   `, context);
 });
+
+test('both miss rules finish at every size and victory condition, including repeated deck cycles', () => {
+  vm.runInContext(`
+    for (const size of [2, 3, 4, 5]) {
+      const count = size ** 2;
+      const cards = Array.from({ length: 2 * count }, (_, index) => ({ id: String(index) }));
+      const placements = [cards.slice(0, count), cards.slice(count)].map(field => field.map(card => card.id));
+      for (const mode of ['horizontal', 'vertical', 'diagonal', 'line', 'full']) {
+        for (const missedDraw of ['retry', 'pass']) {
+          for (const random of [() => 0, () => 0.99, Math.random]) {
+            const game = new BingoGame({ size, cards, placements, missedDraw, tasks: ['Задание'] }, mode, random);
+            let draws = 0;
+            let misses = 0;
+            while (!game.outcome) {
+              const player = game.player;
+              assert.ok(++draws <= cards.length * (4 * count), 'the deck must make progress');
+              const drawn = game.draw();
+              assert.ok(drawn);
+              const target = game.boards[player].findIndex(cell => cell.card.id === drawn.id && !cell.marked);
+              if (target < 0) {
+                misses++;
+                assert.equal(game.player, missedDraw === 'pass' ? 1 - player : player);
+                assert.equal(game.lastMiss, missedDraw === 'pass' ? drawn : null);
+                assert.ok(game.canDraw);
+                continue;
+              }
+              assert.equal(game.player, player);
+              assert.equal(game.canDraw, false);
+              assert.equal(game.choose(player, target), 'task');
+              game.completeTask();
+              const cells = winningCells(game.boards[player], size, mode);
+              if (cells.length && missedDraw === 'retry' && mode === 'full' && player === 0) {
+                assert.equal(game.outcome, null);
+                assert.equal(game.player, 1);
+              } else if (cells.length) {
+                assert.ok(game.outcome);
+                assert.equal(game.outcome.winner, missedDraw === 'retry' && mode === 'full' ? null : player);
+              }
+            }
+            assert.ok(misses > 0 || missedDraw === 'retry');
+            assert.equal(game.canDraw, false);
+            assert.equal(game.draw(), null);
+          }
+        }
+      }
+    }
+  `, context);
+});
+
+test('a full-board lead wins after the second player finishes short, and a covered draw passes the turn', () => {
+  vm.runInContext(`
+    const cards = Array.from({ length: 4 }, (_, index) => ({ id: String(index) }));
+    const game = new BingoGame({ size: 2, cards, tasks: ['Задание'] }, 'full');
+    for (const cell of game.boards[0].slice(0, 3)) cell.marked = true;
+    game.drawn = game.boards[0][3].card;
+    assert.equal(game.choose(0, 3), 'task');
+    game.completeTask();
+    assert.equal(game.outcome, null);
+    assert.equal(game.player, 1);
+    game.drawn = game.boards[1][0].card;
+    assert.equal(game.choose(1, 0), 'task');
+    game.completeTask();
+    assert.equal(game.outcome.winner, 0);
+
+    const pass = new BingoGame({ size: 2, cards, missedDraw: 'pass' });
+    const covered = pass.boards[0][0];
+    covered.marked = true;
+    pass.decks[0].push(covered.card);
+    assert.equal(pass.draw(), covered.card);
+    assert.equal(pass.player, 1);
+    assert.equal(pass.drawn, null);
+    assert.equal(pass.choose(1, 0), 'ignored');
+    assert.ok(pass.canDraw);
+  `, context);
+});

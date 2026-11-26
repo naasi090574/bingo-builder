@@ -43,8 +43,10 @@ function cardContent(card) {
 }
 
 function renderBoard(cells, player) {
-  const active = game.player === player;
-  const won = active && game.winning.length > 0;
+  const { outcome } = game;
+  const active = (outcome?.winner ?? game.player) === player;
+  const won = outcome?.winner === player;
+  const tied = outcome?.winner === null;
   const board = document.createElement('section');
   board.className = `board player-${player + 1}`;
   board.classList.toggle('active', active);
@@ -56,8 +58,8 @@ function renderBoard(cells, player) {
   title.id = `player-${player + 1}`;
   title.textContent = playerNames[player];
   const badge = document.createElement('span');
-  badge.className = won ? 'badge winner-badge' : 'badge';
-  badge.textContent = won ? 'Бинго!' : active ? 'Сейчас ходит' : 'Ожидает ход';
+  badge.className = won || tied ? 'badge winner-badge' : 'badge';
+  badge.textContent = tied ? 'Ничья' : won ? 'Бинго!' : active ? 'Сейчас ходит' : 'Ожидает ход';
   heading.append(title, badge);
 
   const grid = document.createElement('div');
@@ -67,7 +69,7 @@ function renderBoard(cells, player) {
     const button = document.createElement('button');
     button.className = 'cell';
     button.type = 'button';
-    button.disabled = !active || !game.drawn || cell.marked || won;
+    button.disabled = !active || !game.drawn || cell.marked || Boolean(outcome);
     if (cell.marked) {
       const chip = document.createElement('span');
       chip.className = 'chip';
@@ -79,7 +81,7 @@ function renderBoard(cells, player) {
       button.dataset.cardId = cell.card.id;
       button.append(cardContent(cell.card));
     }
-    button.classList.toggle('winning', Boolean(won && game.winning.includes(index)));
+    button.classList.toggle('winning', Boolean((won || tied) && outcome.cells.includes(index)));
     button.addEventListener('click', () => choose(button, player, index));
     grid.append(button);
   });
@@ -96,10 +98,15 @@ function render() {
   placeholder.className = 'placeholder';
   placeholder.setAttribute('aria-hidden', 'true');
   placeholder.textContent = '?';
-  drawSlot.replaceChildren(game.drawn ? cardContent(game.drawn) : placeholder);
+  const displayedCard = game.drawn ?? game.lastMiss;
+  drawSlot.replaceChildren(displayedCard ? cardContent(displayedCard) : placeholder);
   drawButton.disabled = !game.canDraw;
-  if (game.winning.length) {
-    status.textContent = `Победа — ${playerNames[game.player]}!`;
+  if (game.outcome) {
+    const { winner } = game.outcome;
+    status.textContent = winner === null ? 'Ничья! Оба игрока закрыли всё поле.'
+      : `Победа — ${playerNames[winner]}!`;
+  } else if (game.lastMiss) {
+    status.textContent = `Совпадения нет. Ход переходит игроку «${playerNames[game.player]}».`;
   } else if (!game.drawn) {
     status.textContent = `${playerNames[game.player]}, достань карточку.`;
   } else {
@@ -134,7 +141,7 @@ function restart() {
   if (task.open) task.close();
   for (const url of gameImageUrls) URL.revokeObjectURL(url);
   gameImageUrls = [];
-  const { size, order, victory } = settings;
+  const { size, order, victory, missedDraw } = settings;
   const reset = document.querySelector('#reset');
   const uniqueCount = uniqueCards(cardLibrary.cards).length;
   reset.disabled = uniqueCount < size ** 2;
@@ -153,7 +160,7 @@ function restart() {
     return { ...card, image };
   });
   game = new BingoGame({
-    ...bingoContent, cards, size, taskOrder: order, placements: libraryBoards(cardLibrary, size),
+    ...bingoContent, cards, size, taskOrder: order, missedDraw, placements: libraryBoards(cardLibrary, size),
   }, victory);
   render();
 }
@@ -170,7 +177,7 @@ document.querySelector('#complete').addEventListener('click', () => {
   game.completeTask();
   task.close();
   render();
-  (game.winning.length ? document.querySelector('#reset') : drawButton).focus();
+  (game.outcome ? document.querySelector('#reset') : drawButton).focus();
 });
 document.querySelector('#reset').addEventListener('click', restart);
 document.title = settings.title;

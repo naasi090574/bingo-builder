@@ -17,6 +17,7 @@ const defaultGameSettings = {
   size: 4,
   order: 'random',
   victory: 'line',
+  missedDraw: 'retry',
 };
 
 function readGameSettings(params) {
@@ -33,5 +34,6 @@ function readGameSettings(params) {
     size: [2, 3, 4, 5].includes(size) ? size : defaultGameSettings.size,
     order: Object.hasOwn(taskOrderLabels, order) ? order : defaultGameSettings.order,
     victory: Object.hasOwn(victoryLabels, victory) ? victory : defaultGameSettings.victory,
+    missedDraw: params.get('missedDraw') === 'pass' ? 'pass' : defaultGameSettings.missedDraw,
   };
 }

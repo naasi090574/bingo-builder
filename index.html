@@ -76,6 +76,12 @@
             <option value="full">Всё поле</option>
           </select>
         </label>
+        <label>Если выпавшей картинки нет на поле
+          <select name="missedDraw">
+            <option value="retry">Вытягивать до совпадения</option>
+            <option value="pass">Передать ход другому игроку</option>
+          </select>
+        </label>
       </form>
       <form id="appearance-settings" class="settings-form appearance-form" hidden>
         <details class="appearance-group" open>

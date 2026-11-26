@@ -37,6 +37,7 @@ class BingoGame {
     this.random = random;
     this.tasks = content.tasks;
     this.taskOrder = content.taskOrder;
+    this.passOnMiss = content.missedDraw === 'pass';
     const pool = uniqueCards(content.cards);
     if (pool.length < this.size ** 2) throw new RangeError(cardShortage(pool.length, this.size));
     const cardById = new Map(content.cards.map(card => [card.id, card]));
@@ -57,31 +58,48 @@ class BingoGame {
     this.player = 0;
     this.drawn = null;
     this.pending = null;
-    this.winning = [];
-    this.deck = [];
+    this.outcome = null;
+    this.lastMiss = null;
+    this.decks = [[], []];
     this.taskDeck = [];
   }
 
+  hasOpenCard(card) {
+    return this.boards[this.player].some(cell =>
+      !cell.marked && cardIdentity(cell.card) === cardIdentity(card)
+    );
+  }
+
   get canDraw() {
-    return !this.pending && !this.winning.length &&
-      (!this.drawn || !this.boards[this.player].some(cell =>
-        cardIdentity(cell.card) === cardIdentity(this.drawn) && !cell.marked
-      ));
+    return !this.pending && !this.outcome && (!this.drawn || !this.hasOpenCard(this.drawn));
   }
 
   draw() {
     if (!this.canDraw) return null;
-    if (!this.deck.length) {
-      const marked = new Set(this.boards[this.player].filter(cell => cell.marked)
+    const player = this.player;
+    if (!this.decks[player].length) {
+      const marked = new Set(this.boards[player].filter(cell => cell.marked)
         .map(cell => cardIdentity(cell.card)));
-      this.deck = shuffle(this.cardsInPlay.filter(card => !marked.has(cardIdentity(card))), this.random);
+      // Each player cycles through the deck independently, so alternating misses cannot starve either player.
+      const eligible = this.passOnMiss
+        ? this.cardsInPlay
+        : this.cardsInPlay.filter(card => !marked.has(cardIdentity(card)));
+      this.decks[player] = shuffle(eligible, this.random);
     }
-    this.drawn = this.deck.pop();
-    return this.drawn;
+
+    const card = this.decks[player].pop();
+    this.lastMiss = null;
+    if (this.passOnMiss && !this.hasOpenCard(card)) {
+      this.lastMiss = card;
+      this.player = 1 - player;
+    } else {
+      this.drawn = card;
+    }
+    return card;
   }
 
   choose(player, index) {
-    if (player !== this.player || this.pending || this.winning.length || !this.drawn) {
+    if (player !== this.player || this.pending || this.outcome || !this.drawn) {
       return 'ignored';
     }
     const cell = this.boards[player][index];
@@ -102,9 +120,20 @@ class BingoGame {
     const board = this.boards[this.player];
     board[this.pending.index].marked = true;
     this.pending = null;
-    this.winning = winningCells(board, this.size, this.mode);
     this.drawn = null;
-    this.deck = [];
-    if (!this.winning.length) this.player = 1 - this.player;
+    if (!this.passOnMiss) this.decks[this.player] = [];
+
+    const cells = winningCells(board, this.size, this.mode);
+    if (this.mode === 'full' && !this.passOnMiss) {
+      if (this.player === 1) {
+        const first = winningCells(this.boards[0], this.size, 'full');
+        if (first.length && cells.length) this.outcome = { winner: null, cells };
+        else if (first.length) this.outcome = { winner: 0, cells: first };
+        else if (cells.length) this.outcome = { winner: 1, cells };
+      }
+    } else if (cells.length) {
+      this.outcome = { winner: this.player, cells };
+    }
+    if (!this.outcome) this.player = 1 - this.player;
   }
 }
