@@ -1,11 +1,19 @@
 html:has(body:target) { overflow: hidden; }
 body:target .shell { width: min(1180px, 100% - 48px); }
 body:target .topbar { min-height: 64px; }
-body:target main { padding: 18px 0 10px; }
+body:target main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: calc(100vh - 64px);
+  padding: 18px 0 10px;
+}
 body:target .intro { display: grid; grid-template-columns: minmax(0, 1fr) 260px; margin-bottom: 16px; }
 body:target h1 { font-size: 34px; }
-body:target .intro p { margin-top: 7px; }
-body:target .table { grid-template-columns: minmax(0, 1fr) 260px; }
+body:target .intro p { margin-top: 7px; font-size: .875rem; }
+body:target .table {
+  grid-template-columns: minmax(0, 1fr) 260px;
+  container-type: size;
+}
 body:target .board, body:target .draw-panel { padding: 15px; }
 body:target .draw-slot { max-height: 195px; }
 body:target .board-heading {
@@ -14,4 +22,4 @@ body:target .board-heading {
   align-items: start;
 }
 body:target .board-heading h2 { font-size: 18px; }
-body:target .grid { max-width: 340px; margin-inline: auto; }
+body:target .grid { max-width: min(340px, calc(100cqh - 124px)); margin-inline: auto; }

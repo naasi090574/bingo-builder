@@ -12,6 +12,7 @@ const taskOrderLabels = { random: 'Случайный', sequential: 'После�
 
 const defaultGameSettings = {
   title: 'Бинго',
+  instruction: 'Найди картинку и выполни задание вслух',
   player1: 'Игрок 1',
   player2: 'Игрок 2',
   size: 4,
@@ -28,6 +29,7 @@ function readGameSettings(params) {
 
   return {
     title: readText('title', 60),
+    instruction: params.get('instruction')?.trim().slice(0, 160) ?? defaultGameSettings.instruction,
     player1: readText('player1', 32),
     player2: readText('player2', 32),
     size: [2, 3, 4, 5].includes(size) ? size : defaultGameSettings.size,
