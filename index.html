@@ -3,48 +3,58 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Бинго — логопедическая игра</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Бинго — редактор игры</title>
+  <link rel="stylesheet" href="editor.css">
   <script defer src="content.js"></script>
-  <script defer src="game.js"></script>
-  <script defer src="app.js"></script>
+  <script defer src="editor.js"></script>
 </head>
 <body>
-  <div class="shell">
-    <header class="topbar">
-      <div class="brand"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span> Логоигры</div>
-      <button class="reset" id="reset" type="button"><span aria-hidden="true">↻</span> Начать заново</button>
-    </header>
-    <main>
-      <div class="intro">
-        <div>
-          <h1>Бинго<span>.</span></h1>
-          <p>Найди картинку и выполни задание вслух.</p>
-        </div>
-        <label class="mode">Условие победы
-          <select id="mode">
-            <option value="line">Собрать линию</option>
-            <option value="full">Заполнить всё поле</option>
-          </select>
-        </label>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span><strong>Бинго</strong><span class="brand-label">Редактор игры</span></span>
       </div>
-      <div class="table">
-        <div class="boards" id="boards"></div>
-        <aside class="draw-panel" aria-labelledby="draw-title">
-          <h2 id="draw-title">Выпавшая карточка</h2>
-          <div class="draw-slot" id="draw-slot"></div>
-          <button id="draw" class="primary" type="button">Достать карточку</button>
-          <p class="status" id="status" role="status"></p>
-        </aside>
+      <a class="launch" href="game.html" target="_blank" rel="noopener" aria-describedby="preview-note"><span class="play" aria-hidden="true"></span>Предпросмотр игры</a>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <nav class="sidebar" aria-label="Разделы редактора">
+      <h2 class="sidebar-heading">Разделы</h2>
+      <ul>
+        <li><a href="#settings" aria-current="location"><span aria-hidden="true">⚙</span>Настройки игры</a></li>
+        <li><a href="#appearance"><span aria-hidden="true">◐</span>Оформление игры</a></li>
+        <li><a href="#cards"><span aria-hidden="true">▤</span>Игровые карточки</a></li>
+        <li><a href="#tasks"><span aria-hidden="true">?</span>Задания и вопросы</a></li>
+        <li><a href="#tokens"><span aria-hidden="true">●</span>Игровые фишки</a></li>
+        <li><a href="#sound"><span aria-hidden="true">♫</span>Звуковое сопровождение</a></li>
+        <li><a href="#projects"><span aria-hidden="true">▣</span>Сохранение проектов</a></li>
+        <li><a href="#genially"><span aria-hidden="true">⌘</span>Встраивание в Genially</a></li>
+      </ul>
+    </nav>
+
+    <section class="editor" aria-labelledby="editor-title">
+      <h1 id="editor-title" aria-live="polite">Настройки игры</h1>
+      <p id="section-description" class="description">Посмотрите, с какими правилами запускается текущая версия «Бинго».</p>
+      <dl id="game-summary" class="summary">
+        <div><dt>Игроки</dt><dd>2</dd></div>
+        <div><dt>Размер поля</dt><dd id="field-size">4 × 4</dd></div>
+        <div><dt>Режимы победы</dt><dd>Линия или всё поле</dd></div>
+      </dl>
+      <div class="availability">
+        <span class="info" aria-hidden="true">i</span>
+        <p id="section-status">Настройки появятся на следующем этапе. Условие победы можно выбрать в самой игре перед первой карточкой.</p>
       </div>
-    </main>
-  </div>
-  <dialog id="task" aria-labelledby="task-title" aria-describedby="task-text">
-    <button type="button" id="complete">
-      <span class="task-title" id="task-title">Задание вслух</span>
-      <span class="task-text" id="task-text"></span>
-      <span class="primary task-action">Задание выполнено</span>
-    </button>
-  </dialog>
+    </section>
+
+    <section class="preview" aria-labelledby="preview-title">
+      <div class="preview-header">
+        <h2 id="preview-title">Предпросмотр</h2>
+        <p id="preview-note">Играйте здесь или откройте игру в новой вкладке.</p>
+      </div>
+      <iframe src="game.html#preview" title="Интерактивный предпросмотр игры «Бинго»" width="640" height="585"></iframe>
+    </section>
+  </main>
 </body>
 </html>

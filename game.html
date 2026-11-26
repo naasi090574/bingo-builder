@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Бинго — логопедическая игра</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="preview.css">
+  <script defer src="content.js"></script>
+  <script defer src="game.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body id="preview">
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span> Логоигры</div>
+      <button class="reset" id="reset" type="button"><span aria-hidden="true">↻</span> Начать заново</button>
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <h1>Бинго<span>.</span></h1>
+          <p>Найди картинку и выполни задание вслух.</p>
+        </div>
+        <label class="mode">Условие победы
+          <select id="mode">
+            <option value="line">Собрать линию</option>
+            <option value="full">Заполнить всё поле</option>
+          </select>
+        </label>
+      </div>
+      <div class="table">
+        <div class="boards" id="boards"></div>
+        <aside class="draw-panel" aria-labelledby="draw-title">
+          <h2 id="draw-title">Выпавшая карточка</h2>
+          <div class="draw-slot" id="draw-slot"></div>
+          <button id="draw" class="primary" type="button">Достать карточку</button>
+          <p class="status" id="status" role="status"></p>
+        </aside>
+      </div>
+    </main>
+  </div>
+  <dialog id="task" aria-labelledby="task-title" aria-describedby="task-text">
+    <button type="button" id="complete">
+      <span class="task-title" id="task-title">Задание вслух</span>
+      <span class="task-text" id="task-text"></span>
+      <span class="primary task-action">Задание выполнено</span>
+    </button>
+  </dialog>
+</body>
+</html>
