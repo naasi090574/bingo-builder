@@ -58,7 +58,10 @@ function renderBoard(cells, player) {
     button.addEventListener('click', () => choose(button, player, index));
     grid.append(button);
   });
-  board.append(heading, grid);
+  const cellsArea = document.createElement('div');
+  cellsArea.className = 'board-cells';
+  cellsArea.append(grid);
+  board.append(heading, cellsArea);
   return board;
 }
 

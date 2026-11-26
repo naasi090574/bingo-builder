@@ -5,7 +5,7 @@ const sections = {
     description: 'Изменения сразу применяются в предпросмотре и начинают новую партию.',
   },
   appearance: {
-    description: 'Здесь будут настройки цветов, фона и оформления игровых полей.',
+    description: 'Оформление применяется сразу, сохраняя текущую партию.',
   },
   cards: {
     description: `Карточек с картинками в текущем наборе — ${bingoContent.cards.length}. Здесь можно будет собрать свой набор.`,
@@ -32,6 +32,7 @@ const title = document.querySelector('#editor-title');
 const description = document.querySelector('#section-description');
 const availability = document.querySelector('.availability');
 const form = document.querySelector('#game-settings');
+const appearanceForm = document.querySelector('#appearance-settings');
 const launch = document.querySelector('.launch');
 const stage = document.querySelector('.preview-stage');
 const frame = stage.querySelector('iframe');
@@ -50,7 +51,8 @@ function showSection() {
     }
   }
   description.textContent = copy;
-  availability.hidden = section === 'settings';
+  availability.hidden = section === 'settings' || section === 'appearance';
+  appearanceForm.hidden = section !== 'appearance';
   form.hidden = section !== 'settings';
 }
 
