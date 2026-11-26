@@ -121,8 +121,5 @@ document.querySelector('#complete').addEventListener('click', () => {
 document.querySelector('#reset').addEventListener('click', restart);
 document.title = settings.title;
 document.querySelector('#game-title').textContent = settings.title;
-const instruction = document.querySelector('#game-instruction');
-instruction.textContent = settings.instruction;
-instruction.hidden = !settings.instruction;
 document.querySelector('#victory-rule').textContent = victoryLabels[settings.victory];
 restart();

@@ -22,7 +22,6 @@ body:is(:target, .landscape-game) .intro {
   margin-bottom: 16px;
 }
 body:is(:target, .landscape-game) #game-title { font-size: var(--label-title-size, 34px); }
-body:is(:target, .landscape-game) #game-instruction { margin-top: 7px; font-size: var(--label-instruction-size, .875rem); }
 body:is(:target, .landscape-game) .table {
   grid-template-columns: minmax(0, 1fr) 260px;
   container-type: size;

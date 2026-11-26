@@ -9,7 +9,6 @@ const appearanceFonts = {
 
 const labelStyles = {
   title: { label: 'Название игры', size: 34, min: 20, max: 48, color: '#f6f8ff' },
-  instruction: { label: 'Инструкция для игрока', size: 14, min: 12, max: 22, color: '#adb9ce' },
   player: { label: 'Имена игроков', size: 18, min: 12, max: 22, color: '#f6f8ff' },
   victory: { label: 'Условие победы', size: 14, min: 12, max: 22, color: '#adb9ce' },
   drawTitle: { label: 'Заголовок «Выпавшая карточка»', size: 20, min: 12, max: 22, color: '#f6f8ff' },

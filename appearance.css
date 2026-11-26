@@ -14,11 +14,6 @@ body[data-background="transparent"] { background: transparent; }
   font-size: var(--label-title-size, clamp(3.2rem, 7vw, 6rem));
   color: var(--label-title-color, var(--text));
 }
-#game-instruction {
-  font-family: var(--label-instruction-font, inherit);
-  font-size: var(--label-instruction-size, 1rem);
-  color: var(--label-instruction-color, var(--muted));
-}
 .board-heading h2 {
   font-family: var(--label-player-font, inherit);
   font-size: var(--label-player-size, clamp(1rem, 1.6vw, 1.35rem));
