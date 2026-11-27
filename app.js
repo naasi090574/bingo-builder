@@ -4,7 +4,7 @@ const boards = document.querySelector('#boards');
 const drawSlot = document.querySelector('#draw-slot');
 const drawButton = document.querySelector('#draw');
 const status = document.querySelector('#status');
-const settings = readGameSettings(new URLSearchParams(window.location.search));
+let settings = readGameSettings(new URLSearchParams(window.location.search));
 const playerNames = [settings.player1, settings.player2];
 const task = document.querySelector('#task');
 const taskText = document.querySelector('#task-text');
@@ -30,6 +30,7 @@ const turnNotice = document.querySelector('#turn-notice');
 const nextPlayer = document.querySelector('#next-player');
 let turnTimer;
 let game;
+let gameLibraryReady = false;
 let cardLibrary = initialCardLibrary();
 let gameImageUrls = [];
 let receivedCardUpdate = false;
@@ -37,6 +38,7 @@ let receivedCardUpdate = false;
 function applyCardLibrary(library) {
   if (!Array.isArray(library?.cards)) return;
   cardLibrary = library;
+  gameLibraryReady = true;
   restart();
 }
 
@@ -308,12 +310,31 @@ taskPreviewClose.addEventListener('click', () => {
   if (previewingTask) task.close();
 });
 document.querySelector('#reset').addEventListener('click', restart);
-document.title = settings.title;
-document.querySelector('#game-title').textContent = settings.title;
-document.querySelector('#victory-rule').textContent = victoryLabels[settings.victory];
+function renderGameSettings() {
+  playerNames[0] = settings.player1;
+  playerNames[1] = settings.player2;
+  document.title = settings.title;
+  document.querySelector('#game-title').textContent = settings.title;
+  document.querySelector('#victory-rule').textContent = victoryLabels[settings.victory];
+}
+
+function applyPreviewSettings(search) {
+  const updated = readGameSettings(new URLSearchParams(search));
+  if (Object.keys(updated).every(key => updated[key] === settings[key])) return;
+  settings = updated;
+  if (task.open) task.close();
+  renderGameSettings();
+  if (gameLibraryReady) restart();
+}
+
+renderGameSettings();
 const cardSource = window.parent !== window ? window.parent : window.opener;
 window.addEventListener('message', event => {
   if (!cardSource || event.source !== cardSource || event.origin !== window.origin) return;
+  if (window.parent !== window && event.data?.type === 'bingo:preview-settings' &&
+      typeof event.data.search === 'string') {
+    applyPreviewSettings(event.data.search);
+  }
   if (event.data?.type === 'bingo:cards') {
     receivedCardUpdate = true;
     applyCardLibrary(event.data.library);
@@ -326,11 +347,15 @@ window.addEventListener('message', event => {
     showTask(event.data.task, true);
   }
 });
+if (window.parent !== window) {
+  window.parent.postMessage({ type: 'bingo:settings-ready' },
+    window.origin === 'null' ? '*' : window.origin);
+}
 const loadTasks = readTaskLibrary().then(tasks => {
   if (!receivedTaskUpdate) replaceGameTasks(tasks);
 }).catch(() => {});
 Promise.all([readCardLibrary(), loadTasks]).then(([library]) => {
   if (!receivedCardUpdate) applyCardLibrary(library);
 }).catch(() => {
-  if (!receivedCardUpdate) restart();
+  if (!receivedCardUpdate) applyCardLibrary(initialCardLibrary());
 });

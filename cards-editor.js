@@ -161,9 +161,11 @@ function renderCardRow(card, index) {
 }
 
 function removeCard(state, id) {
-  const placements = Object.fromEntries(Object.entries(state.placements).map(([size, fields]) =>
-    [size, fields.map(field => field.map(savedId => savedId === id ? null : savedId))]));
-  return { ...state, cards: state.cards.filter(card => card.id !== id), placements };
+  const next = { ...state, cards: state.cards.filter(card => card.id !== id) };
+  const placements = Object.fromEntries(Object.keys(state.placements ?? {}).map(size => [
+    size, libraryBoards({ ...next, manual: true }, size) ?? [[], []],
+  ]));
+  return { ...next, placements };
 }
 
 function renderPlacement() {
@@ -356,7 +358,7 @@ manualCard.addEventListener('change', () => {
   const index = selectedCell;
   changeCards(state => {
     const cards = new Map(state.cards.map(card => [card.id, card]));
-    const fields = (state.placements[size] ?? [[], []]).map(field => distinctPlacements(field, cards));
+    const fields = libraryBoards({ ...state, manual: true }, size) ?? [[], []];
     const selected = cards.get(id);
     if (id && (!selected || fields[player].some((savedId, slot) =>
       slot !== index && cards.has(savedId) && cardIdentity(cards.get(savedId)) === cardIdentity(selected)

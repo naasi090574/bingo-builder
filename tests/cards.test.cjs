@@ -162,3 +162,23 @@ test('oral tasks keep their media and selected order without affecting turn conf
     assert.equal(empty.boards[0][0].marked, true);
   }`, context);
 });
+
+test('incomplete saved 3×3 placements still produce two full boards without duplicates', () => {
+  vm.runInContext(`{
+    const cards = Array.from({ length: 9 }, (_, index) => ({ id: String(index) }));
+    const library = {
+      cards,
+      manual: true,
+      placements: { 3: [['0', '0', 'missing'], null], 4: { legacy: true } },
+    };
+    const placements = libraryBoards(library, 3);
+    assert.deepEqual(JSON.stringify(placements), '[["0",null,null],[]]');
+    assert.equal(libraryBoards(library, 4), undefined);
+    const game = new BingoGame({ size: 3, cards, placements, tasks: ['Задание'] });
+    assert.equal(game.boards[0][0].card.id, '0');
+    for (const board of game.boards) {
+      assert.equal(board.length, 9);
+      assert.equal(new Set(board.map(cell => cell.card.id)).size, 9);
+    }
+  }`, context);
+});

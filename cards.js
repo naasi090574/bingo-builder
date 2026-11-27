@@ -245,7 +245,10 @@ async function updateCardLibrary(update, knownLibrary) {
 function libraryBoards(library, size) {
   if (!library.manual) return undefined;
   const cards = new Map(library.cards.map(card => [card.id, card]));
-  return library.placements[size]?.map(field => distinctPlacements(field, cards));
+  const saved = library.placements?.[size];
+  if (!Array.isArray(saved)) return undefined;
+  return Array.from({ length: 2 }, (_, player) =>
+    Array.isArray(saved[player]) ? distinctPlacements(saved[player].slice(0, size ** 2), cards) : []);
 }
 
 function cardShortage(count, size) {

@@ -68,16 +68,24 @@ function applySettings(delay = 0) {
   const address = params.size ? `game.html?${params}` : 'game.html';
   launch.setAttribute('href', address);
   clearTimeout(previewTimer);
-  const updatePreview = () => {
-    const src = `${address}#preview`;
-    if (frame.getAttribute('src') !== src) frame.setAttribute('src', src);
-  };
   if (delay) {
-    previewTimer = setTimeout(updatePreview, delay);
+    previewTimer = setTimeout(sendPreviewSettings, delay);
   } else {
-    updatePreview();
+    sendPreviewSettings();
   }
 }
+
+function sendPreviewSettings() {
+  frame.contentWindow.postMessage({
+    type: 'bingo:preview-settings',
+    search: new URL(launch.href).search,
+  }, appearanceOrigin());
+}
+
+window.addEventListener('message', event => {
+  if (event.source !== frame.contentWindow || event.origin !== window.origin) return;
+  if (event.data?.type === 'bingo:settings-ready') sendPreviewSettings();
+});
 
 function fitPreview() {
   stage.style.setProperty('--preview-scale', stage.clientWidth / frame.width);
