@@ -20,6 +20,7 @@ const interactiveTasks = {
   sorting: { label: 'Рассортируй по группам', mount: mountSortingTask },
   pairs: { label: 'Соедини пары', mount: mountPairsTask },
   sequence: { label: 'Восстанови последовательность', mount: mountSequenceTask },
+  compose: { label: 'Собери слово или предложение', mount: mountSequenceTask },
 };
 const choiceCheckButton = document.querySelector('#check-choice');
 let disposeInteractiveTask;
@@ -209,6 +210,8 @@ function showTask(content, preview = false) {
   }
   taskAudio.hidden = !content?.audio;
   const type = content?.type;
+  if (type === 'compose') choiceArea.before(taskAudio);
+  else if (taskAudio.parentElement === taskBody) taskBody.after(taskAudio);
   const interactive = Object.hasOwn(interactiveTasks, type) ? interactiveTasks[type] : null;
   interactiveTask = Boolean(interactive);
   if (interactive) {

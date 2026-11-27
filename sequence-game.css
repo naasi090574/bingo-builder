@@ -11,7 +11,7 @@
 #task.has-sequence .task-images img { height: 10dvh; }
 #task.has-sequence #task-audio { height: 2rem; }
 #task.has-sequence .choice-feedback:empty { display: none; }
-#task.has-sequence #check-choice {
+#task:is(.has-sequence, .has-compose) #check-choice {
   background: var(--choiceCheckBackground, var(--mint));
   border: var(--choiceCheckBorderWidth, 0px) solid var(--choiceCheckBorder, var(--mint));
   border-radius: var(--choiceCheckRadius, 10px);
@@ -99,4 +99,46 @@
 
 @media (max-aspect-ratio: 4/3) {
   .sequence-board[data-rows="2"] { --sequence-columns: 3; }
+}
+
+#task.has-compose,
+#task.has-compose:has(#task-audio:not([hidden])),
+#task.has-compose:has(#task-images:not([hidden])) { width: 82rem; }
+#task.has-compose .task-sheet { padding: .5rem .85rem; gap: .35rem; }
+#task.has-compose .task-body { gap: .35rem; }
+#task.has-compose .task-images {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: .25rem;
+}
+#task.has-compose .task-images img { height: 10dvh; }
+#task.has-compose #task-audio { height: 2rem; }
+#task.has-compose .choice-feedback:empty { display: none; }
+#task.has-compose #task-choice { gap: .3rem; }
+#task.has-compose .sequence-board {
+  --compose-card-space: 62dvh;
+  --sequence-card-height: clamp(2rem, calc(var(--compose-card-space) / var(--compose-rows) - .3rem), 7rem);
+  --sequence-image-height: calc(var(--sequence-card-height) - 1.5rem);
+}
+#task.has-compose:has(#task-images:not([hidden]), #task-audio:not([hidden])) .sequence-board {
+  --compose-card-space: 49dvh;
+}
+#task.has-compose .sequence-slots {
+  --sequence-columns: var(--compose-answer-columns);
+  border-top: 0;
+  padding-top: 0;
+}
+#task.has-compose .sequence-pool {
+  --sequence-columns: var(--compose-pool-columns);
+  min-height: calc(var(--sequence-card-height) + .35rem);
+  padding-top: .35rem;
+  border-top: 1px solid var(--border);
+}
+#task.has-compose .sequence-card span { max-width: 100%; }
+#task.has-compose .sequence-card img:only-child { height: calc(var(--sequence-card-height) - .6rem); }
+#task.has-compose .sequence-slots .sequence-card { padding-inline-start: 1.3rem; }
+#task.has-compose .sequence-board.is-complete .sequence-card[aria-disabled="true"] { cursor: default; }
+
+@media (max-aspect-ratio: 4/3) {
+  #task.has-compose .sequence-pool { --sequence-columns: min(5, var(--compose-pool-columns)); }
+  #task.has-compose .sequence-slots { --sequence-columns: min(5, var(--compose-answer-columns)); }
 }

@@ -16,6 +16,7 @@ const interactiveTaskTitles = {
   sorting: 'Рассортируй по группам',
   pairs: 'Соедини пары',
   sequence: 'Восстанови последовательность',
+  compose: 'Собери слово или предложение',
 };
 let taskDraft;
 let taskList = [];
@@ -158,7 +159,7 @@ function openTaskEditor(task, type = 'oral') {
   }
   if (taskDraft.type === 'sorting') initializeSortingDraft(task);
   if (taskDraft.type === 'pairs') initializePairsDraft(task);
-  if (taskDraft.type === 'sequence') initializeSequenceDraft(task);
+  if (isSequenceDraft(taskDraft.type)) initializeSequenceDraft(task);
   taskForm.reset();
   taskForm.elements.text.value = taskDraft.text;
   const isInteractive = Object.hasOwn(interactiveTaskTitles, taskDraft.type);
@@ -260,7 +261,7 @@ removeTaskAudio.addEventListener('click', () => {
 taskForm.addEventListener('submit', event => {
   event.preventDefault();
   taskDraft.text = taskForm.elements.text.value;
-  if (!['sorting', 'pairs', 'sequence', 'odd'].includes(taskDraft.type)
+  if (!['sorting', 'pairs', 'sequence', 'odd', 'compose'].includes(taskDraft.type)
     && !taskDraft.text.trim() && !taskDraft.images.length && !taskDraft.audio) {
     taskEditorStatus.textContent = 'Добавьте текст, картинку или аудио.';
     return;
@@ -268,7 +269,7 @@ taskForm.addEventListener('submit', event => {
   if (isChoiceDraft(taskDraft.type) && !validateChoiceDraft()) return;
   if (taskDraft.type === 'sorting' && !validateSortingDraft()) return;
   if (taskDraft.type === 'pairs' && !validatePairsDraft()) return;
-  if (taskDraft.type === 'sequence' && !validateSequenceDraft()) return;
+  if (isSequenceDraft(taskDraft.type) && !validateSequenceDraft()) return;
   const task = taskDraft;
   runTaskDraftAction(async () => {
     try {

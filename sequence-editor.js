@@ -5,6 +5,17 @@ const sequenceMethod = document.querySelector('#sequence-method');
 const sequenceCheck = document.querySelector('#sequence-check');
 const sequenceItemsDraft = document.querySelector('#sequence-items-draft');
 const sequenceAddItem = document.querySelector('#sequence-add-item');
+const sequenceOrderHelp = document.querySelector('#sequence-order-help');
+const composeShuffle = document.querySelector('#compose-shuffle');
+const composeFollowUp = document.querySelector('#compose-follow-up');
+
+function isSequenceDraft(type) {
+  return type === 'sequence' || type === 'compose';
+}
+
+function sequenceItemLimit() {
+  return taskDraft.type === 'compose' ? 20 : 10;
+}
 
 function newSequenceItem() {
   return { text: '', media: null };
@@ -17,12 +28,21 @@ function initializeSequenceDraft(task) {
 }
 
 function renderSequenceDraft() {
-  sequenceDraft.hidden = taskDraft.type !== 'sequence';
+  sequenceDraft.hidden = !isSequenceDraft(taskDraft.type);
   if (sequenceDraft.hidden) {
     sequenceItemsDraft.replaceChildren();
     return;
   }
+  const compose = taskDraft.type === 'compose';
   clearTaskOptionThumbs();
+  document.querySelector('#compose-shuffle-field').hidden = !compose;
+  document.querySelector('#compose-follow-up-field').hidden = !compose;
+  sequenceMethod.querySelector('[value="click"]').textContent = compose ? 'Нажатие' : 'Нажатие по порядку';
+  composeShuffle.checked = taskDraft.shuffle ?? true;
+  composeFollowUp.value = taskDraft.followUp ?? '';
+  sequenceOrderHelp.textContent = compose
+    ? 'Расположите основные элементы в порядке ответа. Отметьте элементы, которые в него не входят.'
+    : 'Расположите элементы в правильном порядке. В игре они будут перемешаны.';
   sequenceMethod.value = taskDraft.method;
   sequenceCheck.value = taskDraft.check;
   sequenceItemsDraft.replaceChildren(...taskDraft.items.map((item, index, items) => {
@@ -52,25 +72,45 @@ function renderSequenceDraft() {
     });
     remove.disabled = items.length <= 2;
     actions.append(move(-1, '↑', 'Поднять'), move(1, '↓', 'Опустить'), remove);
-    row.append(legend, label, taskOptionImageField(item.media, 'Добавить картинку элемента',
+    row.append(legend, label);
+    if (compose) {
+      const extraLabel = document.createElement('label');
+      extraLabel.className = 'choice-checkbox';
+      const extra = document.createElement('input');
+      extra.type = 'checkbox';
+      extra.checked = Boolean(item.extra);
+      extra.addEventListener('change', () => { item.extra = extra.checked; });
+      extraLabel.append(extra, 'Лишний элемент');
+      row.append(extraLabel);
+    }
+    row.append(taskOptionImageField(item.media, 'Добавить картинку элемента',
       (media, imageKey) => { item.media = media ? { ...media, imageKey } : null; },
       index + 1, renderSequenceDraft), actions);
     return row;
   }));
-  sequenceAddItem.disabled = taskDraft.items.length >= 10;
+  sequenceAddItem.disabled = taskDraft.items.length >= sequenceItemLimit();
 }
 
 function validateSequenceDraft() {
-  if (taskDraft.items.every(item => item.text.trim() || item.media)) return true;
-  taskEditorStatus.textContent = 'Добавьте текст или картинку для каждого элемента.';
-  return false;
+  if (taskDraft.items.some(item => !item.text.trim() && !item.media)) {
+    taskEditorStatus.textContent = 'Добавьте текст или картинку для каждого элемента.';
+    return false;
+  }
+  if (taskDraft.type === 'compose' && taskDraft.items.every(item => item.extra)) {
+    taskEditorStatus.textContent = 'Оставьте хотя бы один элемент в правильном ответе.';
+    return false;
+  }
+  return true;
 }
 
+document.querySelector('#add-compose-task').addEventListener('click', () => openTaskEditor(null, 'compose'));
+composeShuffle.addEventListener('change', () => { taskDraft.shuffle = composeShuffle.checked; });
+composeFollowUp.addEventListener('input', () => { taskDraft.followUp = composeFollowUp.value; });
 document.querySelector('#add-sequence-task').addEventListener('click', () => openTaskEditor(null, 'sequence'));
 sequenceMethod.addEventListener('change', () => { taskDraft.method = sequenceMethod.value; });
 sequenceCheck.addEventListener('change', () => { taskDraft.check = sequenceCheck.value; });
 sequenceAddItem.addEventListener('click', () => {
-  if (taskDraft.items.length >= 10) return;
+  if (taskDraft.items.length >= sequenceItemLimit()) return;
   taskDraft.items.push(newSequenceItem());
   renderSequenceDraft();
 });

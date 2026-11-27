@@ -1,13 +1,17 @@
 'use strict';
 
 function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
+  const compose = task.type === 'compose';
   const drag = task.method === 'drag';
+  const usesSlots = compose || drag;
   const batch = task.check === 'batch';
   const items = task.items;
   const indices = items.map((_, index) => index);
-  const order = shuffle(indices, Math.random);
-  if (order.every((index, position) => index === position)) order.push(order.shift());
-  const positions = indices.map(() => null);
+  const answer = compose ? indices.filter(index => !items[index].extra) : indices;
+  const shouldShuffle = !compose || task.shuffle !== false;
+  const order = shouldShuffle ? shuffle(indices, Math.random) : indices;
+  if (shouldShuffle && order.every((index, position) => index === position)) order.push(order.shift());
+  const positions = answer.map(() => null);
   const urls = items.map(item => item.media ? mediaUrl(item.media.image) : null);
   let selected = null;
   let wrong = [];
@@ -20,16 +24,36 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
   const board = document.createElement('div');
   board.className = drag ? 'sequence-board is-drag' : 'sequence-board';
   board.classList.toggle('has-pictures', urls.some(Boolean));
+  if (compose) {
+    const widest = Math.max(...items.map(item => item.text.trim().length));
+    const limit = widest > 14 ? 5 : widest > 6 || urls.some(Boolean) ? 7 : 10;
+    const columns = count => Math.ceil(count / Math.ceil(count / limit));
+    const answerColumns = columns(answer.length);
+    const poolColumns = columns(items.length);
+    board.style.setProperty('--compose-answer-columns', answerColumns);
+    board.style.setProperty('--compose-pool-columns', poolColumns);
+    board.style.setProperty('--compose-rows',
+      Math.ceil(answer.length / answerColumns) + Math.ceil(items.length / poolColumns));
+  }
   board.style.setProperty('--sequence-preferred-columns', items.length <= 5 ? items.length : Math.ceil(items.length / 2));
   board.dataset.rows = items.length <= 5 ? '1' : '2';
   const feedback = document.createElement('p');
   feedback.className = 'choice-feedback';
   feedback.setAttribute('role', 'status');
+  const followUpText = compose ? task.followUp?.trim() : '';
+  const followUp = followUpText ? document.createElement('p') : null;
+  if (followUp) {
+    followUp.className = 'task-text compose-follow-up';
+    followUp.setAttribute('role', 'status');
+    followUp.textContent = followUpText;
+    followUp.hidden = true;
+  }
 
   function matches(index, position) {
-    if (index === position) return true;
+    const expectedIndex = answer[position];
+    if (index === expectedIndex) return true;
     if (index === null) return false;
-    const expected = items[position];
+    const expected = items[expectedIndex];
     const actual = items[index];
     const sameImage = (!actual.media && !expected.media)
       || (actual.media?.imageKey && actual.media.imageKey === expected.media?.imageKey);
@@ -54,7 +78,7 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
       text.textContent = item.text;
       button.append(text);
     }
-    if (!drag && position !== null) {
+    if (!usesSlots && position !== null) {
       const number = document.createElement('span');
       number.className = 'sequence-number';
       number.textContent = position + 1;
@@ -62,7 +86,7 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
     }
     if (wrong.includes(index)) button.classList.add('is-wrong');
     if (completed) button.classList.add('is-right');
-    button.setAttribute('aria-pressed', String(drag ? selected === index : position !== null));
+    button.setAttribute('aria-pressed', String(usesSlots ? selected === index : position !== null));
     button.setAttribute('aria-disabled', String(completed));
     if (position !== null) {
       button.setAttribute('aria-label', `${position + 1}. ${item.text.trim() || item.media.name}`);
@@ -78,21 +102,22 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
 
   function render() {
     const active = board.contains(document.activeElement) ? document.activeElement : null;
+    board.classList.toggle('is-complete', completed);
     const pool = grid('sequence-pool');
     pool.dataset.return = '';
     pool.setAttribute('role', 'group');
     pool.setAttribute('aria-label', 'Элементы последовательности');
-    if (!drag || !completed) {
+    if (!usesSlots || !completed) {
       for (const index of completed ? positions : order) {
         const position = positions.indexOf(index);
-        if (drag && position >= 0) continue;
+        if (usesSlots && position >= 0) continue;
         pool.append(makeCard(index, position < 0 ? null : position));
       }
     }
-    if (drag) {
+    if (usesSlots) {
       const slots = grid('sequence-slots');
       slots.setAttribute('role', 'group');
-      slots.setAttribute('aria-label', 'Порядок элементов');
+      slots.setAttribute('aria-label', compose ? 'Составленный ответ' : 'Порядок элементов');
       positions.forEach((index, position) => {
         const slot = document.createElement('div');
         slot.className = 'sequence-slot';
@@ -120,7 +145,8 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
         returnButton.dataset.return = '';
         returnButton.textContent = 'Вернуть в список';
         returnButton.hidden = selected === null || !positions.includes(selected);
-        board.replaceChildren(pool, slots, returnButton);
+        if (compose) board.replaceChildren(slots, pool, returnButton);
+        else board.replaceChildren(pool, slots, returnButton);
       }
     } else board.replaceChildren(pool);
     if (active?.dataset.item !== undefined) {
@@ -149,7 +175,8 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
     if (misplaced.length) reportMistake(misplaced);
     else {
       completed = true;
-      feedback.textContent = 'Верно!';
+      feedback.textContent = followUp ? '' : 'Верно!';
+      if (followUp) followUp.hidden = false;
     }
   }
 
@@ -195,8 +222,14 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
     if (completed) return;
     const card = event.target.closest('[data-item]');
     const slot = event.target.closest('[data-slot]');
-    if (!drag) {
+    if (!usesSlots) {
       if (card) choose(Number(card.dataset.item));
+    } else if (compose && !drag && card && !slot) {
+      const destination = positions.indexOf(null);
+      if (destination >= 0) move(Number(card.dataset.item), destination);
+      else if (selected !== null) move(Number(card.dataset.item), positions.indexOf(selected));
+    } else if (compose && !drag && slot && card && selected === Number(card.dataset.item)) {
+      move(selected, -1);
     } else if (selected !== null && slot && selected !== Number(card?.dataset.item)) {
       move(selected, Number(slot.dataset.slot));
     } else if (selected !== null && event.target.closest('[data-return]') && !card) {
@@ -266,6 +299,7 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
   }
 
   container.append(board, feedback);
+  if (followUp) container.append(followUp);
   checkButton.addEventListener('click', check);
   render();
   return () => {

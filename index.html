@@ -255,6 +255,7 @@
         <button id="add-pairs-task" class="secondary" type="button">Добавить «Соедини пары»</button>
         <button id="add-sequence-task" class="secondary" type="button">Добавить «Восстанови последовательность»</button>
         <button id="add-odd-task" class="secondary" type="button">Добавить «Найди лишнее»</button>
+        <button id="add-compose-task" class="secondary" type="button">Добавить «Собери слово или предложение»</button>
         <p id="task-library-status" role="status"></p>
         <ol id="task-items" class="task-items"></ol>
       </section>
@@ -347,9 +348,13 @@
         <label>Проверка
           <select id="sequence-check"><option value="instant">Мгновенно</option><option value="batch">Кнопкой «Проверить»</option></select>
         </label>
-        <p class="task-field-help">Расположите элементы в правильном порядке. В игре они будут перемешаны.</p>
+        <label id="compose-shuffle-field" class="choice-checkbox" hidden><input id="compose-shuffle" type="checkbox">Перемешивать элементы</label>
+        <p id="sequence-order-help" class="task-field-help">Расположите элементы в правильном порядке. В игре они будут перемешаны.</p>
         <div id="sequence-items-draft"></div>
         <button id="sequence-add-item" class="secondary" type="button">Добавить элемент</button>
+        <label id="compose-follow-up-field" hidden>Дополнительная инструкция после правильного ответа
+          <textarea id="compose-follow-up" rows="3"></textarea>
+        </label>
       </div>
       <p id="task-editor-status" role="status"></p>
       <div class="library-actions">

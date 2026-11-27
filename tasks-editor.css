@@ -49,8 +49,8 @@
   min-width: 0; margin: 0; padding: 8px; display: grid; gap: 7px;
   border: 1px solid var(--line); border-radius: 8px;
 }
-#pairs-draft .choice-checkbox { display: flex; align-items: center; gap: 7px; }
-#pairs-draft .choice-checkbox input { width: auto; min-height: auto; accent-color: var(--accent); }
+#pairs-draft .choice-checkbox, #sequence-draft .choice-checkbox { display: flex; align-items: center; gap: 7px; }
+#pairs-draft .choice-checkbox input, #sequence-draft .choice-checkbox input { width: auto; min-height: auto; accent-color: var(--accent); }
 #pairs-draft fieldset > button { justify-self: start; }
 .pairs-draft-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .pairs-draft-sides > div { display: grid; align-content: start; gap: 6px; }
