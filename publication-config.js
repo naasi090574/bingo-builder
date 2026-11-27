@@ -1,7 +1,7 @@
 'use strict';
 
-// Public values only. Leave blank until the Supabase project is connected.
+// Public Supabase configuration.
 const publicationConfig = Object.freeze({
-  url: '',
-  publishableKey: '',
+  url: 'https://vbvxtuujbcmplsfnubvb.supabase.co',
+  publishableKey: 'sb_publishable_WGvRjCvPtYjtKRBks6jRpg_KotiQsBD',
 });
