@@ -18,16 +18,31 @@ const labelStyles = {
   drawTitle: { label: 'Заголовок «Выпавшая карточка»', size: 20, min: 12, max: 22, color: '#f6f8ff' },
   text: { label: 'Вспомогательные надписи и сообщения', size: 16, min: 12, max: 22, color: '#adb9ce' },
   button: { label: 'Текст кнопок', size: 16, min: 12, max: 22, color: '#102822', colorKey: 'buttonText' },
-  task: { label: 'Текст задания', size: 32, min: 16, max: 48, color: '#f6f8ff' },
+  task: { label: 'Текст вопроса или инструкции', size: 32, min: 12, max: 120, color: '#f6f8ff' },
+  taskAnswer: { label: 'Текст элементов ответа', size: 30, min: 12, max: 120, color: '#f6f8ff' },
+  taskFeedback: { label: 'Сообщения о правильных и неправильных ответах', size: 18, min: 12, max: 120, color: '#f6f8ff' },
+  taskControl: { label: 'Текст кнопок внутри окна задания', size: 18, min: 12, max: 120, color: '#102822' },
   choiceOption: { label: 'Текст вариантов', size: 18, min: 12, max: 32, color: '#f6f8ff' },
   choiceDrop: { label: 'Текст принимающей области', size: 16, min: 12, max: 28, color: '#adb9ce' },
   choiceCheck: { label: 'Текст кнопки «Проверить»', size: 18, min: 12, max: 32, color: '#102822' },
-  sortingGroup: { label: 'Текст названий групп', size: 18, min: 12, max: 32, color: '#f6f8ff' },
+  sortingGroup: { label: 'Названия групп при сортировке', size: 22, min: 12, max: 120, color: '#f6f8ff' },
   sortingItem: { label: 'Текст элементов', size: 16, min: 10, max: 28, color: '#f6f8ff' },
   taskButton: { label: 'Текст кнопки «Задание выполнено»', size: 18, min: 12, max: 32, color: '#102822' },
   activeBadge: { label: 'Сейчас ходит', size: 14, min: 12, max: 22, color: '#6bf4c1' },
   idleBadge: { label: 'Ожидает ход', size: 14, min: 12, max: 22, color: '#d1daea' },
 };
+
+const taskTypographyKeys = ['task', 'taskAnswer', 'sortingGroup', 'taskFeedback', 'taskControl'];
+const individualTaskTypographyKeys = ['task', 'taskAnswer'];
+
+function typographyValue(key, field, value) {
+  if (field === 'Font') return Object.hasOwn(appearanceFonts, value) ? appearanceFonts[value].css : '';
+  if (field === 'Color') return /^#[0-9a-f]{6}$/i.test(value) ? value : '';
+  const size = Number(value);
+  const { min, max } = labelStyles[key];
+  return value != null && value !== '' && Number.isFinite(size)
+    ? `${Math.max(min, Math.min(max, size)) / 16}rem` : '';
+}
 
 function labelColorKey(key, style) {
   return style.colorKey ?? `${key}Color`;

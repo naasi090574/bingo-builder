@@ -1,0 +1,100 @@
+#task .task-text {
+  font-family: var(--individual-task-font, var(--label-task-font, inherit));
+  font-size: var(--individual-task-size, var(--label-task-size, 2rem));
+  color: var(--individual-task-color, var(--label-task-color, var(--text)));
+}
+
+#task :is(.choice-option, .pair-item, .sorting-item) {
+  --answer-font: var(--label-choiceOption-font, system-ui, sans-serif);
+  --answer-size: var(--label-choiceOption-size, 1.875rem);
+  --answer-color: var(--label-choiceOption-color, var(--text));
+  font-family: var(--individual-taskAnswer-font, var(--label-taskAnswer-font, var(--answer-font)));
+  font-size: var(--individual-taskAnswer-size, var(--label-taskAnswer-size, var(--answer-size)));
+  color: var(--individual-taskAnswer-color, var(--label-taskAnswer-color, var(--answer-color)));
+  justify-content: center;
+  text-align: center;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+#task .sorting-item {
+  --answer-font: var(--label-sortingItem-font, system-ui, sans-serif);
+  --answer-size: var(--label-sortingItem-size, 1.875rem);
+  --answer-color: var(--label-sortingItem-color, var(--text));
+}
+
+#task :is(.choice-option, .pair-item, .sorting-item, .sorting-group-label) > span {
+  min-width: 0;
+  max-width: 100%;
+}
+#task :is(.choice-option, .pair-item, .sorting-item) > img { flex-shrink: 0; }
+
+#task .sorting-group-label {
+  font-size: var(--label-sortingGroup-size, 1.375rem);
+  white-space: pre-wrap;
+  text-align: center;
+}
+
+#task .choice-feedback {
+  font-family: var(--label-taskFeedback-font, system-ui, sans-serif);
+  font-size: var(--label-taskFeedback-size, 1.125rem);
+  color: var(--label-taskFeedback-color, var(--text));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+#task :is(.task-action, .sequence-return, .sorting-return),
+#task[data-interactive-type] #check-choice {
+  --control-font: var(--label-taskButton-font, system-ui, sans-serif);
+  --control-size: var(--label-taskButton-size, 1.125rem);
+  --control-color: var(--label-taskButton-color, #102822);
+  font-family: var(--label-taskControl-font, var(--control-font));
+  font-size: var(--label-taskControl-size, var(--control-size));
+  color: var(--label-taskControl-color, var(--control-color));
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
+  max-width: 100%;
+}
+#task #check-choice {
+  --control-font: var(--label-choiceCheck-font, system-ui, sans-serif);
+  --control-size: var(--label-choiceCheck-size, 1.125rem);
+  --control-color: var(--label-choiceCheck-color, #102822);
+}
+#task :is(.sequence-return, .sorting-return) { --control-size: .85rem; }
+#task #close-task-preview { --control-size: .875rem; }
+
+#task .task-sheet { overflow: auto; }
+#task .task-body {
+  min-height: clamp(0rem, calc(var(--label-taskControl-size, 0rem) - 3rem), 4rem);
+}
+#task .choice-feedback:empty { display: none; }
+
+#task {
+  --task-answer-requested: var(--individual-taskAnswer-size, var(--label-taskAnswer-size, 1.875rem));
+  --large-answer-width: max(0px, calc((var(--task-answer-requested) - 2.25rem) * 3));
+}
+#task .choice-options {
+  --answer-columns: var(--choice-columns);
+  --answer-gap: .45rem;
+}
+#task .sequence-grid {
+  --answer-columns: var(--sequence-columns);
+  --answer-gap: .3rem;
+}
+#task :is(.choice-options, .sequence-grid) {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(
+    calc((100% + var(--answer-gap)) / var(--answer-columns) - var(--answer-gap)),
+    var(--large-answer-width)
+  )), 1fr));
+}
+#task :is(.choice-option, .pair-item, .sorting-item) {
+  line-height: 1.3;
+}
+#task :is(.sequence-return, .sorting-return) {
+  --control-color: var(--label-button-color, #102822);
+}
+
+@media (max-width: 600px) and (max-aspect-ratio: 4/3) {
+  #task .choice-options { --answer-columns: 2; }
+}

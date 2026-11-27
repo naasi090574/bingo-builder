@@ -122,13 +122,24 @@ function addInteractiveAppearance(selector, groups) {
   }));
 }
 
+function typographyFields(key, idPrefix = '') {
+  const style = labelStyles[key];
+  const id = `${idPrefix}${key}Size`;
+  const fonts = Object.entries(appearanceFonts).map(([id, font]) =>
+    `<option value="${id}">${font.label}</option>`
+  ).join('');
+  return `
+    <label>Шрифт <select name="${key}Font">${fonts}</select></label>
+    <label class="range-setting"><span>Размер текста</span><output for="${id}"></output>
+      <input id="${id}" name="${key}Size" type="range" min="${style.min}" max="${style.max}" data-unit=" пкс">
+    </label>
+    <label class="color-setting">Цвет текста<input type="color" name="${labelColorKey(key, style)}"></label>`;
+}
+
 function addLabelControls(choiceGroups) {
   const typography = document.querySelector('#typography-settings');
   const turns = document.querySelector('#turn-settings');
   const task = document.querySelector('#task-appearance');
-  const fonts = Object.entries(appearanceFonts).map(([id, font]) =>
-    `<option value="${id}">${font.label}</option>`
-  ).join('');
   for (const [key, style] of Object.entries(labelStyles)) {
     const turn = key === 'activeBadge' || key === 'idleBadge';
     const group = document.createElement('details');
@@ -137,12 +148,7 @@ function addLabelControls(choiceGroups) {
     summary.textContent = style.label;
     const fields = document.createElement('div');
     fields.className = 'appearance-fields';
-    fields.innerHTML = `
-      <label>Шрифт <select name="${key}Font">${fonts}</select></label>
-      <label class="range-setting"><span>Размер текста</span><output for="${key}Size"></output>
-        <input id="${key}Size" name="${key}Size" type="range" min="${style.min}" max="${style.max}" data-unit=" пкс">
-      </label>
-      <label class="color-setting">Цвет текста<input type="color" name="${labelColorKey(key, style)}"></label>`;
+    fields.innerHTML = typographyFields(key);
     if (turn) {
       fields.insertAdjacentHTML('beforeend', `
         <label class="color-setting">Цвет фона<input type="color" name="${key}Background"></label>
@@ -151,7 +157,8 @@ function addLabelControls(choiceGroups) {
         </label>`);
     }
     group.append(summary, fields);
-    const category = choiceGroups[key] ?? (key === 'task' || key === 'taskButton' ? task : turn ? turns : typography);
+    const category = taskTypographyKeys.includes(key) || key === 'taskButton'
+      ? task : choiceGroups[key] ?? (turn ? turns : typography);
     category.append(group);
   }
 }

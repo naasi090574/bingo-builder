@@ -121,9 +121,6 @@
 }
 #task.has-odd .task-images img { height: 10dvh; }
 #task.has-odd #task-audio { height: 2rem; }
-#task.has-odd .choice-option {
-  font-size: min(var(--label-choiceOption-size, 1.125rem), max(.8rem, 3.4dvh));
-}
 #task.has-odd .choice-option[aria-disabled="true"] { cursor: default; }
 #task.has-odd .choice-feedback:empty { display: none; }
 #task.has-odd .odd-follow-up { padding: .25rem 0; }

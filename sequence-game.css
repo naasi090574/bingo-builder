@@ -45,7 +45,6 @@
   min-height: 0;
   gap: .12rem;
   padding: .18rem .35rem;
-  font-size: clamp(.7rem, calc(var(--label-choiceOption-size, 1.125rem) * .9), 3.5dvh);
 }
 .sequence-card img { height: max(1.4rem, var(--sequence-image-height)); }
 .sequence-card[aria-pressed="true"] { padding-inline-start: 1.55rem; }

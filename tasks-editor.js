@@ -10,6 +10,51 @@ const taskAudioInput = document.querySelector('#task-audio-input');
 const taskDraftImages = document.querySelector('#task-draft-images');
 const taskAudioName = document.querySelector('#task-audio-name');
 const removeTaskAudio = document.querySelector('#remove-task-audio');
+const individualTaskAppearance = document.querySelector('#individual-task-appearance');
+const individualTypographyFields = individualTaskTypographyKeys.map(key => {
+  const group = document.createElement('fieldset');
+  group.className = 'appearance-fields';
+  const legend = document.createElement('legend');
+  legend.textContent = labelStyles[key].label;
+  const inherit = document.createElement('label');
+  inherit.className = 'choice-checkbox';
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  inherit.append(checkbox, 'Использовать общие настройки');
+  const fields = document.createElement('div');
+  fields.className = 'appearance-fields';
+  fields.innerHTML = typographyFields(key, 'individual-');
+  const controls = [...fields.querySelectorAll('input, select')];
+  const output = fields.querySelector('output');
+  const range = fields.querySelector('input[type="range"]');
+  function update() {
+    fields.hidden = checkbox.checked;
+    output.value = range.value + range.dataset.unit;
+    const typography = { ...taskDraft.typography };
+    if (checkbox.checked) delete typography[key];
+    else typography[key] = Object.fromEntries(controls.map(control =>
+      [control.name.slice(key.length), control.value]));
+    taskDraft.typography = Object.keys(typography).length ? typography : undefined;
+  }
+  group.append(legend, inherit, fields);
+  group.addEventListener('input', update);
+  individualTaskAppearance.append(group);
+  return { key, checkbox, fields, controls, output, range };
+});
+
+function renderIndividualTaskAppearance() {
+  individualTaskAppearance.open = false;
+  for (const { key, checkbox, fields, controls, output, range } of individualTypographyFields) {
+    const saved = taskDraft.typography?.[key];
+    checkbox.checked = !saved;
+    fields.hidden = checkbox.checked;
+    for (const control of controls) {
+      control.value = saved?.[control.name.slice(key.length)] ?? appearanceForm.elements[control.name].value;
+    }
+    output.value = range.value + range.dataset.unit;
+  }
+}
+
 const interactiveTaskTitles = {
   choice: 'Выбери правильный ответ',
   odd: 'Найди лишнее',
@@ -162,6 +207,7 @@ function openTaskEditor(task, type = 'oral') {
   if (isSequenceDraft(taskDraft.type)) initializeSequenceDraft(task);
   taskForm.reset();
   taskForm.elements.text.value = taskDraft.text;
+  renderIndividualTaskAppearance();
   const isInteractive = Object.hasOwn(interactiveTaskTitles, taskDraft.type);
   document.querySelector('#task-editor-title').textContent = isInteractive
     ? interactiveTaskTitles[taskDraft.type] : 'Устное задание';

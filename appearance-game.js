@@ -65,14 +65,10 @@ function applyAppearance({ values, image, imageVersion }) {
     }
   }
   for (const [key, style] of Object.entries(labelStyles)) {
-    const fontKey = `${key}Font`;
-    const font = Object.hasOwn(appearanceFonts, values[fontKey]) && appearanceFonts[values[fontKey]].css;
-    set(fontKey, `--label-${key}-font`, font);
-    const sizeKey = `${key}Size`;
-    const size = Number(values[sizeKey]);
-    set(sizeKey, `--label-${key}-size`, Number.isFinite(size)
-      ? `${Math.max(style.min, Math.min(style.max, size)) / 16}rem` : '');
-    setColor(labelColorKey(key, style), `--label-${key}-color`);
+    for (const field of ['Font', 'Size', 'Color']) {
+      const setting = field === 'Color' ? labelColorKey(key, style) : key + field;
+      set(setting, `--label-${key}-${field.toLowerCase()}`, typographyValue(key, field, values[setting]));
+    }
   }
 
   if (imageVersion !== activeImageVersion) {

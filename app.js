@@ -193,9 +193,21 @@ function taskMediaUrl(blob) {
   return url;
 }
 
+function applyIndividualTaskTypography(typography) {
+  for (const key of individualTaskTypographyKeys) {
+    for (const field of ['Font', 'Size', 'Color']) {
+      const property = `--individual-${key}-${field.toLowerCase()}`;
+      const value = typographyValue(key, field, typography?.[key]?.[field]);
+      if (value) task.style.setProperty(property, value);
+      else task.style.removeProperty(property);
+    }
+  }
+}
+
 function showTask(content, preview = false) {
   clearTaskMedia();
   previewingTask = preview;
+  applyIndividualTaskTypography(content?.typography);
   taskText.textContent = typeof content === 'string' ? content : content?.text ?? '';
   taskText.hidden = !taskText.textContent.trim();
   for (const item of content?.images ?? []) {

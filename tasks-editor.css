@@ -54,3 +54,13 @@
 #pairs-draft fieldset > button { justify-self: start; }
 .pairs-draft-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .pairs-draft-sides > div { display: grid; align-content: start; gap: 6px; }
+
+#individual-task-appearance .appearance-fields { min-width: 0; }
+#individual-task-appearance fieldset {
+  margin: .5rem 0 0;
+  padding: .55rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+#individual-task-appearance .choice-checkbox { display: flex; align-items: center; gap: 7px; }
+#individual-task-appearance .choice-checkbox input { width: auto; min-height: auto; accent-color: var(--accent); }
