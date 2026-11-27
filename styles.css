@@ -91,17 +91,6 @@ h2 { margin: 0; font-size: clamp(1rem, 1.6vw, 1.35rem); }
 }
 .cell:not(:disabled):hover { border-color: var(--accent); background: #30465d; }
 .cell img, .draw-slot img { display: block; width: 80%; height: 80%; object-fit: contain; }
-.chip {
-  display: grid;
-  place-items: center;
-  width: 62%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #16243b;
-  font-size: clamp(1rem, 2vw, 1.8rem);
-  font-weight: 850;
-}
 .cell.winning { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 26%, var(--panel)); }
 .shake { animation: shake .33s ease-out; }
 @keyframes shake {

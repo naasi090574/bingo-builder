@@ -14,7 +14,7 @@ const sections = {
     description: 'Добавьте устное задание, вопрос с выбором ответа или сортировку по группам. Порядок списка используется в последовательном режиме.',
   },
   tokens: {
-    description: 'Сейчас правильные ответы отмечаются круглыми фишками с галочкой. Здесь можно будет изменить их вид.',
+    description: 'Настройте фишки игроков и проверьте их на образце ячейки.',
   },
   sound: {
     description: 'Здесь можно будет добавить звуки вытягивания карточки, установки фишки и победы.',
@@ -53,9 +53,10 @@ function showSection() {
     }
   }
   description.textContent = copy;
-  availability.hidden = ['settings', 'appearance', 'cards', 'tasks'].includes(section);
+  availability.hidden = ['settings', 'appearance', 'cards', 'tasks', 'tokens'].includes(section);
   cardsSection.hidden = section !== 'cards';
   tasksSection.hidden = section !== 'tasks';
+  document.querySelector('#token-settings').hidden = section !== 'tokens';
   appearanceForm.hidden = section !== 'appearance';
   form.hidden = section !== 'settings';
 }

@@ -38,6 +38,19 @@ let gameLibraryReady = false;
 let cardLibrary = initialCardLibrary();
 let gameImageUrls = [];
 let receivedCardUpdate = false;
+let tokenSettings = normalizeTokenSettings();
+let tokenImageUrls = [];
+let receivedTokenUpdate = false;
+
+function applyTokens(settings) {
+  tokenSettings = normalizeTokenSettings(settings);
+  for (const url of tokenImageUrls) if (url) URL.revokeObjectURL(url);
+  tokenImageUrls = [0, 1].map(player => {
+    const { shape, image } = playerToken(tokenSettings, player);
+    return shape === 'custom' ? URL.createObjectURL(image) : null;
+  });
+  if (game) render();
+}
 
 function applyCardLibrary(library) {
   if (!Array.isArray(library?.cards)) return;
@@ -69,7 +82,7 @@ function cardContent(card) {
   return content;
 }
 
-function renderBoard(cells, player) {
+function renderBoard(cells, player, newMark) {
   const { outcome } = game;
   const active = turnNotice.hidden && (outcome?.winner ?? game.player) === player;
   const won = outcome?.winner === player;
@@ -98,12 +111,11 @@ function renderBoard(cells, player) {
     button.type = 'button';
     button.disabled = !active || !game.drawn || cell.marked || Boolean(outcome);
     if (cell.marked) {
-      const chip = document.createElement('span');
-      chip.className = 'chip';
-      chip.textContent = '✓';
-      chip.setAttribute('aria-hidden', 'true');
-      button.setAttribute('aria-label', 'Закрыто фишкой');
-      button.append(chip);
+      const config = playerToken(tokenSettings, player);
+      if (config.placement !== 'replace') button.append(cardContent(cell.card));
+      const animate = newMark?.player === player && newMark.index === index;
+      button.append(createToken(config, tokenImageUrls[player], animate));
+      button.setAttribute('aria-label', `Закрыто фишкой: ${cell.card.label || cell.card.text}`);
     } else {
       button.dataset.cardId = cell.card.id;
       button.append(cardContent(cell.card));
@@ -119,8 +131,8 @@ function renderBoard(cells, player) {
   return board;
 }
 
-function render() {
-  boards.replaceChildren(...game.boards.map(renderBoard));
+function render(newMark) {
+  boards.replaceChildren(...game.boards.map((cells, player) => renderBoard(cells, player, newMark)));
   const placeholder = document.createElement('span');
   placeholder.className = 'placeholder';
   placeholder.setAttribute('aria-hidden', 'true');
@@ -141,14 +153,14 @@ function render() {
   }
 }
 
-function renderAfterMove(previousPlayer) {
+function renderAfterMove(previousPlayer, newMark) {
   if (game.outcome || previousPlayer === game.player) {
-    render();
+    render(newMark);
     return;
   }
   nextPlayer.textContent = `Ходит ${playerNames[game.player]}`;
   turnNotice.hidden = false;
-  render();
+  render(newMark);
   turnTimer = setTimeout(() => {
     turnNotice.hidden = true;
     render();
@@ -318,9 +330,10 @@ function finishTask() {
   }
   if (!game?.pending) return;
   const player = game.player;
+  const { index } = game.pending;
   game.completeTask();
   task.close();
-  renderAfterMove(player);
+  renderAfterMove(player, { player, index });
   if (game.outcome) document.querySelector('#reset').focus();
 }
 taskComplete.addEventListener('click', finishTask);
@@ -353,6 +366,10 @@ window.addEventListener('message', event => {
       typeof event.data.search === 'string') {
     applyPreviewSettings(event.data.search);
   }
+  if (event.data?.type === 'bingo:tokens') {
+    receivedTokenUpdate = true;
+    applyTokens(event.data.settings);
+  }
   if (event.data?.type === 'bingo:cards') {
     receivedCardUpdate = true;
     applyCardLibrary(event.data.library);
@@ -369,6 +386,10 @@ if (window.parent !== window) {
   window.parent.postMessage({ type: 'bingo:settings-ready' },
     window.origin === 'null' ? '*' : window.origin);
 }
+cardSource?.postMessage({ type: 'bingo:tokens-ready' }, window.origin === 'null' ? '*' : window.origin);
+tokenStorage('readonly').then(settings => {
+  if (!receivedTokenUpdate) applyTokens(settings);
+}).catch(() => {});
 const loadTasks = readTaskLibrary().then(tasks => {
   if (!receivedTaskUpdate) replaceGameTasks(tasks);
 }).catch(() => {});

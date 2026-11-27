@@ -7,8 +7,10 @@
   <link rel="stylesheet" href="editor.css">
   <link rel="stylesheet" href="cards-editor.css">
   <link rel="stylesheet" href="tasks-editor.css">
+  <link rel="stylesheet" href="tokens.css">
   <script defer src="content.js"></script>
   <script defer src="cards.js"></script>
+  <script defer src="tokens.js"></script>
   <script defer src="tasks.js"></script>
   <script defer src="settings.js"></script>
   <script defer src="appearance.js"></script>
@@ -20,6 +22,7 @@
   <script defer src="sorting-editor.js"></script>
   <script defer src="pairs-editor.js"></script>
   <script defer src="sequence-editor.js"></script>
+  <script defer src="tokens-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -258,6 +261,11 @@
         <button id="add-compose-task" class="secondary" type="button">Добавить «Собери слово или предложение»</button>
         <p id="task-library-status" role="status"></p>
         <ol id="task-items" class="task-items"></ol>
+      </section>
+      <section id="token-settings" class="token-settings" aria-label="Настройки игровых фишек" hidden>
+        <label class="token-checkbox"><input id="shared-tokens" type="checkbox" checked> Одинаковые фишки для обоих игроков</label>
+        <div id="token-players"></div>
+        <p id="token-status" role="status" hidden></p>
       </section>
       <div class="availability" hidden>
         <span class="info" aria-hidden="true">i</span>

@@ -36,7 +36,6 @@
   .grid { height: 100%; grid-template-rows: repeat(var(--size), minmax(0, 1fr)); gap: .45rem; }
   .cell { aspect-ratio: auto; min-height: 0; }
   .cell img { width: var(--image-size, 94%); height: var(--image-size, 94%); }
-  .chip { max-height: 85%; }
 
   .draw-panel {
     grid-row: auto;
