@@ -58,3 +58,7 @@
 @media (max-width: 650px) {
   .workspace:has(#project-library:not([hidden])) { grid-template-columns: minmax(0, 1fr); }
 }
+
+#publication-section { display: grid; gap: .65rem; }
+#publication-status:empty { display: none; }
+#publication-embed { width: 100%; resize: vertical; }

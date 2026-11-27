@@ -82,7 +82,7 @@ function applyAppearance({ values, image, imageVersion }) {
 
 }
 
-if (appearanceSource) {
+if (appearanceSource && !new URLSearchParams(window.location.search).has('published')) {
   window.addEventListener('message', event => {
     if (event.source !== appearanceSource || event.origin !== window.origin) return;
     if (event.data?.type === 'bingo:appearance') applyAppearance(event.data);

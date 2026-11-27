@@ -18,3 +18,5 @@
 ### Дополнительные шрифты
 
 Все девять списков шрифтов в редакторе используют общий каталог в `appearance.js`. Помимо системного шрифта, Arial, Georgia и Courier New доступны Gogono Cocoa Mochi Cyrillic, Itim Cyrillic, Ruthless Sketch Italic и Sol Kol. Файлы загружаются из проекта. Версии, авторы и лицензия указаны в [описании шрифтов](assets/fonts/README.md).
+
+Для подключения автоматической публикации см. [настройку Supabase и Genially](SUPABASE.md).

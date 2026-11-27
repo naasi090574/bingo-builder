@@ -222,6 +222,7 @@ function renderProjectCard(project) {
       }
     }),
     launchGame,
+    libraryButton('Опубликовать / обновить', `Опубликовать / обновить: ${title}`, () => openPublication(id, true)),
     button('Создать копию', async () => {
       const copy = structuredClone(data);
       copy.settings.title = `${title.slice(0, 51)} — копия`;
@@ -274,6 +275,7 @@ function renderProjectLibrary() {
 
 async function refreshProjectLibrary() {
   savedProjects = await readProjects();
+  window.refreshPublicationProjects?.();
   renderProjectLibrary();
 }
 

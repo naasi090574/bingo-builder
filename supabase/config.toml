@@ -1,0 +1,8 @@
+project_id = "bingo-builder"
+
+[functions.publish-game]
+# Owner JWT is verified against Auth in the function before any storage/database access.
+verify_jwt = false
+
+[functions.read-game]
+verify_jwt = false

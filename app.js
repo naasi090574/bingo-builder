@@ -7,6 +7,7 @@ const status = document.querySelector('#status');
 const victoryRule = document.querySelector('#victory-rule');
 const gameParams = new URLSearchParams(window.location.search);
 const savedProjectId = gameParams.get('project');
+const publishedGameId = gameParams.get('published');
 let settings = readGameSettings(gameParams);
 const playerNames = [settings.player1, settings.player2];
 const task = document.querySelector('#task');
@@ -406,7 +407,7 @@ function applyPreviewSettings(search) {
 renderGameSettings();
 const cardSource = window.parent !== window ? window.parent : window.opener;
 window.addEventListener('message', event => {
-  if (savedProjectId || !cardSource || event.source !== cardSource || event.origin !== window.origin) return;
+  if (publishedGameId !== null || savedProjectId || !cardSource || event.source !== cardSource || event.origin !== window.origin) return;
   if (event.data?.type === 'bingo:preview-settings' &&
       typeof event.data.search === 'string') {
     applyPreviewSettings(event.data.search);
@@ -432,41 +433,55 @@ window.addEventListener('message', event => {
     playGameSounds('taskOpen');
   }
 });
-if (window.parent !== window) {
-  window.parent.postMessage({ type: 'bingo:settings-ready' },
-    window.origin === 'null' ? '*' : window.origin);
+function applyProjectGame(data) {
+  settings = data.settings;
+  renderGameSettings();
+  applyAppearance({ values: data.appearance.values, image: data.appearance.background, imageVersion: 1 });
+  applyTokens(data.tokens);
+  applyGameSounds(data.sounds);
+  replaceGameTasks(data.tasks);
+  applyCardLibrary(data.cards);
 }
-cardSource?.postMessage({ type: 'bingo:tokens-ready' }, window.origin === 'null' ? '*' : window.origin);
-tokenStorage('readonly').then(settings => {
-  if (!savedProjectId && !receivedTokenUpdate) applyTokens(settings);
-}).catch(() => {});
-cardSource?.postMessage({ type: 'bingo:sounds-ready' }, window.origin === 'null' ? '*' : window.origin);
-soundStorage().then(settings => {
-  if (!savedProjectId && !receivedSoundUpdate) applyGameSounds(settings);
-}).catch(() => {});
-if (savedProjectId) {
-  readProject(savedProjectId).then(project => {
-    if (!project) throw new Error();
-    const { data } = project;
-    settings = data.settings;
-    renderGameSettings();
-    applyAppearance({ values: data.appearance.values, image: data.appearance.background, imageVersion: 1 });
-    applyTokens(data.tokens);
-    applyGameSounds(data.sounds);
-    replaceGameTasks(data.tasks);
-    applyCardLibrary(data.cards);
-  }).catch(() => {
-    status.textContent = 'Не удалось открыть игру из локальной библиотеки.';
-    drawButton.disabled = true;
-    document.querySelector('#reset').disabled = true;
+
+if (publishedGameId !== null) {
+  status.textContent = 'Загружаем опубликованную игру…';
+  drawButton.disabled = true;
+  const reset = document.querySelector('#reset');
+  reset.disabled = true;
+  readPublishedProject(publishedGameId).then(applyProjectGame).catch(error => {
+    status.textContent = error.message;
   });
 } else {
-  const loadTasks = readTaskLibrary().then(tasks => {
-    if (!receivedTaskUpdate) replaceGameTasks(tasks);
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'bingo:settings-ready' },
+      window.origin === 'null' ? '*' : window.origin);
+  }
+  cardSource?.postMessage({ type: 'bingo:tokens-ready' }, window.origin === 'null' ? '*' : window.origin);
+  tokenStorage('readonly').then(settings => {
+    if (!savedProjectId && !receivedTokenUpdate) applyTokens(settings);
   }).catch(() => {});
-  Promise.all([readCardLibrary(), loadTasks]).then(([library]) => {
-    if (!receivedCardUpdate) applyCardLibrary(library);
-  }).catch(() => {
-    if (!receivedCardUpdate) applyCardLibrary(initialCardLibrary());
-  });
+  cardSource?.postMessage({ type: 'bingo:sounds-ready' }, window.origin === 'null' ? '*' : window.origin);
+  soundStorage().then(settings => {
+    if (!savedProjectId && !receivedSoundUpdate) applyGameSounds(settings);
+  }).catch(() => {});
+
+  if (savedProjectId) {
+    readProject(savedProjectId).then(project => {
+      if (!project) throw new Error();
+      applyProjectGame(project.data);
+    }).catch(() => {
+      status.textContent = 'Не удалось открыть игру из локальной библиотеки.';
+      drawButton.disabled = true;
+      document.querySelector('#reset').disabled = true;
+    });
+  } else {
+    const loadTasks = readTaskLibrary().then(tasks => {
+      if (!receivedTaskUpdate) replaceGameTasks(tasks);
+    }).catch(() => {});
+    Promise.all([readCardLibrary(), loadTasks]).then(([library]) => {
+      if (!receivedCardUpdate) applyCardLibrary(library);
+    }).catch(() => {
+      if (!receivedCardUpdate) applyCardLibrary(initialCardLibrary());
+    });
+  }
 }

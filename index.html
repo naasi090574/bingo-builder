@@ -18,6 +18,8 @@
   <script defer src="settings.js"></script>
   <script defer src="appearance.js"></script>
   <script defer src="projects.js"></script>
+  <script defer src="publication-config.js"></script>
+  <script defer src="publication-client.js"></script>
   <script defer src="editor.js"></script>
   <script defer src="appearance-editor.js"></script>
   <script defer src="cards-editor.js"></script>
@@ -29,6 +31,7 @@
   <script defer src="tokens-editor.js"></script>
   <script defer src="sounds-editor.js"></script>
   <script defer src="projects-editor.js"></script>
+  <script defer src="publication-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -308,6 +311,31 @@
         </div>
         <div id="saved-projects" class="saved-projects"></div>
         <p id="project-empty" role="status"></p>
+      </section>
+      <section id="publication-section" aria-label="Встраивание в Genially" hidden>
+        <form id="publication-login" class="settings-form">
+          <label>Почта владельца<input name="email" type="email" autocomplete="username" required></label>
+          <label>Пароль<input name="password" type="password" autocomplete="current-password" required></label>
+          <button class="secondary" type="submit">Войти для публикации</button>
+        </form>
+        <div id="publication-actions" class="settings-form" hidden>
+          <label>Сохранённый проект<select id="publication-project"></select></label>
+          <div class="library-actions">
+            <button id="publication-upload" class="secondary" type="button">Опубликовать</button>
+            <button id="publication-remove" class="library-button" type="button" hidden>Снять с публикации</button>
+            <button id="publication-signout" class="library-button" type="button">Выйти</button>
+          </div>
+          <div id="publication-output" class="settings-form" hidden>
+            <label>Постоянная ссылка<input id="publication-link" readonly></label>
+            <div class="library-actions">
+              <button class="library-button" type="button" data-copy-publication="publication-link">Копировать ссылку</button>
+              <a id="publication-open" class="library-button" target="_blank" rel="noopener">Открыть игру</a>
+            </div>
+            <label>Код для Genially<textarea id="publication-embed" rows="4" readonly></textarea></label>
+            <button class="library-button" type="button" data-copy-publication="publication-embed">Копировать iframe</button>
+          </div>
+        </div>
+        <p id="publication-status" role="status"></p>
       </section>
       <div class="availability" hidden>
         <span class="info" aria-hidden="true">i</span>
