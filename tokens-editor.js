@@ -18,6 +18,7 @@ function saveTokens() {
     if (popup.closed) appearancePopups.delete(popup);
     else broadcastTokens(popup);
   }
+  window.projectChanged?.();
   const snapshot = normalizeTokenSettings(editedTokens);
   tokenWrite = tokenWrite.then(() => tokenStorage('readwrite', snapshot)).catch(() => {
     tokenStatus.hidden = false;

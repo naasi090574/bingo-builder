@@ -182,10 +182,12 @@ let cardDatabase;
 
 function openCardDatabase() {
   cardDatabase ??= new Promise((resolve, reject) => {
-    const request = indexedDB.open('bingo-builder-cards', 2);
+    const request = indexedDB.open('bingo-builder-cards', 3);
     request.onupgradeneeded = event => {
       if (event.oldVersion === 0) request.result.createObjectStore('library');
-      request.result.createObjectStore('tasks');
+      if (event.oldVersion < 2) request.result.createObjectStore('tasks');
+      request.result.createObjectStore('projects', { keyPath: 'id' });
+      request.result.createObjectStore('draft');
     };
     request.onsuccess = () => {
       request.result.onversionchange = () => {

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="tasks-editor.css">
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="sounds-editor.css">
+  <link rel="stylesheet" href="projects-editor.css">
   <script defer src="content.js"></script>
   <script defer src="cards.js"></script>
   <script defer src="tokens.js"></script>
@@ -16,6 +17,7 @@
   <script defer src="tasks.js"></script>
   <script defer src="settings.js"></script>
   <script defer src="appearance.js"></script>
+  <script defer src="projects.js"></script>
   <script defer src="editor.js"></script>
   <script defer src="appearance-editor.js"></script>
   <script defer src="cards-editor.js"></script>
@@ -26,6 +28,7 @@
   <script defer src="sequence-editor.js"></script>
   <script defer src="tokens-editor.js"></script>
   <script defer src="sounds-editor.js"></script>
+  <script defer src="projects-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -38,6 +41,14 @@
     </div>
   </header>
 
+  <div id="project-toolbar" class="project-toolbar" aria-label="Управление проектом">
+    <button id="new-project" class="secondary" type="button">Новый проект</button>
+    <button id="save-project" class="secondary" type="button">Сохранить проект</button>
+    <button id="open-project" class="secondary" type="button">Открыть проект</button>
+    <button id="save-project-as" class="secondary" type="button">Сохранить как</button>
+    <p id="project-status" role="status"></p>
+  </div>
+
   <main class="workspace">
     <nav class="sidebar" aria-label="Разделы редактора">
       <h2 class="sidebar-heading">Разделы</h2>
@@ -48,7 +59,7 @@
         <li><a href="#tasks"><span aria-hidden="true">?</span>Задания и вопросы</a></li>
         <li><a href="#tokens"><span aria-hidden="true">●</span>Игровые фишки</a></li>
         <li><a href="#sound"><span aria-hidden="true">♫</span>Звуковое сопровождение</a></li>
-        <li><a href="#projects"><span aria-hidden="true">▣</span>Сохранение проектов</a></li>
+        <li><a href="#projects"><span aria-hidden="true">▣</span>Мои игры</a></li>
         <li><a href="#genially"><span aria-hidden="true">⌘</span>Встраивание в Genially</a></li>
       </ul>
     </nav>
@@ -280,6 +291,23 @@
         <div id="sound-events"></div>
         <button id="reset-sounds" class="secondary" type="button">Восстановить звуки по умолчанию</button>
         <p id="sound-status" role="status"></p>
+      </section>
+      <section id="project-library" hidden aria-label="Мои игры">
+        <div class="project-file-actions library-actions">
+          <label class="secondary image-picker">Импорт файла проекта
+            <input id="import-project" type="file" accept=".json,application/json">
+          </label>
+          <button id="export-draft" class="secondary" type="button">Скачать текущий проект</button>
+        </div>
+        <div class="project-filter settings-form">
+          <label>Поиск по названию<input id="project-search" type="search"></label>
+          <label>Сортировка<select id="project-sort">
+            <option value="modified">Сначала недавно изменённые</option>
+            <option value="title">По названию</option>
+          </select></label>
+        </div>
+        <div id="saved-projects" class="saved-projects"></div>
+        <p id="project-empty" role="status"></p>
       </section>
       <div class="availability" hidden>
         <span class="info" aria-hidden="true">i</span>

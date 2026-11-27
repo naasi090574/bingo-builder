@@ -20,7 +20,7 @@ const sections = {
     description: 'Выберите эффекты для игровых событий и настройте фоновую музыку.',
   },
   projects: {
-    description: 'Здесь можно будет сохранить проект и вернуться к нему позже.',
+    description: 'Откройте сохранённую игру, создайте копию или перенесите проект с помощью файла.',
   },
   genially: {
     description: 'Здесь можно будет подготовить игру для встраивания в презентацию Genially.',
@@ -53,11 +53,12 @@ function showSection() {
     }
   }
   description.textContent = copy;
-  availability.hidden = ['settings', 'appearance', 'cards', 'tasks', 'tokens', 'sound'].includes(section);
+  availability.hidden = ['settings', 'appearance', 'cards', 'tasks', 'tokens', 'sound', 'projects'].includes(section);
   cardsSection.hidden = section !== 'cards';
   tasksSection.hidden = section !== 'tasks';
   document.querySelector('#token-settings').hidden = section !== 'tokens';
   document.querySelector('#sound-settings').hidden = section !== 'sound';
+  document.querySelector('#project-library').hidden = section !== 'projects';
   appearanceForm.hidden = section !== 'appearance';
   form.hidden = section !== 'settings';
 }

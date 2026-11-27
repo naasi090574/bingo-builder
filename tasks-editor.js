@@ -75,16 +75,21 @@ let taskQueue = readTaskLibrary().then(tasks => {
   taskLibraryStatus.textContent = 'Не удалось загрузить задания.';
 });
 
+function notifyTaskViews() {
+  const message = { type: 'bingo:tasks', tasks: taskList };
+  frame.contentWindow.postMessage(message, appearanceOrigin());
+  for (const popup of appearancePopups) {
+    if (popup.closed) appearancePopups.delete(popup);
+    else popup.postMessage(message, appearanceOrigin());
+  }
+}
+
 function saveTaskList(update) {
   const write = taskQueue.then(async () => {
     taskList = await updateTaskLibrary(update);
     renderTasks();
-    const message = { type: 'bingo:tasks', tasks: taskList };
-    frame.contentWindow.postMessage(message, appearanceOrigin());
-    for (const popup of appearancePopups) {
-      if (popup.closed) appearancePopups.delete(popup);
-      else popup.postMessage(message, appearanceOrigin());
-    }
+    notifyTaskViews();
+    window.projectChanged?.();
   });
   taskQueue = write.catch(() => {});
   return write;

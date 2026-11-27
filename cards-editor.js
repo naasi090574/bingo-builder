@@ -54,7 +54,10 @@ async function saveCards(change) {
     return next;
   }, library);
   renderLibrary();
-  if (changed) notifyCardViews();
+  if (changed) {
+    notifyCardViews();
+    window.projectChanged?.();
+  }
 }
 
 function storageError() {

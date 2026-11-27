@@ -15,7 +15,7 @@ function sendAppearance(target, values) {
   target.postMessage({ type: 'bingo:appearance', values, image: backgroundImage, imageVersion }, appearanceOrigin());
 }
 
-function updateAppearance() {
+function updateAppearance(trackChange = true) {
   const values = Object.fromEntries(new FormData(appearanceForm));
   imageControls.hidden = values.backgroundMode !== 'image';
   backgroundColor.closest('label').hidden = values.backgroundMode !== 'color';
@@ -30,6 +30,7 @@ function updateAppearance() {
     if (popup.closed) appearancePopups.delete(popup);
     else sendAppearance(popup, values);
   }
+  if (trackChange) window.projectChanged?.();
 }
 
 function clearBackgroundImage() {
@@ -37,6 +38,7 @@ function clearBackgroundImage() {
   backgroundImage = null;
   imageVersion++;
   imageInput.value = '';
+  imageInput.disabled = false;
   backgroundStatus.textContent = '';
 }
 
@@ -61,6 +63,7 @@ imageInput.addEventListener('change', async () => {
   const file = imageInput.files[0];
   if (!file) return;
   const request = ++imageRequest;
+  imageInput.disabled = true;
   const url = URL.createObjectURL(file);
   try {
     const image = new Image();
@@ -77,6 +80,7 @@ imageInput.addEventListener('change', async () => {
       backgroundStatus.textContent = 'Не удалось открыть изображение.';
     }
   } finally {
+    if (request === imageRequest) imageInput.disabled = false;
     URL.revokeObjectURL(url);
   }
 });

@@ -20,6 +20,7 @@ function saveSounds() {
     if (popup.closed) appearancePopups.delete(popup);
     else broadcastSounds(popup);
   }
+  window.projectChanged?.();
   const snapshot = normalizeSoundSettings(editedSounds);
   soundWrite = soundWrite.then(() => soundStorage(snapshot)).catch(() => {
     soundStatus.textContent = 'Не удалось сохранить звуковые настройки.';
