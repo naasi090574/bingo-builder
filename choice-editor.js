@@ -29,8 +29,8 @@ function taskOptionImageField(media, label, update, answerNumber, render = rende
     const file = input.files[0];
     input.value = '';
     if (file) runTaskDraftAction(async () => {
-      const { image } = await readCardImage(file);
-      update({ image, name: file.name });
+      const { image, imageKey } = await readCardImage(file);
+      update({ image, name: file.name }, imageKey);
       render();
     });
   });

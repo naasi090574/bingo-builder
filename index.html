@@ -19,6 +19,7 @@
   <script defer src="choice-editor.js"></script>
   <script defer src="sorting-editor.js"></script>
   <script defer src="pairs-editor.js"></script>
+  <script defer src="sequence-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -252,6 +253,7 @@
         <button id="add-choice-task" class="secondary" type="button">Добавить выбор ответа</button>
         <button id="add-sorting-task" class="secondary" type="button">Добавить сортировку</button>
         <button id="add-pairs-task" class="secondary" type="button">Добавить «Соедини пары»</button>
+        <button id="add-sequence-task" class="secondary" type="button">Добавить «Восстанови последовательность»</button>
         <p id="task-library-status" role="status"></p>
         <ol id="task-items" class="task-items"></ol>
       </section>
@@ -333,6 +335,17 @@
         <label class="choice-checkbox"><input id="pairs-shuffle" type="checkbox">Перемешивать элементы</label>
         <div id="pairs-items-draft"></div>
         <button id="pairs-add-item" class="secondary" type="button">Добавить пару</button>
+      </div>
+      <div id="sequence-draft" hidden>
+        <label>Способ выполнения
+          <select id="sequence-method"><option value="drag">Перетаскивание в ячейки</option><option value="click">Нажатие по порядку</option></select>
+        </label>
+        <label>Проверка
+          <select id="sequence-check"><option value="instant">Мгновенно</option><option value="batch">Кнопкой «Проверить»</option></select>
+        </label>
+        <p class="task-field-help">Расположите элементы в правильном порядке. В игре они будут перемешаны.</p>
+        <div id="sequence-items-draft"></div>
+        <button id="sequence-add-item" class="secondary" type="button">Добавить элемент</button>
       </div>
       <p id="task-editor-status" role="status"></p>
       <div class="library-actions">

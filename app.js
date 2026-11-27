@@ -18,6 +18,7 @@ const interactiveTasks = {
   choice: { label: 'Выбери правильный ответ', mount: mountChoiceTask },
   sorting: { label: 'Рассортируй по группам', mount: mountSortingTask },
   pairs: { label: 'Соедини пары', mount: mountPairsTask },
+  sequence: { label: 'Восстанови последовательность', mount: mountSequenceTask },
 };
 const choiceCheckButton = document.querySelector('#check-choice');
 let disposeInteractiveTask;
