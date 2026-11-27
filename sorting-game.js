@@ -1,6 +1,6 @@
 'use strict';
 
-function mountSortingTask(task, container, checkButton, mediaUrl, finish) {
+function mountSortingTask(task, container, checkButton, mediaUrl, setReady) {
   const items = task.shuffle ? shuffle(task.items, Math.random) : task.items;
   const positions = Array(items.length).fill(null);
   const wrong = new Map();
@@ -8,7 +8,7 @@ function mountSortingTask(task, container, checkButton, mediaUrl, finish) {
   const batch = task.check === 'batch';
   const drag = task.method === 'drag';
   let selected = null;
-  let finishTimer;
+  let completed = false;
   let pointer;
   let hovered;
   let suppressClick = false;
@@ -84,7 +84,7 @@ function mountSortingTask(task, container, checkButton, mediaUrl, finish) {
         if (focused) button.focus({ preventScroll: true });
       }
       button.setAttribute('aria-pressed', String(index === selected));
-      button.classList.toggle('is-right', (!batch || Boolean(finishTimer)) && positions[index] === items[index].groupId);
+      button.classList.toggle('is-right', (!batch || completed) && positions[index] === items[index].groupId);
       button.classList.toggle('is-wrong', wrong.has(index));
     });
     for (const { contents } of zones.values()) {
@@ -94,7 +94,7 @@ function mountSortingTask(task, container, checkButton, mediaUrl, finish) {
       contents.classList.toggle('is-dense', count > (contents === unassigned ? 10 : 8));
     }
     poolLabel.hidden = selected === null || positions[selected] === null;
-    checkButton.disabled = Boolean(finishTimer) || positions.every(position => position === null);
+    checkButton.disabled = completed || positions.every(position => position === null);
   }
 
   function clearWrong(index) {
@@ -111,7 +111,7 @@ function mountSortingTask(task, container, checkButton, mediaUrl, finish) {
   }
 
   function verify() {
-    if (finishTimer) return;
+    if (completed) return;
     const misplaced = positions.map((target, index) => target !== null && target !== items[index].groupId);
     if (batch) {
       misplaced.forEach((bad, index) => { if (bad) flash(index); });
@@ -120,7 +120,8 @@ function mountSortingTask(task, container, checkButton, mediaUrl, finish) {
     }
     if (!misplaced.some(Boolean) && !positions.includes(null)) {
       feedback.textContent = 'Верно!';
-      finishTimer = setTimeout(finish, 620);
+      completed = true;
+      setReady(true);
     }
     update();
   }
@@ -131,8 +132,10 @@ function mountSortingTask(task, container, checkButton, mediaUrl, finish) {
       update();
       return;
     }
-    clearTimeout(finishTimer);
-    finishTimer = undefined;
+    if (completed) {
+      completed = false;
+      setReady(false);
+    }
     selected = null;
     positions[index] = target;
     clearWrong(index);
@@ -202,7 +205,6 @@ function mountSortingTask(task, container, checkButton, mediaUrl, finish) {
   checkButton.addEventListener('click', verify);
   update();
   return () => {
-    clearTimeout(finishTimer);
     wrong.forEach(clearTimeout);
     clearPointer();
     checkButton.removeEventListener('click', verify);

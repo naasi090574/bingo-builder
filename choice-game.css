@@ -88,7 +88,7 @@
   font: 800 var(--label-choiceCheck-size, 1.125rem) / 1.25 var(--label-choiceCheck-font, system-ui, sans-serif);
 }
 #check-choice:disabled { opacity: .55; }
-#task.has-choice #complete { font-size: .875rem; }
+#close-task-preview { font-size: .875rem; }
 
 @media (max-width: 600px) and (max-aspect-ratio: 4/3) {
   .choice-layout.is-drag { grid-template-columns: minmax(0, 1fr); }

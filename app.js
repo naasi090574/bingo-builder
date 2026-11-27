@@ -13,10 +13,17 @@ const taskImages = document.querySelector('#task-images');
 const taskAudio = document.querySelector('#task-audio');
 const choiceArea = document.querySelector('#task-choice');
 const taskComplete = document.querySelector('#complete');
+const taskPreviewClose = document.querySelector('#close-task-preview');
+const interactiveTasks = {
+  choice: { label: 'Выбери правильный ответ', mount: mountChoiceTask },
+  sorting: { label: 'Рассортируй по группам', mount: mountSortingTask },
+};
 const choiceCheckButton = document.querySelector('#check-choice');
 let disposeInteractiveTask;
 let taskUrls = [];
 let previewingTask = false;
+let interactiveTask = false;
+let taskReady = false;
 let gameTasks = initialTaskLibrary();
 let receivedTaskUpdate = false;
 const turnNotice = document.querySelector('#turn-notice');
@@ -159,7 +166,11 @@ function clearTaskMedia() {
   choiceArea.replaceChildren();
   choiceArea.hidden = true;
   choiceCheckButton.hidden = true;
-  task.classList.remove('has-choice', 'has-sorting');
+  const type = task.dataset.interactiveType;
+  if (type) {
+    task.classList.remove(`has-${type}`);
+    delete task.dataset.interactiveType;
+  }
   taskAudio.pause();
   if (taskAudio.hasAttribute('src')) {
     taskAudio.removeAttribute('src');
@@ -192,19 +203,18 @@ function showTask(content, preview = false) {
     taskAudio.src = taskMediaUrl(content.audio.file);
   }
   taskAudio.hidden = !content?.audio;
-  const choice = content?.type === 'choice';
-  const sorting = content?.type === 'sorting';
-  const interactive = choice || sorting;
-  task.classList.toggle('has-choice', choice);
-  task.classList.toggle('has-sorting', sorting);
-  task.setAttribute('aria-label', sorting ? 'Рассортируй по группам'
-    : choice ? 'Выбери правильный ответ' : 'Устное задание');
-  taskComplete.hidden = interactive && !preview;
-  taskComplete.textContent = interactive ? 'Закрыть предпросмотр' : 'Задание выполнено';
+  const type = content?.type;
+  const interactive = Object.hasOwn(interactiveTasks, type) ? interactiveTasks[type] : null;
+  interactiveTask = Boolean(interactive);
+  if (interactive) {
+    task.dataset.interactiveType = type;
+    task.classList.add(`has-${type}`);
+  }
+  task.setAttribute('aria-label', interactive?.label ?? 'Устное задание');
+  setTaskReady(!interactiveTask);
   if (interactive) {
     choiceArea.hidden = false;
-    const mount = sorting ? mountSortingTask : mountChoiceTask;
-    disposeInteractiveTask = mount(content, choiceArea, choiceCheckButton, taskMediaUrl, finishTask);
+    disposeInteractiveTask = interactive.mount(content, choiceArea, choiceCheckButton, taskMediaUrl, setTaskReady);
   }
   taskBody.hidden = taskText.hidden && taskImages.hidden && choiceArea.hidden;
   if (!task.open) task.showModal();
@@ -273,7 +283,15 @@ task.addEventListener('cancel', event => {
 task.addEventListener('close', () => {
   if (!task.open) clearTaskMedia();
 });
+function setTaskReady(ready) {
+  taskReady = ready;
+  taskComplete.hidden = !ready;
+  taskComplete.disabled = !ready;
+  taskPreviewClose.hidden = !(previewingTask && interactiveTask && !ready);
+}
+
 function finishTask() {
+  if (!task.open || !taskReady) return;
   if (previewingTask) {
     task.close();
     return;
@@ -285,8 +303,9 @@ function finishTask() {
   renderAfterMove(player);
   if (game.outcome) document.querySelector('#reset').focus();
 }
-taskComplete.addEventListener('click', () => {
-  if (!taskComplete.hidden) finishTask();
+taskComplete.addEventListener('click', finishTask);
+taskPreviewClose.addEventListener('click', () => {
+  if (previewingTask) task.close();
 });
 document.querySelector('#reset').addEventListener('click', restart);
 document.title = settings.title;

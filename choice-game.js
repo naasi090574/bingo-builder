@@ -1,6 +1,6 @@
 'use strict';
 
-function mountChoiceTask(task, container, checkButton, mediaUrl, finish) {
+function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
   const options = task.shuffle ? shuffle(task.options, Math.random) : task.options;
   const dragMode = task.method === 'drag';
   const batch = task.check === 'batch';
@@ -8,7 +8,6 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, finish) {
   const wrong = new Set();
   const timers = new Map();
   const buttons = [];
-  let pendingFinish;
   let dragged;
   let touch;
   let suppressClick = false;
@@ -88,7 +87,7 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, finish) {
     } else if (options.every((option, index) => !option.correct || selected.has(index))) {
       completed = true;
       feedback.textContent = 'Верно!';
-      pendingFinish = setTimeout(finish, 600);
+      setReady(true);
     } else if (batch) {
       feedback.textContent = 'Выбраны не все правильные ответы.';
     }
@@ -99,8 +98,8 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, finish) {
     if (selected.has(index) === moveToDrop) return;
     if (completed) {
       if (moveToDrop) return;
-      clearTimeout(pendingFinish);
       completed = false;
+      setReady(false);
     }
     feedback.textContent = '';
     clearTimeout(timers.get(index));
@@ -190,7 +189,6 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, finish) {
   checkButton.addEventListener('click', verify);
   update();
   return () => {
-    clearTimeout(pendingFinish);
     timers.forEach(clearTimeout);
     checkButton.removeEventListener('click', verify);
   };
