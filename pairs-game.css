@@ -1,0 +1,79 @@
+#task.has-pairs {
+  --pair-dialog-width: 58rem;
+  --pair-space: 68dvh;
+  --pair-max-row: 4.5rem;
+}
+#task.has-pairs:has(.has-pictures) { --pair-dialog-width: 72rem; --pair-max-row: 10rem; }
+#task.has-pairs,
+#task.has-pairs:has(#task-audio:not([hidden])),
+#task.has-pairs:has(#task-images:not([hidden])) { width: var(--pair-dialog-width); }
+#task.has-pairs:has(#task-text:not([hidden])) { --pair-space: 66dvh; }
+#task.has-pairs:has(#task-audio:not([hidden])) { --pair-audio-space: 2.1rem; }
+#task.has-pairs:has(#task-images:not([hidden])) { --pair-question-space: 12dvh; }
+#task.has-pairs .task-sheet { padding: .5rem .85rem; gap: .3rem; }
+#task.has-pairs .task-body { gap: .35rem; }
+#task.has-pairs .task-images {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+  gap: .25rem;
+}
+#task.has-pairs .task-images img { height: 11dvh; }
+#task.has-pairs #task-audio { height: 2rem; }
+#task.has-pairs #task-choice { gap: 0; }
+#task.has-pairs .choice-feedback:empty { display: none; }
+#task.has-pairs .choice-feedback:not(:empty) { margin-top: .3rem; }
+
+.pairs-board {
+  --pair-gap: clamp(.2rem, .65dvh, .45rem);
+  --pair-row: clamp(1.65rem, calc((var(--pair-space) - var(--pair-audio-space, 0px)
+    - var(--pair-question-space, 0px)) / var(--pair-count) - var(--pair-gap)), var(--pair-max-row));
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(var(--pair-count), minmax(var(--pair-row), auto));
+  gap: var(--pair-gap) clamp(2rem, 20%, 14rem);
+  width: 100%;
+}
+.pairs-board.is-line { user-select: none; }
+.pairs-column {
+  display: grid;
+  grid-row: 1 / -1;
+  grid-template-rows: subgrid;
+}
+.pair-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  min-width: 0;
+  padding: .12rem .35rem;
+  border: var(--choiceOptionBorderWidth, 1px) solid var(--choiceOptionBorder, #50617a);
+  border-radius: var(--choiceOptionRadius, 12px);
+  background: color-mix(in srgb, var(--choiceOptionBackground, #26374b) var(--choiceOptionOpacity, 100%), transparent);
+  color: var(--label-choiceOption-color, var(--text));
+  font: 650 var(--label-choiceOption-size, 1.125rem) / 1.15 var(--label-choiceOption-font, system-ui, sans-serif);
+  text-align: center;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px var(--pair-highlight, transparent);
+}
+.pair-item img { height: max(1rem, calc(var(--pair-row) - .55rem)); max-width: 100%; object-fit: contain; pointer-events: none; }
+.pair-item:has(span) img { max-width: 45%; }
+.pair-item span { min-width: 0; }
+.is-line .pair-item { cursor: crosshair; touch-action: none; }
+.pair-item[aria-disabled="true"] { cursor: default; }
+.pair-item:is(.is-selected, [aria-pressed="true"]) { --pair-highlight: var(--choiceOptionSelected, #aebcff); }
+.pair-item.is-wrong { --pair-highlight: var(--choiceOptionWrong, #f19a9a); }
+.pair-item.is-right { --pair-highlight: var(--choiceOptionRight, #6bf4c1); }
+.pair-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pair-lines line { stroke-width: 4; stroke-linecap: round; }
+.pair-lines .is-pending { stroke: var(--choiceOptionSelected, #aebcff); }
+.pair-lines .is-wrong { stroke: var(--choiceOptionWrong, #f19a9a); }
+.pair-lines .is-right { stroke: var(--choiceOptionRight, #6bf4c1); }
+#task.has-pairs #check-choice {
+  background: var(--choiceCheckBackground, var(--mint));
+  border: var(--choiceCheckBorderWidth, 0px) solid var(--choiceCheckBorder, var(--mint));
+  border-radius: var(--choiceCheckRadius, 10px);
+  color: var(--label-choiceCheck-color, #102822);
+  font: 800 var(--label-choiceCheck-size, 1.125rem) / 1.25 var(--label-choiceCheck-font, system-ui, sans-serif);
+}

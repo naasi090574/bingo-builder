@@ -17,6 +17,7 @@ const taskPreviewClose = document.querySelector('#close-task-preview');
 const interactiveTasks = {
   choice: { label: 'Выбери правильный ответ', mount: mountChoiceTask },
   sorting: { label: 'Рассортируй по группам', mount: mountSortingTask },
+  pairs: { label: 'Соедини пары', mount: mountPairsTask },
 };
 const choiceCheckButton = document.querySelector('#check-choice');
 let disposeInteractiveTask;

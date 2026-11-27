@@ -18,6 +18,7 @@
   <script defer src="tasks-editor.js"></script>
   <script defer src="choice-editor.js"></script>
   <script defer src="sorting-editor.js"></script>
+  <script defer src="pairs-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -250,6 +251,7 @@
         <button id="add-task" class="secondary" type="button">Добавить устное задание</button>
         <button id="add-choice-task" class="secondary" type="button">Добавить выбор ответа</button>
         <button id="add-sorting-task" class="secondary" type="button">Добавить сортировку</button>
+        <button id="add-pairs-task" class="secondary" type="button">Добавить «Соедини пары»</button>
         <p id="task-library-status" role="status"></p>
         <ol id="task-items" class="task-items"></ol>
       </section>
@@ -320,6 +322,17 @@
         <h3 class="choice-options-heading">Элементы</h3>
         <div id="sorting-items-draft"></div>
         <button id="sorting-add-item" class="secondary" type="button">Добавить элемент</button>
+      </div>
+      <div id="pairs-draft" hidden>
+        <label>Способ соединения
+          <select id="pairs-method"><option value="click">Последовательное нажатие</option><option value="line">Проведение линии</option></select>
+        </label>
+        <label>Проверка
+          <select id="pairs-check"><option value="instant">Мгновенно</option><option value="batch">Кнопкой «Проверить»</option></select>
+        </label>
+        <label class="choice-checkbox"><input id="pairs-shuffle" type="checkbox">Перемешивать элементы</label>
+        <div id="pairs-items-draft"></div>
+        <button id="pairs-add-item" class="secondary" type="button">Добавить пару</button>
       </div>
       <p id="task-editor-status" role="status"></p>
       <div class="library-actions">

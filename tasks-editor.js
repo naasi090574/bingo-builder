@@ -10,6 +10,11 @@ const taskAudioInput = document.querySelector('#task-audio-input');
 const taskDraftImages = document.querySelector('#task-draft-images');
 const taskAudioName = document.querySelector('#task-audio-name');
 const removeTaskAudio = document.querySelector('#remove-task-audio');
+const interactiveTaskTitles = {
+  choice: 'Выбери правильный ответ',
+  sorting: 'Рассортируй по группам',
+  pairs: 'Соедини пары',
+};
 let taskDraft;
 let taskList = [];
 let taskDraftBusy = false;
@@ -91,9 +96,9 @@ function renderTasks() {
       button('Изменить', () => openTaskEditor(task)),
       button('Дублировать', () => duplicateTask(task.id)),
       button('Удалить', () => updateTasks(tasks => tasks.filter(saved => saved.id !== task.id))));
-    if (task.type === 'choice' || task.type === 'sorting') {
+    if (Object.hasOwn(interactiveTaskTitles, task.type)) {
       const kind = document.createElement('small');
-      kind.textContent = task.type === 'sorting' ? 'Рассортируй по группам' : 'Выбери правильный ответ';
+      kind.textContent = interactiveTaskTitles[task.type];
       row.append(kind);
     }
     row.append(title, actions);
@@ -150,11 +155,12 @@ function openTaskEditor(task, type = 'oral') {
     taskDraft.shuffle ??= false;
   }
   if (taskDraft.type === 'sorting') initializeSortingDraft(task);
+  if (taskDraft.type === 'pairs') initializePairsDraft(task);
   taskForm.reset();
   taskForm.elements.text.value = taskDraft.text;
-  const isInteractive = taskDraft.type === 'choice' || taskDraft.type === 'sorting';
-  document.querySelector('#task-editor-title').textContent = taskDraft.type === 'sorting' ? 'Рассортируй по группам'
-    : taskDraft.type === 'choice' ? 'Выбери правильный ответ' : 'Устное задание';
+  const isInteractive = Object.hasOwn(interactiveTaskTitles, taskDraft.type);
+  document.querySelector('#task-editor-title').textContent = isInteractive
+    ? interactiveTaskTitles[taskDraft.type] : 'Устное задание';
   document.querySelector('#task-question-label').textContent = isInteractive ? 'Текст вопроса или инструкция' : 'Текст задания';
   document.querySelector('#task-images-label').textContent = isInteractive
     ? 'Добавить иллюстрации к вопросу (необязательно)' : 'Добавить картинки';
@@ -163,6 +169,7 @@ function openTaskEditor(task, type = 'oral') {
   else taskImagesInput.removeAttribute('aria-describedby');
   renderChoiceDraft();
   renderSortingDraft();
+  renderPairsDraft();
   taskEditorStatus.textContent = '';
   renderTaskDraftMedia();
   taskEditor.showModal();
@@ -249,12 +256,14 @@ removeTaskAudio.addEventListener('click', () => {
 taskForm.addEventListener('submit', event => {
   event.preventDefault();
   taskDraft.text = taskForm.elements.text.value;
-  if (taskDraft.type !== 'sorting' && !taskDraft.text.trim() && !taskDraft.images.length && !taskDraft.audio) {
+  if (taskDraft.type !== 'sorting' && taskDraft.type !== 'pairs'
+    && !taskDraft.text.trim() && !taskDraft.images.length && !taskDraft.audio) {
     taskEditorStatus.textContent = 'Добавьте текст, картинку или аудио.';
     return;
   }
   if (taskDraft.type === 'choice' && !validateChoiceDraft()) return;
   if (taskDraft.type === 'sorting' && !validateSortingDraft()) return;
+  if (taskDraft.type === 'pairs' && !validatePairsDraft()) return;
   const task = taskDraft;
   runTaskDraftAction(async () => {
     try {
