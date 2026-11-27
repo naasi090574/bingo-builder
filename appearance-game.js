@@ -40,6 +40,31 @@ const appearanceScales = {
   taskBackdrop: ['--task-backdrop', 0, 100, '%'],
 };
 
+function applyGameLabelEffects(style, values) {
+  for (const key of gameLabelKeys) {
+    const prefix = `--label-${key}-`;
+    const read = field => values[key + field] ?? gameLabelEffects[field].initial;
+    const range = field => {
+      const { min, max, initial } = gameLabelEffects[field];
+      const value = Number(read(field));
+      return Number.isFinite(value) ? Math.max(min, Math.min(max, value)) : Number(initial);
+    };
+    const length = field => `${range(field) / 16}rem`;
+    const color = field => /^#[\da-f]{6}$/i.test(read(field)) ? read(field) : gameLabelEffects[field].initial;
+    const decorative = ['gogono', 'itim', 'ruthless', 'solKol'].includes(values[key + 'Font']);
+    const weight = read('Weight');
+    if (decorative || weight === 'normal' || weight === 'bold') {
+      style.setProperty(prefix + 'weight', decorative || weight === 'normal' ? '400' : '700');
+    } else style.removeProperty(prefix + 'weight');
+    style.setProperty(prefix + 'spacing', length('Spacing'));
+    style.setProperty(prefix + 'stroke-width', read('Stroke') === 'on' ? length('StrokeWidth') : '0');
+    style.setProperty(prefix + 'stroke-color', color('StrokeColor'));
+    style.setProperty(prefix + 'shadow', read('Shadow') === 'on'
+      ? `${length('ShadowX')} ${length('ShadowY')} ${length('ShadowBlur')} color-mix(in srgb, ${color('ShadowColor')} ${range('ShadowOpacity')}%, transparent)`
+      : 'none');
+  }
+}
+
 function applyAppearance({ values, image, imageVersion }) {
   if (!values || typeof values !== 'object') return;
   const { body } = document;
@@ -78,7 +103,9 @@ function applyAppearance({ values, image, imageVersion }) {
     if (activeImageUrl) body.style.setProperty('--chosen-image', `url("${activeImageUrl}")`);
     else body.style.removeProperty('--chosen-image');
   }
+  applyGameLabelEffects(body.style, values);
   body.dataset.background = values.backgroundMode;
+  window.scheduleGameLabelFit?.();
 
 }
 

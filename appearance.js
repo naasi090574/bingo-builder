@@ -12,12 +12,12 @@ const appearanceFonts = {
 };
 
 const labelStyles = {
-  title: { label: 'Название игры', size: 34, min: 20, max: 48, color: '#f6f8ff' },
-  player: { label: 'Имена игроков', size: 18, min: 12, max: 22, color: '#f6f8ff' },
-  victory: { label: 'Условие победы', size: 14, min: 12, max: 22, color: '#adb9ce' },
-  drawTitle: { label: 'Заголовок «Выпавшая карточка»', size: 20, min: 12, max: 22, color: '#f6f8ff' },
-  text: { label: 'Вспомогательные надписи и сообщения', size: 16, min: 12, max: 22, color: '#adb9ce' },
-  button: { label: 'Текст кнопок', size: 16, min: 12, max: 22, color: '#102822', colorKey: 'buttonText' },
+  title: { label: 'Название игры', size: 34, min: 20, max: 80, color: '#f6f8ff' },
+  player: { label: 'Имена игроков', size: 18, min: 12, max: 80, color: '#f6f8ff' },
+  victory: { label: 'Условие победы', size: 14, min: 12, max: 80, color: '#adb9ce' },
+  drawTitle: { label: 'Заголовок «Выпавшая карточка»', size: 20, min: 12, max: 80, color: '#f6f8ff' },
+  text: { label: 'Вспомогательные надписи и сообщения', size: 16, min: 12, max: 80, color: '#adb9ce' },
+  button: { label: 'Текст кнопок', size: 16, min: 12, max: 80, color: '#102822', colorKey: 'buttonText' },
   task: { label: 'Текст вопроса или инструкции', size: 32, min: 12, max: 120, color: '#f6f8ff' },
   taskAnswer: { label: 'Текст элементов ответа', size: 30, min: 12, max: 120, color: '#f6f8ff' },
   taskFeedback: { label: 'Сообщения о правильных и неправильных ответах', size: 18, min: 12, max: 120, color: '#f6f8ff' },
@@ -30,6 +30,21 @@ const labelStyles = {
   taskButton: { label: 'Текст кнопки «Задание выполнено»', size: 18, min: 12, max: 32, color: '#102822' },
   activeBadge: { label: 'Сейчас ходит', size: 14, min: 12, max: 22, color: '#6bf4c1' },
   idleBadge: { label: 'Ожидает ход', size: 14, min: 12, max: 22, color: '#d1daea' },
+};
+
+const gameLabelKeys = ['title', 'player', 'victory', 'drawTitle', 'text', 'button'];
+const gameLabelEffects = {
+  Spacing: { label: 'Межбуквенный интервал', initial: '0', min: -2, max: 10, step: .5 },
+  Weight: { label: 'Начертание', initial: 'auto', choices: { auto: 'По умолчанию', normal: 'Обычное', bold: 'Жирное' } },
+  Stroke: { label: 'Обводка', initial: 'off', choices: { off: 'Выключена', on: 'Включена' } },
+  StrokeColor: { label: 'Цвет обводки', initial: '#000000' },
+  StrokeWidth: { label: 'Толщина обводки', initial: '1', min: 0, max: 5, step: .5 },
+  Shadow: { label: 'Тень', initial: 'off', choices: { off: 'Выключена', on: 'Включена' } },
+  ShadowColor: { label: 'Цвет тени', initial: '#000000' },
+  ShadowOpacity: { label: 'Непрозрачность тени', initial: '70', min: 0, max: 100, unit: '%' },
+  ShadowX: { label: 'Горизонтальное смещение', initial: '1', min: -20, max: 20, step: .5 },
+  ShadowY: { label: 'Вертикальное смещение', initial: '2', min: -20, max: 20, step: .5 },
+  ShadowBlur: { label: 'Размытие тени', initial: '3', min: 0, max: 20, step: .5 },
 };
 
 const taskTypographyKeys = ['task', 'taskAnswer', 'sortingGroup', 'taskFeedback', 'taskControl'];
@@ -134,6 +149,8 @@ const defaultAppearance = {
   drawSlotBorder: '#50617a',
   drawSlotWidth: '1',
   drawSlotRadius: '13',
+  ...Object.fromEntries(gameLabelKeys.flatMap(key =>
+    Object.entries(gameLabelEffects).map(([field, effect]) => [key + field, effect.initial]))),
   ...Object.fromEntries(Object.entries(labelStyles).flatMap(([key, style]) => [
     [`${key}Font`, 'system'],
     [`${key}Size`, String(style.size)],

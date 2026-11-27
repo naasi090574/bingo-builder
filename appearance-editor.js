@@ -24,6 +24,9 @@ function updateAppearance(trackChange = true) {
     const slider = document.getElementById(output.htmlFor.value);
     output.value = slider.value + slider.dataset.unit;
   }
+  for (const group of appearanceForm.querySelectorAll('[data-label-effect]')) {
+    group.hidden = values[group.dataset.labelEffect] !== 'on';
+  }
   stage.classList.toggle('transparent-preview', values.backgroundMode === 'transparent');
   sendAppearance(frame.contentWindow, values);
   for (const popup of appearancePopups) {
@@ -140,6 +143,25 @@ function typographyFields(key, idPrefix = '') {
     <label class="color-setting">Цвет текста<input type="color" name="${labelColorKey(key, style)}"></label>`;
 }
 
+function gameLabelEffectFields(key) {
+  function field(name) {
+    const { label, choices, min, max, step, unit } = gameLabelEffects[name];
+    const id = key + name;
+    if (choices) {
+      const options = Object.entries(choices).map(([value, text]) => `<option value="${value}">${text}</option>`).join('');
+      return `<label>${label}<select name="${id}">${options}</select></label>`;
+    }
+    if (min === undefined) return `<label class="color-setting">${label}<input type="color" name="${id}"></label>`;
+    return `<label class="range-setting"><span>${label}</span><output for="${id}"></output>
+      <input type="range" id="${id}" name="${id}" min="${min}" max="${max}" step="${step ?? 1}" data-unit="${unit ?? ' пкс'}">
+    </label>`;
+  }
+  return field('Spacing') + field('Weight') + ['Stroke', 'Shadow'].map(effect =>
+    field(effect) + `<div class="label-effect-fields" data-label-effect="${key + effect}" hidden>${
+      Object.keys(gameLabelEffects).filter(name => name !== effect && name.startsWith(effect)).map(field).join('')
+    }</div>`).join('');
+}
+
 function addLabelControls(choiceGroups) {
   const typography = document.querySelector('#typography-settings');
   const turns = document.querySelector('#turn-settings');
@@ -152,7 +174,7 @@ function addLabelControls(choiceGroups) {
     summary.textContent = style.label;
     const fields = document.createElement('div');
     fields.className = 'appearance-fields';
-    fields.innerHTML = typographyFields(key);
+    fields.innerHTML = typographyFields(key) + (gameLabelKeys.includes(key) ? gameLabelEffectFields(key) : '');
     if (turn) {
       fields.insertAdjacentHTML('beforeend', `
         <label class="color-setting">Цвет фона<input type="color" name="${key}Background"></label>

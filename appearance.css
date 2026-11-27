@@ -147,3 +147,60 @@ body[data-background="transparent"] {
   background: color-mix(in srgb, var(--chosen-button, #2d4053) 65%, #2d4053);
   color: var(--label-button-color, #bfcadd);
 }
+
+#game-title {
+  letter-spacing: var(--fit-spacing, var(--label-title-spacing, 0));
+  -webkit-text-stroke: var(--fit-stroke-width, var(--label-title-stroke-width, 0)) var(--label-title-stroke-color, transparent);
+  paint-order: stroke fill;
+  text-shadow: var(--label-title-shadow, none);
+  font-synthesis: none;
+  font-weight: var(--label-title-weight, 700);
+}
+
+.board-heading h2 {
+  letter-spacing: var(--fit-spacing, var(--label-player-spacing, 0));
+  -webkit-text-stroke: var(--fit-stroke-width, var(--label-player-stroke-width, 0)) var(--label-player-stroke-color, transparent);
+  paint-order: stroke fill;
+  text-shadow: var(--label-player-shadow, none);
+  font-synthesis: none;
+  font-weight: var(--label-player-weight, 700);
+}
+
+.game-rules label, .game-rules select {
+  letter-spacing: var(--fit-spacing, var(--label-victory-spacing, 0));
+  -webkit-text-stroke: var(--fit-stroke-width, var(--label-victory-stroke-width, 0)) var(--label-victory-stroke-color, transparent);
+  paint-order: stroke fill;
+  text-shadow: var(--label-victory-shadow, none);
+  font-synthesis: none;
+  font-weight: var(--label-victory-weight, 500);
+}
+
+#draw-title {
+  letter-spacing: var(--fit-spacing, var(--label-drawTitle-spacing, 0));
+  -webkit-text-stroke: var(--fit-stroke-width, var(--label-drawTitle-stroke-width, 0)) var(--label-drawTitle-stroke-color, transparent);
+  paint-order: stroke fill;
+  text-shadow: var(--label-drawTitle-shadow, none);
+  font-synthesis: none;
+  font-weight: var(--label-drawTitle-weight, 700);
+}
+
+.status, .winner-badge, .placeholder, .card-text {
+  letter-spacing: var(--fit-spacing, var(--label-text-spacing, 0));
+  -webkit-text-stroke: var(--fit-stroke-width, var(--label-text-stroke-width, 0)) var(--label-text-stroke-color, transparent);
+  paint-order: stroke fill;
+  text-shadow: var(--label-text-shadow, none);
+  font-synthesis: none;
+}
+
+.reset, .primary {
+  letter-spacing: var(--fit-spacing, var(--label-button-spacing, 0));
+  -webkit-text-stroke: var(--fit-stroke-width, var(--label-button-stroke-width, 0)) var(--label-button-stroke-color, transparent);
+  paint-order: stroke fill;
+  text-shadow: var(--label-button-shadow, none);
+  font-synthesis: none;
+}
+
+.status, .card-text { font-weight: var(--label-text-weight, 400); }
+.reset { font-weight: var(--label-button-weight, 400); }
+.placeholder, .winner-badge { font-weight: var(--label-text-weight, 700); }
+.primary { font-weight: var(--label-button-weight, 800); }

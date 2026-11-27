@@ -59,3 +59,23 @@ test('unknown project versions and malformed tasks fail validation before import
     await assert.rejects(importProjectFile(await exportProjectFile(data)), /повреждён/);
   })()`, context);
 });
+
+test('label effects survive project export, with defaults for older appearance data', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    const values = data.appearance.values;
+    for (const field of Object.keys(gameLabelEffects)) delete values['player' + field];
+    Object.assign(values, {
+      titleSize: '80', titleSpacing: '2.5', titleWeight: 'normal',
+      titleStroke: 'on', titleStrokeColor: '#123456', titleStrokeWidth: '5',
+      titleShadow: 'on', titleShadowColor: '#abcdef', titleShadowOpacity: '60',
+      titleShadowX: '-3.5', titleShadowY: '7', titleShadowBlur: '2',
+    });
+    const restored = await importProjectFile(await exportProjectFile(data));
+    for (const field of Object.keys(gameLabelEffects)) {
+      assert.equal(restored.appearance.values['title' + field], values['title' + field]);
+      assert.equal(restored.appearance.values['player' + field], gameLabelEffects[field].initial);
+    }
+    assert.equal(restored.appearance.values.titleSize, '80');
+  })()`, context);
+});

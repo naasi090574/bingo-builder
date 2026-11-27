@@ -21,20 +21,20 @@
   }
 
   .intro { margin-bottom: .55rem; }
-  #game-title { font-size: var(--label-title-size, 2.65rem); }
+  #game-title { font-size: var(--fit-size, var(--label-title-size, 2.65rem)); }
   .game-rules { font-size: var(--label-victory-size, 1rem); }
   .table, .boards { align-items: stretch; min-height: 0; }
   .boards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
   .board, .draw-panel { min-width: 0; min-height: 0; padding: .65rem; }
   .board { display: grid; grid-template-rows: auto minmax(0, 1fr); }
   .board-heading { gap: .15rem; margin-bottom: .45rem; }
-  .board-heading h2 { font-size: var(--label-player-size, 1.35rem); }
+  .board-heading h2 { font-size: var(--fit-size, var(--label-player-size, 1.35rem)); }
   .badge { font-size: var(--label-activeBadge-size, 1rem); }
   .board:not(.active) .badge { font-size: var(--label-idleBadge-size, 1rem); }
   .active .badge:not(.winner-badge) { font-size: var(--label-activeBadge-size, 1rem); }
   .board-cells { min-width: 0; min-height: 0; }
   .grid { height: 100%; grid-template-rows: repeat(var(--size), minmax(0, 1fr)); gap: .45rem; }
-  .cell { aspect-ratio: auto; min-height: 0; }
+  .cell { aspect-ratio: auto; min-height: 0; grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
   .cell img { width: var(--image-size, 94%); height: var(--image-size, 94%); }
 
   .draw-panel {
@@ -43,10 +43,20 @@
     grid-template-rows: auto minmax(0, 1fr) auto auto;
     gap: .7rem;
   }
-  #draw-title { font-size: var(--label-drawTitle-size, 1.35rem); }
+  #draw-title { font-size: var(--fit-size, var(--label-drawTitle-size, 1.35rem)); }
   .draw-slot { grid-row: auto; aspect-ratio: auto; height: 100%; min-height: 0; }
   .draw-slot > img { width: 90%; height: 90%; inset: 5%; }
   #draw { justify-self: stretch; padding: .6rem; }
-  .reset, .primary { font-size: var(--label-button-size, 1.05rem); }
-  .status { min-height: 2.8em; font-size: var(--label-text-size, 1.05rem); }
+  .reset, .primary { font-size: var(--fit-size, var(--label-button-size, 1.05rem)); }
+  .status { min-height: 2.8rem; font-size: var(--fit-size, var(--label-text-size, 1.05rem)); }
+  .game-rules label, .game-rules select { font-size: var(--fit-size, inherit); }
+  .placeholder { font-size: var(--fit-size, var(--label-text-size, 2.4rem)); }
+  .board .winner-badge { font-size: var(--fit-size, var(--label-text-size, .875rem)); }
+  #game-title, .board-heading h2, .game-rules label, #draw-title, .reset, .primary, .winner-badge {
+    min-width: 0;
+    max-inline-size: 100%;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .reset { max-inline-size: 75%; }
 }
