@@ -1,6 +1,9 @@
 'use strict';
 
 const choiceDraft = document.querySelector('#choice-draft');
+const choiceMethodField = document.querySelector('#choice-method-field');
+const oddFollowUp = document.querySelector('#odd-follow-up');
+const oddFollowUpField = document.querySelector('#odd-follow-up-field');
 const choiceMethod = document.querySelector('#choice-method');
 const choiceCheckMode = document.querySelector('#choice-check-mode');
 const choiceShuffle = document.querySelector('#choice-shuffle');
@@ -8,6 +11,14 @@ const choiceDropDraft = document.querySelector('#choice-drop-draft');
 const choiceDraftOptions = document.querySelector('#choice-draft-options');
 const choiceAddOption = document.querySelector('#choice-add-option');
 let taskOptionThumbUrls = [];
+
+function isChoiceDraft(type) {
+  return type === 'choice' || type === 'odd';
+}
+
+function choiceOptionLimit() {
+  return taskDraft.type === 'odd' ? 10 : 8;
+}
 
 function newChoiceOption() {
   return { text: '', correct: false, media: null };
@@ -54,16 +65,20 @@ function taskOptionImageField(media, label, update, answerNumber, render = rende
 
 function renderChoiceDraft() {
   clearTaskOptionThumbs();
-  choiceDraft.hidden = taskDraft.type !== 'choice';
+  choiceDraft.hidden = !isChoiceDraft(taskDraft.type);
   if (choiceDraft.hidden) {
     choiceDraftOptions.replaceChildren();
     choiceDropDraft.replaceChildren();
     return;
   }
+  const odd = taskDraft.type === 'odd';
+  choiceMethodField.hidden = odd;
+  oddFollowUpField.hidden = !odd;
+  oddFollowUp.value = taskDraft.followUp ?? '';
   choiceMethod.value = taskDraft.method;
   choiceCheckMode.value = taskDraft.check;
   choiceShuffle.checked = taskDraft.shuffle;
-  choiceDropDraft.hidden = taskDraft.method !== 'drag';
+  choiceDropDraft.hidden = odd || taskDraft.method !== 'drag';
   choiceDropDraft.replaceChildren(...(choiceDropDraft.hidden ? [] : [
     taskOptionImageField(taskDraft.dropImage, 'Картинка принимающей области', image => { taskDraft.dropImage = image; }),
   ]));
@@ -85,7 +100,7 @@ function renderChoiceDraft() {
     correct.type = 'checkbox';
     correct.checked = option.correct;
     correct.addEventListener('change', () => { option.correct = correct.checked; });
-    correctLabel.append(correct, 'Правильный ответ');
+    correctLabel.append(correct, odd ? 'Лишний элемент' : 'Правильный ответ');
 
     const actions = document.createElement('div');
     actions.className = 'library-actions';
@@ -109,7 +124,7 @@ function renderChoiceDraft() {
       actions);
     return row;
   }));
-  choiceAddOption.disabled = taskDraft.options.length >= 8;
+  choiceAddOption.disabled = taskDraft.options.length >= choiceOptionLimit();
 }
 
 function validateChoiceDraft() {
@@ -118,12 +133,15 @@ function validateChoiceDraft() {
     return false;
   }
   if (!taskDraft.options.some(option => option.correct)) {
-    taskEditorStatus.textContent = 'Отметьте хотя бы один правильный вариант.';
+    taskEditorStatus.textContent = taskDraft.type === 'odd'
+      ? 'Отметьте хотя бы один лишний элемент.' : 'Отметьте хотя бы один правильный вариант.';
     return false;
   }
   return true;
 }
 
+document.querySelector('#add-odd-task').addEventListener('click', () => openTaskEditor(null, 'odd'));
+oddFollowUp.addEventListener('input', () => { taskDraft.followUp = oddFollowUp.value; });
 document.querySelector('#add-choice-task').addEventListener('click', () => openTaskEditor(null, 'choice'));
 choiceMethod.addEventListener('change', () => {
   taskDraft.method = choiceMethod.value;
@@ -132,7 +150,7 @@ choiceMethod.addEventListener('change', () => {
 choiceCheckMode.addEventListener('change', () => { taskDraft.check = choiceCheckMode.value; });
 choiceShuffle.addEventListener('change', () => { taskDraft.shuffle = choiceShuffle.checked; });
 choiceAddOption.addEventListener('click', () => {
-  if (taskDraft.options.length >= 8) return;
+  if (taskDraft.options.length >= choiceOptionLimit()) return;
   taskDraft.options.push(newChoiceOption());
   renderChoiceDraft();
 });

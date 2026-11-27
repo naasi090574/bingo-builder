@@ -254,6 +254,7 @@
         <button id="add-sorting-task" class="secondary" type="button">Добавить сортировку</button>
         <button id="add-pairs-task" class="secondary" type="button">Добавить «Соедини пары»</button>
         <button id="add-sequence-task" class="secondary" type="button">Добавить «Восстанови последовательность»</button>
+        <button id="add-odd-task" class="secondary" type="button">Добавить «Найди лишнее»</button>
         <p id="task-library-status" role="status"></p>
         <ol id="task-items" class="task-items"></ol>
       </section>
@@ -292,7 +293,7 @@
         <button id="remove-task-audio" class="library-button" type="button" hidden>Удалить аудио</button>
       </div>
       <div id="choice-draft" hidden>
-        <label>Способ выполнения
+        <label id="choice-method-field">Способ выполнения
           <select id="choice-method">
             <option value="click">Нажатие на варианты</option>
             <option value="drag">Перетаскивание вариантов</option>
@@ -309,6 +310,9 @@
         <h3 class="choice-options-heading">Варианты ответа</h3>
         <div id="choice-draft-options"></div>
         <button id="choice-add-option" class="secondary" type="button">Добавить вариант</button>
+        <label id="odd-follow-up-field" hidden>Дополнительное задание после правильного ответа
+          <textarea id="odd-follow-up" rows="3"></textarea>
+        </label>
       </div>
       <div id="sorting-draft" hidden>
         <label>Способ выполнения

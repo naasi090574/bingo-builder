@@ -12,6 +12,7 @@ const taskAudioName = document.querySelector('#task-audio-name');
 const removeTaskAudio = document.querySelector('#remove-task-audio');
 const interactiveTaskTitles = {
   choice: 'Выбери правильный ответ',
+  odd: 'Найди лишнее',
   sorting: 'Рассортируй по группам',
   pairs: 'Соедини пары',
   sequence: 'Восстанови последовательность',
@@ -149,7 +150,7 @@ function renderTaskDraftMedia() {
 function openTaskEditor(task, type = 'oral') {
   taskDraft = task ? { ...task, images: [...task.images] }
     : { id: newTaskId(), type, text: '', images: [], audio: null };
-  if (taskDraft.type === 'choice') {
+  if (isChoiceDraft(taskDraft.type)) {
     taskDraft.options = task ? task.options.map(option => ({ ...option })) : [newChoiceOption(), newChoiceOption()];
     taskDraft.method ??= 'click';
     taskDraft.check ??= 'instant';
@@ -259,12 +260,12 @@ removeTaskAudio.addEventListener('click', () => {
 taskForm.addEventListener('submit', event => {
   event.preventDefault();
   taskDraft.text = taskForm.elements.text.value;
-  if (!['sorting', 'pairs', 'sequence'].includes(taskDraft.type)
+  if (!['sorting', 'pairs', 'sequence', 'odd'].includes(taskDraft.type)
     && !taskDraft.text.trim() && !taskDraft.images.length && !taskDraft.audio) {
     taskEditorStatus.textContent = 'Добавьте текст, картинку или аудио.';
     return;
   }
-  if (taskDraft.type === 'choice' && !validateChoiceDraft()) return;
+  if (isChoiceDraft(taskDraft.type) && !validateChoiceDraft()) return;
   if (taskDraft.type === 'sorting' && !validateSortingDraft()) return;
   if (taskDraft.type === 'pairs' && !validatePairsDraft()) return;
   if (taskDraft.type === 'sequence' && !validateSequenceDraft()) return;

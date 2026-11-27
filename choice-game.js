@@ -2,7 +2,8 @@
 
 function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
   const options = task.shuffle ? shuffle(task.options, Math.random) : task.options;
-  const dragMode = task.method === 'drag';
+  const odd = task.type === 'odd';
+  const dragMode = !odd && task.method === 'drag';
   const batch = task.check === 'batch';
   const selected = new Set();
   const wrong = new Set();
@@ -49,6 +50,15 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
   feedback.className = 'choice-feedback';
   feedback.setAttribute('role', 'status');
   container.append(layout, feedback);
+  const followUpText = odd ? task.followUp?.trim() : '';
+  const followUp = followUpText ? document.createElement('p') : null;
+  if (followUp) {
+    followUp.className = 'task-text odd-follow-up';
+    followUp.textContent = followUpText;
+    followUp.hidden = true;
+    followUp.setAttribute('role', 'status');
+    container.append(followUp);
+  }
 
   function update() {
     buttons.forEach((button, index) => {
@@ -61,11 +71,13 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
         if (focused) button.focus({ preventScroll: true });
       }
       button.setAttribute('aria-pressed', String(chosen));
+      if (odd) button.setAttribute('aria-disabled', String(completed));
       button.classList.toggle('is-right', (completed || !batch) && chosen && options[index].correct);
       button.classList.toggle('is-wrong', wrong.has(index));
       if (dragMode) button.title = chosen ? 'Вернуть вариант' : 'Переместить вариант';
     });
     checkButton.disabled = completed || !selected.size;
+    if (odd) checkButton.hidden = !batch || completed;
   }
 
   function flash(index) {
@@ -80,16 +92,23 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
   }
 
   function verify() {
+    if (odd && completed) return;
     const incorrect = batch ? [...selected].filter(index => !options[index].correct) : [];
     if (incorrect.length) {
       for (const index of incorrect) flash(index);
       feedback.textContent = 'Попробуй ещё раз.';
     } else if (options.every((option, index) => !option.correct || selected.has(index))) {
       completed = true;
-      feedback.textContent = 'Верно!';
+      if (odd) {
+        timers.forEach(clearTimeout);
+        timers.clear();
+        wrong.clear();
+      }
+      feedback.textContent = followUp ? '' : 'Верно!';
+      if (followUp) followUp.hidden = false;
       setReady(true);
     } else if (batch) {
-      feedback.textContent = 'Выбраны не все правильные ответы.';
+      feedback.textContent = odd ? 'Найдены не все лишние элементы.' : 'Выбраны не все правильные ответы.';
     }
     update();
   }
@@ -97,7 +116,7 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
   function select(index, moveToDrop) {
     if (selected.has(index) === moveToDrop) return;
     if (completed) {
-      if (moveToDrop) return;
+      if (odd || moveToDrop) return;
       completed = false;
       setReady(false);
     }
@@ -105,9 +124,10 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
     clearTimeout(timers.get(index));
     timers.delete(index);
     wrong.delete(index);
-    if (moveToDrop) selected.add(index);
-    else selected.delete(index);
-    if (!batch && moveToDrop && !options[index].correct) {
+    const instantMistake = !batch && moveToDrop && !options[index].correct;
+    if (!moveToDrop) selected.delete(index);
+    else if (!odd || !instantMistake) selected.add(index);
+    if (instantMistake) {
       flash(index);
       feedback.textContent = 'Попробуй ещё раз.';
       update();

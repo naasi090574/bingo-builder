@@ -16,6 +16,7 @@ const taskComplete = document.querySelector('#complete');
 const taskPreviewClose = document.querySelector('#close-task-preview');
 const interactiveTasks = {
   choice: { label: 'Выбери правильный ответ', mount: mountChoiceTask },
+  odd: { label: 'Найди лишнее', mount: mountChoiceTask },
   sorting: { label: 'Рассортируй по группам', mount: mountSortingTask },
   pairs: { label: 'Соедини пары', mount: mountPairsTask },
   sequence: { label: 'Восстанови последовательность', mount: mountSequenceTask },
