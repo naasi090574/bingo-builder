@@ -32,6 +32,15 @@
 <body id="preview">
   <div class="shell">
     <header class="topbar">
+      <button class="game-sound" type="button" aria-label="Отключить эффекты и музыку" aria-pressed="false"
+              title="Выключить звук">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor"
+             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 5 6 9H3v6h3l5 4z"/>
+          <path class="sound-waves" d="M15 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/>
+          <path class="sound-slash" d="M15 16l6-8"/>
+        </svg>
+      </button>
       <button class="reset" id="reset" type="button"><span aria-hidden="true">↻</span> Начать заново</button>
     </header>
     <main>
@@ -72,6 +81,7 @@
       <button id="check-choice" class="task-action" type="button" hidden>Проверить</button>
       <button id="close-task-preview" class="task-action" type="button" hidden>Закрыть предпросмотр</button>
       <button id="complete" class="task-action" type="button">Задание выполнено</button>
+      <span data-sound-control></span>
     </div>
   </dialog>
 </body>

@@ -8,6 +8,31 @@ let currentEffect = null;
 let audioUnlocked = false;
 let startSoundPending = true;
 let taskSoundOpen = false;
+let gamePlaybackMuted;
+let soundButtons = [];
+
+function gameAudioMuted() {
+  return gamePlaybackMuted ?? gameSoundSettings.muted;
+}
+
+function syncSoundButtons() {
+  const muted = gameAudioMuted();
+  for (const button of soundButtons) {
+    button.setAttribute('aria-pressed', String(muted));
+    button.title = muted ? 'Включить звук' : 'Выключить звук';
+  }
+}
+
+function toggleGameSound() {
+  gamePlaybackMuted = !gameAudioMuted();
+  if (gamePlaybackMuted) stopGameEffects();
+  syncSoundButtons();
+  refreshMusic();
+}
+
+function playbackGain() {
+  return gameAudioMuted() ? 0 : gameSoundSettings.master / 100;
+}
 
 function masterGain() {
   return gameSoundSettings.muted ? 0 : gameSoundSettings.master / 100;
@@ -20,7 +45,7 @@ function narrationPlaying() {
 function refreshMusic() {
   const { music } = gameSoundSettings;
   const audio = gameMusic.audio;
-  audio.volume = masterGain() * music.volume / 100;
+  audio.volume = playbackGain() * music.volume / 100;
   audio.loop = music.loop;
   if (!music.enabled) gameMusic.load(null);
   else if (audioUnlocked) gameMusic.load(soundTrack(music));
@@ -44,7 +69,7 @@ function advanceEffect(finished) {
   gameMusic.audio.pause();
   gameEffects.stop();
   gameEffects.load(soundTrack(effect));
-  audio.volume = masterGain() * effect.volume / 100;
+  audio.volume = playbackGain() * effect.volume / 100;
   audio.play().catch(() => advanceEffect(effect));
 }
 
@@ -55,7 +80,7 @@ function stopGameEffects() {
 }
 
 function playGameSounds(...events) {
-  if (!audioUnlocked || !masterGain() || narrationPlaying()) return;
+  if (!audioUnlocked || !playbackGain() || narrationPlaying()) return;
   const applicable = events.map(event => gameSoundSettings.events[event])
     .filter(config => config?.enabled && config.volume);
   if (!applicable.length) return;
@@ -87,6 +112,7 @@ function applyGameSounds(data) {
   stopGameEffects();
   taskAudio.muted = gameSoundSettings.muted;
   taskAudio.volume = masterGain();
+  syncSoundButtons();
   refreshMusic();
 }
 
@@ -98,6 +124,14 @@ gameEffects.audio.addEventListener('error', () => {
 });
 
 function initGameSounds() {
+  soundButtons = [...document.querySelectorAll('.game-sound')];
+  for (const slot of document.querySelectorAll('[data-sound-control]')) {
+    const button = soundButtons[0].cloneNode(true);
+    slot.replaceWith(button);
+    soundButtons.push(button);
+  }
+  for (const button of soundButtons) button.addEventListener('click', toggleGameSound);
+  syncSoundButtons();
   function unlock(event) {
     if (!event.isTrusted) return;
     audioUnlocked = true;

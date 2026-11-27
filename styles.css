@@ -57,6 +57,23 @@ main {
 .intro { align-items: end; margin-bottom: 30px; text-align: center; }
 h1 { margin: 0; font-size: clamp(3.2rem, 7vw, 6rem); letter-spacing: -.075em; line-height: .98; }
 h1 { overflow-wrap: anywhere; }
+.game-sound {
+  display: grid;
+  place-items: center;
+  min-width: 1.65rem;
+  min-height: 1.65rem;
+  padding: .15rem;
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  background: #182235;
+  color: #f6f8ff;
+}
+.topbar .game-sound { min-width: 2rem; min-height: 2rem; }
+.game-sound:hover { border-color: var(--mint); }
+.game-sound svg { width: 1.15rem; height: 1.15rem; }
+.game-sound[aria-pressed="true"] .sound-waves,
+.game-sound[aria-pressed="false"] .sound-slash { display: none; }
+.task-sheet > .game-sound { order: -1; align-self: end; flex-shrink: 0; }
 .game-rules {
   display: grid;
   min-width: 0;
