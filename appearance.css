@@ -48,7 +48,7 @@ body[data-background="transparent"] { background: transparent; }
   font-size: var(--label-victory-size, .875rem);
   color: var(--label-victory-color, var(--muted));
 }
-.game-rules dd { color: var(--label-victory-color, var(--text)); }
+.game-rules select { color: var(--label-victory-color, var(--text)); }
 #draw-title {
   font-family: var(--label-drawTitle-font, inherit);
   font-size: var(--label-drawTitle-size, clamp(1rem, 1.6vw, 1.35rem));

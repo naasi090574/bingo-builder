@@ -63,6 +63,8 @@ class BingoGame {
     this.lastMiss = null;
     this.decks = [[], []];
     this.taskDeck = [];
+    this.markHistory = [];
+    this.resumePlayer = null;
   }
 
   hasOpenCard(card) {
@@ -117,25 +119,44 @@ class BingoGame {
     return 'task';
   }
 
+  outcomeAfterMark(boards, player) {
+    const cells = winningCells(boards[player], this.size, this.mode);
+    if (this.mode === 'full' && !this.passOnMiss) {
+      if (player === 0) return null;
+      const first = winningCells(boards[0], this.size, 'full');
+      if (first.length) return cells.length ? { winner: null, cells } : { winner: 0, cells: first };
+    }
+    return cells.length ? { winner: player, cells } : null;
+  }
+
+  setVictoryMode(mode) {
+    if (mode === this.mode) return;
+    this.mode = mode;
+    // Use the order in which the chips were placed to preserve first-win and round-end rules.
+    const boards = this.boards.map(board => board.map(() => ({ marked: false })));
+    this.outcome = null;
+    for (const { player, index } of this.markHistory) {
+      boards[player][index].marked = true;
+      this.outcome = this.outcomeAfterMark(boards, player);
+      if (this.outcome) break;
+    }
+    if (!this.outcome && this.resumePlayer !== null) {
+      this.player = this.resumePlayer;
+      this.resumePlayer = null;
+    }
+  }
+
   completeTask() {
     if (!this.pending) return;
-    const board = this.boards[this.player];
-    board[this.pending.index].marked = true;
+    const { index } = this.pending;
+    this.boards[this.player][index].marked = true;
+    this.markHistory.push({ player: this.player, index });
     this.pending = null;
     this.drawn = null;
     if (!this.passOnMiss) this.decks[this.player] = [];
 
-    const cells = winningCells(board, this.size, this.mode);
-    if (this.mode === 'full' && !this.passOnMiss) {
-      if (this.player === 1) {
-        const first = winningCells(this.boards[0], this.size, 'full');
-        if (first.length && cells.length) this.outcome = { winner: null, cells };
-        else if (first.length) this.outcome = { winner: 0, cells: first };
-        else if (cells.length) this.outcome = { winner: 1, cells };
-      }
-    } else if (cells.length) {
-      this.outcome = { winner: this.player, cells };
-    }
-    if (!this.outcome) this.player = 1 - this.player;
+    this.outcome = this.outcomeAfterMark(this.boards, this.player);
+    if (this.outcome) this.resumePlayer = 1 - this.player;
+    else this.player = 1 - this.player;
   }
 }

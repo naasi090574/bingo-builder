@@ -4,6 +4,7 @@ const boards = document.querySelector('#boards');
 const drawSlot = document.querySelector('#draw-slot');
 const drawButton = document.querySelector('#draw');
 const status = document.querySelector('#status');
+const victoryRule = document.querySelector('#victory-rule');
 let settings = readGameSettings(new URLSearchParams(window.location.search));
 const playerNames = [settings.player1, settings.player2];
 const task = document.querySelector('#task');
@@ -290,6 +291,8 @@ function restart() {
   const reset = document.querySelector('#reset');
   const uniqueCount = uniqueCards(cardLibrary.cards).length;
   reset.disabled = uniqueCount < size ** 2;
+  victoryRule.disabled = reset.disabled;
+  renderVictoryRule(victory);
   if (reset.disabled) {
     game = null;
     boards.replaceChildren();
@@ -361,12 +364,32 @@ document.querySelector('#reset').addEventListener('click', () => {
   if (game) startGameSounds();
 });
 initGameSounds();
+function renderVictoryRule(mode) {
+  const custom = mode !== 'line' && mode !== 'full';
+  victoryRule.options[0].textContent = custom ? victoryLabels[mode] : '';
+  victoryRule.value = custom ? '' : mode;
+  victoryRule.title = victoryLabels[mode];
+}
+
+victoryRule.addEventListener('change', () => {
+  if (!game || !['line', 'full'].includes(victoryRule.value)) return;
+  const previousOutcome = game.outcome;
+  game.setVictoryMode(victoryRule.value);
+  renderVictoryRule(game.mode);
+  if (game.outcome) {
+    clearTimeout(turnTimer);
+    turnNotice.hidden = true;
+    if (game.outcome.winner !== null && game.outcome.winner !== previousOutcome?.winner) playGameSounds('win');
+  }
+  render();
+});
+
 function renderGameSettings() {
   playerNames[0] = settings.player1;
   playerNames[1] = settings.player2;
   document.title = settings.title;
   document.querySelector('#game-title').textContent = settings.title;
-  document.querySelector('#victory-rule').textContent = victoryLabels[settings.victory];
+  renderVictoryRule(settings.victory);
 }
 
 function applyPreviewSettings(search) {

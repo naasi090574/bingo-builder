@@ -37,9 +37,14 @@
     <main>
       <div class="intro">
         <h1 id="game-title">Бинго</h1>
-        <dl class="game-rules">
-          <div><dt>Условие победы</dt><dd id="victory-rule"></dd></div>
-        </dl>
+        <div class="game-rules">
+          <label for="victory-rule">Условие победы</label>
+          <select id="victory-rule" disabled>
+            <option value="" disabled hidden></option>
+            <option value="line">Линия в любом направлении</option>
+            <option value="full">Всё поле</option>
+          </select>
+        </div>
       </div>
       <div class="table">
         <div class="boards" id="boards"></div>

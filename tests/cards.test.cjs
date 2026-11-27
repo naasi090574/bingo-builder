@@ -182,3 +182,82 @@ test('incomplete saved 3×3 placements still produce two full boards without dup
     }
   }`, context);
 });
+
+test('switching the victory condition preserves the match and uses the first qualifying move', () => {
+  vm.runInContext(`{
+    for (const size of [2, 3, 4, 5]) {
+      const game = new BingoGame({
+        size, cards: Array.from({ length: size ** 2 }, (_, index) => ({ id: String(index) })),
+        tasks: ['Задание'],
+      }, 'full');
+      const mark = index => {
+        const player = game.player;
+        game.drawn = game.boards[player][index].card;
+        assert.equal(game.choose(player, index), 'task');
+        game.completeTask();
+      };
+      for (let i = 0; i < size; i++) {
+        mark(i);
+        mark(i * size);
+      }
+      const drawn = game.boards[0][size].card;
+      game.drawn = drawn;
+      const boards = game.boards;
+      const decks = game.decks;
+      game.setVictoryMode('line');
+      assert.equal(game.outcome.winner, 0);
+      assert.deepEqual([...game.outcome.cells], Array.from({ length: size }, (_, i) => i));
+      assert.equal(game.drawn, drawn);
+      assert.equal(game.boards, boards);
+      assert.equal(game.decks, decks);
+      assert.equal(game.canDraw, false);
+      game.setVictoryMode('full');
+      assert.equal(game.outcome, null);
+      assert.equal(game.player, 0);
+      assert.equal(game.drawn, drawn);
+      mark(size);
+    }
+  }`, context);
+});
+
+test('a reopened game resumes the next turn and keeps full-board round and tie rules', () => {
+  vm.runInContext(`{
+    for (const missedDraw of ['retry', 'pass']) {
+      const game = new BingoGame({
+        size: 2, cards: Array.from({ length: 4 }, (_, index) => ({ id: String(index) })),
+        tasks: ['Задание'], missedDraw,
+      }, 'horizontal');
+      const mark = index => {
+        const player = game.player;
+        game.drawn = game.boards[player][index].card;
+        assert.equal(game.choose(player, index), 'task');
+        game.completeTask();
+      };
+      mark(0);
+      mark(0);
+      mark(1);
+      assert.equal(game.outcome.winner, 0);
+      game.setVictoryMode('full');
+      assert.equal(game.outcome, null);
+      assert.equal(game.player, 1);
+      mark(1);
+      mark(2);
+      mark(2);
+      mark(3);
+      if (missedDraw === 'retry') {
+        assert.equal(game.outcome, null);
+        assert.equal(game.player, 1);
+        game.setVictoryMode('line');
+        assert.equal(game.outcome.winner, 0);
+        game.setVictoryMode('full');
+        assert.equal(game.outcome, null);
+        mark(3);
+        assert.equal(game.outcome.winner, null);
+      } else assert.equal(game.outcome.winner, 0);
+      game.setVictoryMode('line');
+      assert.equal(game.outcome.winner, 0);
+      game.setVictoryMode('full');
+      assert.equal(game.outcome.winner, missedDraw === 'retry' ? null : 0);
+    }
+  }`, context);
+});

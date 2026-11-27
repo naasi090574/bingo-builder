@@ -59,12 +59,26 @@ h1 { margin: 0; font-size: clamp(3.2rem, 7vw, 6rem); letter-spacing: -.075em; li
 h1 { overflow-wrap: anywhere; }
 .game-rules {
   display: grid;
-  gap: 6px;
+  min-width: 0;
   margin: 0;
   color: var(--muted);
   font-size: .875rem;
+  line-height: 1.15;
 }
-.game-rules dd { margin: 0; color: var(--text); font-weight: 650; }
+.game-rules select {
+  width: 100%;
+  min-width: 0;
+  padding: 0 .15em;
+  border: 1px solid var(--border);
+  border-radius: .35em;
+  background: var(--draw-panel-color, var(--panel));
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  line-height: inherit;
+  text-overflow: ellipsis;
+}
 .board-heading h2 { min-width: 0; overflow-wrap: anywhere; }
 
 .table { align-items: start; }
