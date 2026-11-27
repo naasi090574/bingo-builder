@@ -7,18 +7,18 @@ const choiceShuffle = document.querySelector('#choice-shuffle');
 const choiceDropDraft = document.querySelector('#choice-drop-draft');
 const choiceDraftOptions = document.querySelector('#choice-draft-options');
 const choiceAddOption = document.querySelector('#choice-add-option');
-let choiceThumbUrls = [];
+let taskOptionThumbUrls = [];
 
 function newChoiceOption() {
   return { text: '', correct: false, media: null };
 }
 
-function clearChoiceThumbs() {
-  for (const url of choiceThumbUrls) URL.revokeObjectURL(url);
-  choiceThumbUrls = [];
+function clearTaskOptionThumbs() {
+  for (const url of taskOptionThumbUrls) URL.revokeObjectURL(url);
+  taskOptionThumbUrls = [];
 }
 
-function choiceImageField(media, label, update, answerNumber) {
+function taskOptionImageField(media, label, update, answerNumber, render = renderChoiceDraft) {
   const group = document.createElement('div');
   group.className = 'choice-draft-media';
   const input = document.createElement('input');
@@ -31,13 +31,13 @@ function choiceImageField(media, label, update, answerNumber) {
     if (file) runTaskDraftAction(async () => {
       const { image } = await readCardImage(file);
       update({ image, name: file.name });
-      renderChoiceDraft();
+      render();
     });
   });
   if (media) {
     const img = document.createElement('img');
     img.src = URL.createObjectURL(media.image);
-    choiceThumbUrls.push(img.src);
+    taskOptionThumbUrls.push(img.src);
     img.alt = media.name;
     group.append(img);
   }
@@ -47,13 +47,13 @@ function choiceImageField(media, label, update, answerNumber) {
   const removeName = answerNumber ? `Удалить картинку ответа (вариант ${answerNumber})` : `Удалить: ${label}`;
   if (media) group.append(libraryButton('Удалить картинку', removeName, () => {
     update(null);
-    renderChoiceDraft();
+    render();
   }));
   return group;
 }
 
 function renderChoiceDraft() {
-  clearChoiceThumbs();
+  clearTaskOptionThumbs();
   choiceDraft.hidden = taskDraft.type !== 'choice';
   if (choiceDraft.hidden) {
     choiceDraftOptions.replaceChildren();
@@ -65,7 +65,7 @@ function renderChoiceDraft() {
   choiceShuffle.checked = taskDraft.shuffle;
   choiceDropDraft.hidden = taskDraft.method !== 'drag';
   choiceDropDraft.replaceChildren(...(choiceDropDraft.hidden ? [] : [
-    choiceImageField(taskDraft.dropImage, 'Картинка принимающей области', image => { taskDraft.dropImage = image; }),
+    taskOptionImageField(taskDraft.dropImage, 'Картинка принимающей области', image => { taskDraft.dropImage = image; }),
   ]));
   choiceDraftOptions.replaceChildren(...taskDraft.options.map((option, index) => {
     const row = document.createElement('fieldset');
@@ -105,7 +105,7 @@ function renderChoiceDraft() {
     remove.disabled = taskDraft.options.length <= 2;
     actions.append(move(-1, '↑', 'Поднять'), move(1, '↓', 'Опустить'), remove);
     row.append(legend, textLabel, correctLabel,
-      choiceImageField(option.media, 'Добавить картинку ответа', image => { option.media = image; }, index + 1),
+      taskOptionImageField(option.media, 'Добавить картинку ответа', image => { option.media = image; }, index + 1),
       actions);
     return row;
   }));

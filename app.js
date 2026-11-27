@@ -14,7 +14,7 @@ const taskAudio = document.querySelector('#task-audio');
 const choiceArea = document.querySelector('#task-choice');
 const taskComplete = document.querySelector('#complete');
 const choiceCheckButton = document.querySelector('#check-choice');
-let disposeChoiceTask;
+let disposeInteractiveTask;
 let taskUrls = [];
 let previewingTask = false;
 let gameTasks = initialTaskLibrary();
@@ -154,12 +154,12 @@ function searchMessage(wrong = false) {
 }
 
 function clearTaskMedia() {
-  disposeChoiceTask?.();
-  disposeChoiceTask = undefined;
+  disposeInteractiveTask?.();
+  disposeInteractiveTask = undefined;
   choiceArea.replaceChildren();
   choiceArea.hidden = true;
   choiceCheckButton.hidden = true;
-  task.classList.remove('has-choice');
+  task.classList.remove('has-choice', 'has-sorting');
   taskAudio.pause();
   if (taskAudio.hasAttribute('src')) {
     taskAudio.removeAttribute('src');
@@ -193,13 +193,18 @@ function showTask(content, preview = false) {
   }
   taskAudio.hidden = !content?.audio;
   const choice = content?.type === 'choice';
+  const sorting = content?.type === 'sorting';
+  const interactive = choice || sorting;
   task.classList.toggle('has-choice', choice);
-  task.setAttribute('aria-label', choice ? 'Выбери правильный ответ' : 'Устное задание');
-  taskComplete.hidden = choice && !preview;
-  taskComplete.textContent = choice ? 'Закрыть предпросмотр' : 'Задание выполнено';
-  if (choice) {
+  task.classList.toggle('has-sorting', sorting);
+  task.setAttribute('aria-label', sorting ? 'Рассортируй по группам'
+    : choice ? 'Выбери правильный ответ' : 'Устное задание');
+  taskComplete.hidden = interactive && !preview;
+  taskComplete.textContent = interactive ? 'Закрыть предпросмотр' : 'Задание выполнено';
+  if (interactive) {
     choiceArea.hidden = false;
-    disposeChoiceTask = mountChoiceTask(content, choiceArea, choiceCheckButton, taskMediaUrl, finishTask);
+    const mount = sorting ? mountSortingTask : mountChoiceTask;
+    disposeInteractiveTask = mount(content, choiceArea, choiceCheckButton, taskMediaUrl, finishTask);
   }
   taskBody.hidden = taskText.hidden && taskImages.hidden && choiceArea.hidden;
   if (!task.open) task.showModal();

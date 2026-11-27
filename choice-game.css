@@ -80,7 +80,7 @@
 .choice-received .choice-option { min-height: 1.7rem; padding: .2rem; }
 .choice-received img { height: clamp(1.6rem, 5dvh, 3.4rem); }
 .choice-feedback { min-height: 1.15em; text-align: center; color: var(--text); }
-#check-choice {
+#task.has-choice #check-choice {
   background: var(--choiceCheckBackground, var(--mint));
   border: var(--choiceCheckBorderWidth, 0px) solid var(--choiceCheckBorder, var(--mint));
   border-radius: var(--choiceCheckRadius, 10px);

@@ -17,6 +17,7 @@
   <script defer src="cards-editor.js"></script>
   <script defer src="tasks-editor.js"></script>
   <script defer src="choice-editor.js"></script>
+  <script defer src="sorting-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -204,6 +205,9 @@
         <details class="appearance-group" id="choice-appearance">
           <summary>Выбор правильного ответа</summary>
         </details>
+        <details class="appearance-group" id="sorting-appearance">
+          <summary>Сортировка по группам</summary>
+        </details>
         <button class="secondary" type="reset">Сбросить оформление</button>
       </form>
       <section id="card-library" class="card-library" aria-label="Библиотека карточек" hidden>
@@ -245,6 +249,7 @@
       <section id="task-library" class="task-library" aria-label="Библиотека заданий" hidden>
         <button id="add-task" class="secondary" type="button">Добавить устное задание</button>
         <button id="add-choice-task" class="secondary" type="button">Добавить выбор ответа</button>
+        <button id="add-sorting-task" class="secondary" type="button">Добавить сортировку</button>
         <p id="task-library-status" role="status"></p>
         <ol id="task-items" class="task-items"></ol>
       </section>
@@ -300,6 +305,21 @@
         <h3 class="choice-options-heading">Варианты ответа</h3>
         <div id="choice-draft-options"></div>
         <button id="choice-add-option" class="secondary" type="button">Добавить вариант</button>
+      </div>
+      <div id="sorting-draft" hidden>
+        <label>Способ выполнения
+          <select id="sorting-method"><option value="drag">Перетаскивание</option><option value="click">Нажатие на элемент и группу</option></select>
+        </label>
+        <label>Проверка
+          <select id="sorting-check"><option value="instant">Мгновенно</option><option value="batch">Кнопкой «Проверить»</option></select>
+        </label>
+        <label class="choice-checkbox"><input id="sorting-shuffle" type="checkbox">Перемешивать элементы</label>
+        <h3 class="choice-options-heading">Группы</h3>
+        <div id="sorting-groups-draft"></div>
+        <button id="sorting-add-group" class="secondary" type="button">Добавить группу</button>
+        <h3 class="choice-options-heading">Элементы</h3>
+        <div id="sorting-items-draft"></div>
+        <button id="sorting-add-item" class="secondary" type="button">Добавить элемент</button>
       </div>
       <p id="task-editor-status" role="status"></p>
       <div class="library-actions">

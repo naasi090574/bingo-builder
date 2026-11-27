@@ -22,6 +22,8 @@ const labelStyles = {
   choiceOption: { label: 'Текст вариантов', size: 18, min: 12, max: 32, color: '#f6f8ff' },
   choiceDrop: { label: 'Текст принимающей области', size: 16, min: 12, max: 28, color: '#adb9ce' },
   choiceCheck: { label: 'Текст кнопки «Проверить»', size: 18, min: 12, max: 32, color: '#102822' },
+  sortingGroup: { label: 'Текст названий групп', size: 18, min: 12, max: 32, color: '#f6f8ff' },
+  sortingItem: { label: 'Текст элементов', size: 16, min: 10, max: 28, color: '#f6f8ff' },
   taskButton: { label: 'Текст кнопки «Задание выполнено»', size: 18, min: 12, max: 32, color: '#102822' },
   activeBadge: { label: 'Сейчас ходит', size: 14, min: 12, max: 22, color: '#6bf4c1' },
   idleBadge: { label: 'Ожидает ход', size: 14, min: 12, max: 22, color: '#d1daea' },
@@ -66,6 +68,33 @@ const choiceAppearanceGroups = {
   },
 };
 
+const sortingAppearanceGroups = {
+  sortingGroup: {
+    title: 'Группы',
+    fields: {
+      Background: ['Цвет фона', '#111c2d'],
+      Opacity: ['Непрозрачность фона', '100', 100, '%'],
+      Border: ['Цвет рамки', '#50617a'],
+      BorderWidth: ['Толщина рамки', '2', 12, 'px'],
+      Radius: ['Скругление', '14', 40, 'px'],
+    },
+  },
+  sortingItem: {
+    title: 'Элементы',
+    fields: {
+      Background: ['Цвет фона', '#26374b'],
+      Opacity: ['Непрозрачность фона', '100', 100, '%'],
+      Border: ['Цвет рамки', '#50617a'],
+      BorderWidth: ['Толщина рамки', '1', 12, 'px'],
+      Radius: ['Скругление', '9', 40, 'px'],
+      Right: ['Цвет правильного распределения', '#6bf4c1'],
+      Wrong: ['Цвет ошибки', '#f19a9a'],
+    },
+  },
+};
+
+const interactiveAppearanceGroups = { ...choiceAppearanceGroups, ...sortingAppearanceGroups };
+
 const defaultAppearance = {
   backgroundMode: 'default',
   backgroundColor: '#0d1422',
@@ -95,7 +124,7 @@ const defaultAppearance = {
     [`${key}Size`, String(style.size)],
     [labelColorKey(key, style), style.color],
   ])),
-  ...Object.fromEntries(Object.entries(choiceAppearanceGroups).flatMap(([prefix, { fields }]) =>
+  ...Object.fromEntries(Object.entries(interactiveAppearanceGroups).flatMap(([prefix, { fields }]) =>
     Object.entries(fields).map(([key, [, initial]]) => [prefix + key, initial]))),
   activeColor: '#6bf4c1',
   taskBackground: '#182235',

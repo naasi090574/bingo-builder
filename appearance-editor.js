@@ -100,9 +100,9 @@ launch.addEventListener('click', event => {
   appearancePopups.add(popup);
 });
 
-function addChoiceAppearance() {
-  const parent = document.querySelector('#choice-appearance');
-  return Object.fromEntries(Object.entries(choiceAppearanceGroups).map(([prefix, { title, fields }]) => {
+function addInteractiveAppearance(selector, groups) {
+  const parent = document.querySelector(selector);
+  return Object.fromEntries(Object.entries(groups).map(([prefix, { title, fields }]) => {
     const group = document.createElement('details');
     group.className = 'appearance-group appearance-subgroup';
     const summary = document.createElement('summary');
@@ -156,5 +156,8 @@ function addLabelControls(choiceGroups) {
   }
 }
 
-addLabelControls(addChoiceAppearance());
+addLabelControls({
+  ...addInteractiveAppearance('#choice-appearance', choiceAppearanceGroups),
+  ...addInteractiveAppearance('#sorting-appearance', sortingAppearanceGroups),
+});
 resetAppearance();

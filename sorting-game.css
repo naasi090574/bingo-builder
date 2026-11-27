@@ -1,0 +1,116 @@
+#task.has-sorting { width: 76rem; }
+#task.has-sorting:has(.sorting-board.is-compact) { width: 52rem; }
+#task.has-sorting .task-sheet { padding: .7rem 1rem; gap: .45rem; }
+#task.has-sorting .task-body { gap: .45rem; }
+#task.has-sorting .task-images img { height: clamp(3rem, 13dvh, 8rem); }
+#task.has-sorting #task-audio { height: 2.25rem; }
+
+.sorting-board { display: grid; gap: .45rem; min-width: 0; }
+.sorting-groups {
+  display: grid;
+  grid-template-columns: repeat(var(--sorting-groups), minmax(0, 1fr));
+  gap: .4rem;
+  align-items: stretch;
+}
+.sorting-zone {
+  display: grid;
+  min-width: 0;
+  gap: .3rem;
+  padding: .35rem;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+}
+.sorting-pool {
+  min-height: 1.5rem;
+  border: 1px dashed var(--border);
+  border-radius: .55rem;
+}
+.sorting-zone.is-target { outline-color: var(--chosen-active, var(--mint)); }
+.sorting-group {
+  align-content: start;
+  min-height: 4rem;
+  border: var(--sortingGroupBorderWidth, 2px) solid var(--sortingGroupBorder, #50617a);
+  border-radius: var(--sortingGroupRadius, 14px);
+  background: color-mix(in srgb, var(--sortingGroupBackground, #111c2d) var(--sortingGroupOpacity, 100%), transparent);
+}
+.sorting-group-label {
+  display: grid;
+  justify-items: center;
+  gap: .2rem;
+  min-width: 0;
+  padding: .2rem;
+  border: 0;
+  background: transparent;
+  color: var(--label-sortingGroup-color, var(--text));
+  font: 700 var(--label-sortingGroup-size, 1.125rem) / 1.2 var(--label-sortingGroup-font, system-ui, sans-serif);
+  overflow-wrap: anywhere;
+}
+.sorting-group-label img {
+  width: 100%;
+  height: clamp(2rem, 11dvh, 7rem);
+  object-fit: contain;
+  pointer-events: none;
+}
+.sorting-contents {
+  display: grid;
+  grid-template-columns: repeat(var(--sorting-columns), minmax(0, 1fr));
+  gap: .28rem;
+  min-width: 0;
+}
+.sorting-contents:empty { display: none; }
+.sorting-item {
+  --sorting-picture-height: 9dvh;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .2rem;
+  min-width: 0;
+  min-height: 1.8rem;
+  padding: .18rem;
+  border: var(--sortingItemBorderWidth, 1px) solid var(--sortingItemBorder, #50617a);
+  border-radius: var(--sortingItemRadius, 9px);
+  background: color-mix(in srgb, var(--sortingItemBackground, #26374b) var(--sortingItemOpacity, 100%), transparent);
+  color: var(--label-sortingItem-color, var(--text));
+  font: 650 var(--label-sortingItem-size, 1rem) / 1.15 var(--label-sortingItem-font, system-ui, sans-serif);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.sorting-item img {
+  display: block;
+  width: 100%;
+  height: min(var(--sorting-picture-height), 110cqi);
+  object-fit: contain;
+  pointer-events: none;
+}
+.sorting-item span { max-width: 100%; }
+.sorting-board:is([data-count="2"], [data-count="3"], [data-count="4"]) .sorting-item {
+  --sorting-picture-height: 16dvh;
+}
+.sorting-contents.is-dense .sorting-item { --sorting-picture-height: 6dvh; }
+.sorting-item[aria-pressed="true"] { outline: 2px solid var(--chosen-active, var(--mint)); outline-offset: -2px; }
+.sorting-item.is-right { --sorting-result: var(--sortingItemRight, #6bf4c1); }
+.sorting-item.is-wrong { --sorting-result: var(--sortingItemWrong, #f19a9a); }
+.sorting-item:is(.is-right, .is-wrong) {
+  box-shadow: inset 0 0 0 2px var(--sorting-result);
+  background: color-mix(in srgb, var(--sorting-result) 18%,
+    color-mix(in srgb, var(--sortingItemBackground, #26374b) var(--sortingItemOpacity, 100%), transparent));
+}
+.sorting-board.is-drag .sorting-item { cursor: grab; touch-action: none; user-select: none; }
+.sorting-return {
+  justify-self: center;
+  border: 0;
+  border-radius: .3rem;
+  padding: .12rem .45rem;
+  background: var(--chosen-button, var(--mint));
+  color: var(--label-button-color, #102822);
+  font-size: .85rem;
+}
+.sorting-feedback { min-height: 0; }
+.sorting-feedback:empty { display: none; }
+
+@media (max-width: 600px) and (max-aspect-ratio: 4/3) {
+  .sorting-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sorting-pool .sorting-contents { grid-template-columns: repeat(auto-fit, minmax(2.75rem, 1fr)); }
+}

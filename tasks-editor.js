@@ -91,9 +91,9 @@ function renderTasks() {
       button('Изменить', () => openTaskEditor(task)),
       button('Дублировать', () => duplicateTask(task.id)),
       button('Удалить', () => updateTasks(tasks => tasks.filter(saved => saved.id !== task.id))));
-    if (task.type === 'choice') {
+    if (task.type === 'choice' || task.type === 'sorting') {
       const kind = document.createElement('small');
-      kind.textContent = 'Выбери правильный ответ';
+      kind.textContent = task.type === 'sorting' ? 'Рассортируй по группам' : 'Выбери правильный ответ';
       row.append(kind);
     }
     row.append(title, actions);
@@ -149,19 +149,20 @@ function openTaskEditor(task, type = 'oral') {
     taskDraft.check ??= 'instant';
     taskDraft.shuffle ??= false;
   }
+  if (taskDraft.type === 'sorting') initializeSortingDraft(task);
   taskForm.reset();
   taskForm.elements.text.value = taskDraft.text;
-  document.querySelector('#task-editor-title').textContent = taskDraft.type === 'choice'
-    ? 'Выбери правильный ответ' : 'Устное задание';
-  document.querySelector('#task-question-label').textContent = taskDraft.type === 'choice'
-    ? 'Текст вопроса или инструкция' : 'Текст задания';
-  const isChoice = taskDraft.type === 'choice';
-  document.querySelector('#task-images-label').textContent = isChoice
+  const isInteractive = taskDraft.type === 'choice' || taskDraft.type === 'sorting';
+  document.querySelector('#task-editor-title').textContent = taskDraft.type === 'sorting' ? 'Рассортируй по группам'
+    : taskDraft.type === 'choice' ? 'Выбери правильный ответ' : 'Устное задание';
+  document.querySelector('#task-question-label').textContent = isInteractive ? 'Текст вопроса или инструкция' : 'Текст задания';
+  document.querySelector('#task-images-label').textContent = isInteractive
     ? 'Добавить иллюстрации к вопросу (необязательно)' : 'Добавить картинки';
-  document.querySelector('#task-images-help').hidden = !isChoice;
-  if (isChoice) taskImagesInput.setAttribute('aria-describedby', 'task-images-help');
+  document.querySelector('#task-images-help').hidden = !isInteractive;
+  if (isInteractive) taskImagesInput.setAttribute('aria-describedby', 'task-images-help');
   else taskImagesInput.removeAttribute('aria-describedby');
   renderChoiceDraft();
+  renderSortingDraft();
   taskEditorStatus.textContent = '';
   renderTaskDraftMedia();
   taskEditor.showModal();
@@ -208,7 +209,7 @@ taskEditor.addEventListener('cancel', event => {
 taskEditor.addEventListener('close', () => {
   if (!taskEditor.open) {
     clearTaskThumbs();
-    clearChoiceThumbs();
+    clearTaskOptionThumbs();
   }
 });
 
@@ -248,11 +249,12 @@ removeTaskAudio.addEventListener('click', () => {
 taskForm.addEventListener('submit', event => {
   event.preventDefault();
   taskDraft.text = taskForm.elements.text.value;
-  if (!taskDraft.text.trim() && !taskDraft.images.length && !taskDraft.audio) {
+  if (taskDraft.type !== 'sorting' && !taskDraft.text.trim() && !taskDraft.images.length && !taskDraft.audio) {
     taskEditorStatus.textContent = 'Добавьте текст, картинку или аудио.';
     return;
   }
   if (taskDraft.type === 'choice' && !validateChoiceDraft()) return;
+  if (taskDraft.type === 'sorting' && !validateSortingDraft()) return;
   const task = taskDraft;
   runTaskDraftAction(async () => {
     try {
