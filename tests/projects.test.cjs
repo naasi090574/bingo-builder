@@ -79,3 +79,27 @@ test('label effects survive project export, with defaults for older appearance d
     assert.equal(restored.appearance.values.titleSize, '80');
   })()`, context);
 });
+
+test('board dimming and frame settings round-trip independently of fill opacity', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    const values = data.appearance.values;
+    const settings = {
+      boardDim: '80', boardBorder: '#ff0000', boardBorderWidth: '0', boardBorderOpacity: '40',
+      cellBorder: '#00ff00', cellBorderWidth: '10', cellBorderOpacity: '0',
+      drawSlotBorder: '#0000ff', drawSlotWidth: '5', drawSlotBorderOpacity: '60',
+      boardOpacity: '20', cellOpacity: '50', drawSlotOpacity: '70',
+    };
+    Object.assign(values, settings);
+    const restored = await importProjectFile(await exportProjectFile(data));
+    for (const [name, value] of Object.entries(settings)) {
+      assert.equal(restored.appearance.values[name], value);
+      delete values[name];
+    }
+    const legacy = await importProjectFile(await exportProjectFile(data));
+    assert.equal(legacy.appearance.values.boardDim, '25');
+    assert.equal(legacy.appearance.values.boardBorderWidth, '1');
+    assert.equal(legacy.appearance.values.cellBorderOpacity, '100');
+    assert.equal(legacy.appearance.values.drawSlotBorderOpacity, '100');
+  })()`, context);
+});

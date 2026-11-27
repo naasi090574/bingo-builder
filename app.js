@@ -89,12 +89,14 @@ function cardContent(card) {
 
 function renderBoard(cells, player, newMark) {
   const { outcome } = game;
-  const active = turnNotice.hidden && (outcome?.winner ?? game.player) === player;
+  const currentPlayer = outcome?.winner ?? game.player;
+  const active = turnNotice.hidden && currentPlayer === player;
   const won = outcome?.winner === player;
   const tied = outcome?.winner === null;
-  const board = document.createElement('section');
+  const board = boards.children[player] ?? document.createElement('section');
   board.className = `board player-${player + 1}`;
   board.classList.toggle('active', active);
+  board.classList.toggle('waiting', currentPlayer !== player);
   board.setAttribute('aria-labelledby', `player-${player + 1}`);
 
   const heading = document.createElement('div');
@@ -132,12 +134,15 @@ function renderBoard(cells, player, newMark) {
   const cellsArea = document.createElement('div');
   cellsArea.className = 'board-cells';
   cellsArea.append(grid);
-  board.append(heading, cellsArea);
+  board.replaceChildren(heading, cellsArea);
   return board;
 }
 
 function render(newMark) {
-  boards.replaceChildren(...game.boards.map((cells, player) => renderBoard(cells, player, newMark)));
+  game.boards.forEach((cells, player) => {
+    const board = renderBoard(cells, player, newMark);
+    if (!board.parentElement) boards.append(board);
+  });
   const placeholder = document.createElement('span');
   placeholder.className = 'placeholder';
   placeholder.setAttribute('aria-hidden', 'true');

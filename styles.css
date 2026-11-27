@@ -101,9 +101,8 @@ h1 { overflow-wrap: anywhere; }
 .table { align-items: start; }
 .boards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .board, .draw-panel { border: 1px solid var(--border); border-radius: 20px; padding: clamp(12px, 1.6vw, 23px); background: var(--panel); }
-.board { --accent: var(--mint); opacity: .76; }
+.board { --accent: var(--mint); }
 .player-2 { --accent: #aebcff; }
-.board.active { opacity: 1; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent), 0 0 28px color-mix(in srgb, var(--accent) 17%, transparent); }
 .board-heading { display: grid; justify-items: center; gap: 5px; margin-bottom: 12px; text-align: center; }
 h2 { margin: 0; font-size: clamp(1rem, 1.6vw, 1.35rem); }
 .badge { border-radius: 20px; padding: 4px 9px; background: #29354b; color: #d1daea; font-size: .875rem; }

@@ -140,6 +140,16 @@
             <label class="range-setting"><span>Непрозрачность поля</span><output for="boardOpacity"></output>
               <input id="boardOpacity" name="boardOpacity" type="range" min="0" max="100" data-unit="%">
             </label>
+            <label class="range-setting"><span>Затемнение поля в ожидании хода</span><output for="boardDim"></output>
+              <input id="boardDim" name="boardDim" type="range" min="0" max="80" step="5" data-unit="%">
+            </label>
+            <label class="color-setting">Цвет рамки<input type="color" name="boardBorder"></label>
+            <label class="range-setting"><span>Толщина рамки</span><output for="boardBorderWidth"></output>
+              <input id="boardBorderWidth" name="boardBorderWidth" type="range" min="0" max="10" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Непрозрачность рамки</span><output for="boardBorderOpacity"></output>
+              <input id="boardBorderOpacity" name="boardBorderOpacity" type="range" min="0" max="100" data-unit="%">
+            </label>
             <label class="range-setting"><span>Размер поля</span><output for="boardSize"></output>
               <input id="boardSize" name="boardSize" type="range" min="65" max="100" data-unit="%">
             </label>
@@ -154,6 +164,13 @@
             <label class="color-setting">Цвет ячейки<input type="color" name="cellColor"></label>
             <label class="range-setting"><span>Непрозрачность ячейки</span><output for="cellOpacity"></output>
               <input id="cellOpacity" name="cellOpacity" type="range" min="0" max="100" data-unit="%">
+            </label>
+            <label class="color-setting">Цвет рамки<input type="color" name="cellBorder"></label>
+            <label class="range-setting"><span>Толщина рамки</span><output for="cellBorderWidth"></output>
+              <input id="cellBorderWidth" name="cellBorderWidth" type="range" min="0" max="10" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Непрозрачность рамки</span><output for="cellBorderOpacity"></output>
+              <input id="cellBorderOpacity" name="cellBorderOpacity" type="range" min="0" max="100" data-unit="%">
             </label>
             <label class="range-setting"><span>Размер изображения</span><output for="imageSize"></output>
               <input id="imageSize" name="imageSize" type="range" min="25" max="100" data-unit="%">
@@ -185,7 +202,10 @@
             </label>
             <label class="color-setting">Цвет рамки области<input type="color" name="drawSlotBorder"></label>
             <label class="range-setting"><span>Толщина рамки области</span><output for="drawSlotWidth"></output>
-              <input id="drawSlotWidth" name="drawSlotWidth" type="range" min="0" max="12" data-unit=" пкс">
+              <input id="drawSlotWidth" name="drawSlotWidth" type="range" min="0" max="10" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Непрозрачность рамки области</span><output for="drawSlotBorderOpacity"></output>
+              <input id="drawSlotBorderOpacity" name="drawSlotBorderOpacity" type="range" min="0" max="100" data-unit="%">
             </label>
             <label class="range-setting"><span>Скругление области картинки</span><output for="drawSlotRadius"></output>
               <input id="drawSlotRadius" name="drawSlotRadius" type="range" min="0" max="40" data-unit=" пкс">

@@ -97,8 +97,7 @@ body[data-background="transparent"] {
   background: color-mix(in srgb, var(--draw-panel-color, var(--panel)) var(--draw-panel-fill, 100%), transparent);
 }
 .draw-slot {
-  border-color: var(--draw-slot-border, #50617a);
-  border-width: var(--draw-slot-width, 1px);
+  border-color: transparent;
   border-radius: var(--draw-slot-radius, 13px);
   background: color-mix(in srgb, var(--draw-slot-color, #111c2d) var(--draw-slot-fill, 100%), transparent);
 }
@@ -108,6 +107,9 @@ body[data-background="transparent"] {
 }
 
 .board {
+  position: relative;
+  isolation: isolate;
+  border-color: transparent;
   width: var(--board-width, 100%);
   justify-self: center;
   border-radius: var(--board-radius, 20px);
@@ -115,20 +117,64 @@ body[data-background="transparent"] {
 }
 .board.active {
   --frame-color: var(--chosen-active, var(--accent));
-  border-color: var(--frame-color);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--frame-color) 22%, transparent),
-    0 0 28px color-mix(in srgb, var(--frame-color) 17%, transparent);
+  --board-default-border: var(--frame-color);
+  --board-glow: color-mix(in srgb, var(--frame-color) var(--board-border-opacity, 100%), transparent);
+  box-shadow: 0 0 0 min(2px, calc(var(--board-border-width, 1px) * 2)) color-mix(in srgb, var(--board-glow) 22%, transparent),
+    0 0 min(28px, calc(var(--board-border-width, 1px) * 28)) color-mix(in srgb, var(--board-glow) 17%, transparent);
+}
+.board::before, .board::after, .draw-slot::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.board::before {
+  border: var(--board-border-width, 1px) solid color-mix(in srgb,
+    var(--board-border-color, var(--board-default-border, #34425a)) var(--board-border-opacity, 100%), transparent);
+  z-index: 1;
+}
+.board::after {
+  z-index: 2;
+  background: black;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.board.waiting::after { opacity: var(--board-dim, 25%); }
+.board .badge { position: relative; z-index: 3; }
+.draw-slot::after {
+  inset: 0;
+  border: var(--draw-slot-width, 1px) dashed color-mix(in srgb,
+    var(--draw-slot-border, #50617a) var(--draw-slot-border-opacity, 100%), transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .board::after { transition: none; }
 }
 .cell {
   --cell-background: var(--chosen-cell, #26374b);
+  position: relative;
+  border-color: transparent;
   border-radius: var(--cell-radius, clamp(6px, 1vw, 13px));
   background: color-mix(in srgb, var(--cell-background) var(--cell-fill, 100%), transparent);
 }
+.cell::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: var(--cell-border-width, 1px) solid color-mix(in srgb,
+    var(--cell-border-color, var(--cell-default-border, #43546b)) var(--cell-border-opacity, 100%), transparent);
+  pointer-events: none;
+}
 .cell:not(:disabled):hover {
+  --cell-default-border: var(--accent);
+  border-color: transparent;
   background: color-mix(in srgb, var(--chosen-cell, #30465d) var(--cell-fill, 100%), transparent);
 }
 .cell img { width: var(--image-size, 94%); height: var(--image-size, 94%); }
 .cell.winning {
+  --cell-default-border: var(--accent);
+  border-color: transparent;
   background: color-mix(in srgb, color-mix(in srgb, var(--accent) 26%, var(--cell-background))
     var(--cell-fill, 100%), transparent);
 }
