@@ -24,7 +24,7 @@ function displayPublication(publication) {
   publicationLink.value = link.href;
   publicationOpen.href = link.href;
   publicationOpen.hidden = !publication.published;
-  publicationEmbed.value = `<iframe src="${link.href.replaceAll('&', '&amp;')}" width="1280" height="720" title="Игра Бинго" style="border:0" allowfullscreen></iframe>`;
+  publicationEmbed.value = `<iframe src="${link.href.replaceAll('&', '&amp;')}" width="1280" height="720" title="Игра Бинго" style="border:0;color-scheme:light" allowfullscreen></iframe>`;
 }
 
 function refreshPublicationProjects(selected = publicationProject.value) {

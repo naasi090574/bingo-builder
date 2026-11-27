@@ -31,7 +31,15 @@ body[data-background="image"] {
   background-size: contain;
   background-repeat: no-repeat;
 }
-body[data-background="transparent"] { background: transparent; }
+/* Chromium paints an opaque canvas when the iframe and its host use different color schemes. */
+:root:has(> body[data-background="transparent"]) {
+  color-scheme: light;
+  background: transparent;
+}
+body[data-background="transparent"] {
+  color-scheme: dark;
+  background: transparent;
+}
 
 #game-title {
   font-family: var(--label-title-font, inherit);
