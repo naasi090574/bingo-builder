@@ -8,9 +8,11 @@
   <link rel="stylesheet" href="cards-editor.css">
   <link rel="stylesheet" href="tasks-editor.css">
   <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="sounds-editor.css">
   <script defer src="content.js"></script>
   <script defer src="cards.js"></script>
   <script defer src="tokens.js"></script>
+  <script defer src="sounds.js"></script>
   <script defer src="tasks.js"></script>
   <script defer src="settings.js"></script>
   <script defer src="appearance.js"></script>
@@ -23,6 +25,7 @@
   <script defer src="pairs-editor.js"></script>
   <script defer src="sequence-editor.js"></script>
   <script defer src="tokens-editor.js"></script>
+  <script defer src="sounds-editor.js"></script>
 </head>
 <body>
   <header class="masthead">
@@ -266,6 +269,17 @@
         <label class="token-checkbox"><input id="shared-tokens" type="checkbox" checked> Одинаковые фишки для обоих игроков</label>
         <div id="token-players"></div>
         <p id="token-status" role="status" hidden></p>
+      </section>
+      <section id="sound-settings" aria-label="Настройки звукового сопровождения" hidden>
+        <div class="appearance-fields">
+          <label class="sound-toggle"><input type="checkbox" id="mute-sound"> Отключить все звуки игры</label>
+          <label class="sound-range"><span>Общая громкость</span><output for="master-sound"></output>
+            <input id="master-sound" type="range" min="0" max="100">
+          </label>
+        </div>
+        <div id="sound-events"></div>
+        <button id="reset-sounds" class="secondary" type="button">Восстановить звуки по умолчанию</button>
+        <p id="sound-status" role="status"></p>
       </section>
       <div class="availability" hidden>
         <span class="info" aria-hidden="true">i</span>

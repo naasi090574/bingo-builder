@@ -17,7 +17,7 @@ const sections = {
     description: 'Настройте фишки игроков и проверьте их на образце ячейки.',
   },
   sound: {
-    description: 'Здесь можно будет добавить звуки вытягивания карточки, установки фишки и победы.',
+    description: 'Выберите эффекты для игровых событий и настройте фоновую музыку.',
   },
   projects: {
     description: 'Здесь можно будет сохранить проект и вернуться к нему позже.',
@@ -53,10 +53,11 @@ function showSection() {
     }
   }
   description.textContent = copy;
-  availability.hidden = ['settings', 'appearance', 'cards', 'tasks', 'tokens'].includes(section);
+  availability.hidden = ['settings', 'appearance', 'cards', 'tasks', 'tokens', 'sound'].includes(section);
   cardsSection.hidden = section !== 'cards';
   tasksSection.hidden = section !== 'tasks';
   document.querySelector('#token-settings').hidden = section !== 'tokens';
+  document.querySelector('#sound-settings').hidden = section !== 'sound';
   appearanceForm.hidden = section !== 'appearance';
   form.hidden = section !== 'settings';
 }

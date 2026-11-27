@@ -1,0 +1,27 @@
+#sound-settings, #sound-events { display: grid; gap: .55rem; }
+#sound-settings .sound-toggle { display: flex; align-items: center; gap: .45rem; }
+#sound-settings :is(input[type="range"], input[type="checkbox"]) { accent-color: var(--accent); }
+#sound-settings select {
+  width: 100%;
+  margin-top: .25rem;
+  padding: .4rem;
+  border: 1px solid var(--line);
+  border-radius: .4rem;
+  color: var(--ink);
+  background: white;
+  font: inherit;
+}
+.sound-range {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .3rem;
+}
+.sound-range input { grid-column: 1 / -1; width: 100%; }
+.sound-upload { display: grid; justify-items: start; gap: .3rem; overflow-wrap: anywhere; }
+.sound-upload .image-picker { position: relative; text-align: center; }
+#sound-status:empty, .sound-upload span:empty { display: none; }
+.workspace:has(#sound-settings:not([hidden])) #editor-title { font-size: 1.45rem; }
+
+@media (min-width: 1011px) {
+  .workspace:has(#sound-settings:not([hidden])) .preview { position: sticky; top: 18px; }
+}

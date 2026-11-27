@@ -1,6 +1,6 @@
 'use strict';
 
-function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
+function mountSequenceTask(task, container, checkButton, mediaUrl, setReady, onAnswer) {
   const compose = task.type === 'compose';
   const drag = task.method === 'drag';
   const usesSlots = compose || drag;
@@ -190,6 +190,7 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
     const current = positions.indexOf(index);
     const next = positions.indexOf(null);
     change();
+    if (!batch && current < 0) onAnswer(matches(index, next));
     if (current >= 0) {
       if (batch) {
         positions.splice(current, 1);
@@ -211,6 +212,7 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
       if (!batch) {
         const misplaced = [source, destination].filter(position => position >= 0
           && positions[position] !== null && !matches(positions[position], position));
+        if (destination >= 0) onAnswer(!misplaced.length);
         if (misplaced.length) reportMistake(misplaced.map(position => positions[position]));
         verify();
       }
@@ -295,6 +297,7 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady) {
 
   function check() {
     verify();
+    onAnswer(completed);
     render();
   }
 

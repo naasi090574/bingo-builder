@@ -41,6 +41,7 @@ let receivedCardUpdate = false;
 let tokenSettings = normalizeTokenSettings();
 let tokenImageUrls = [];
 let receivedTokenUpdate = false;
+let receivedSoundUpdate = false;
 
 function applyTokens(settings) {
   tokenSettings = normalizeTokenSettings(settings);
@@ -219,6 +220,7 @@ function applyIndividualTaskTypography(typography) {
 function showTask(content, preview = false) {
   clearTaskMedia();
   previewingTask = preview;
+  setTaskSoundOpen(true);
   applyIndividualTaskTypography(content?.typography);
   taskText.textContent = typeof content === 'string' ? content : content?.text ?? '';
   taskText.hidden = !taskText.textContent.trim();
@@ -246,7 +248,8 @@ function showTask(content, preview = false) {
   setTaskReady(!interactiveTask);
   if (interactive) {
     choiceArea.hidden = false;
-    disposeInteractiveTask = interactive.mount(content, choiceArea, choiceCheckButton, taskMediaUrl, setTaskReady);
+    disposeInteractiveTask = interactive.mount(content, choiceArea, choiceCheckButton, taskMediaUrl, setTaskReady,
+      correct => playGameSounds(correct ? 'taskRight' : 'taskWrong'));
   }
   taskBody.hidden = taskText.hidden && taskImages.hidden && choiceArea.hidden;
   if (!task.open) task.showModal();
@@ -268,11 +271,16 @@ function choose(button, player, index) {
     void button.offsetWidth;
     button.classList.add('shake');
     status.textContent = searchMessage(true);
+    playGameSounds('miss');
   }
-  if (result === 'task') showTask(game.pending.task);
+  if (result === 'task') {
+    showTask(game.pending.task);
+    playGameSounds('match', 'taskOpen');
+  }
 }
 
 function restart() {
+  resetGameSounds();
   clearTimeout(turnTimer);
   turnNotice.hidden = true;
   if (task.open && !previewingTask) task.close();
@@ -305,6 +313,7 @@ function restart() {
 drawButton.addEventListener('click', () => {
   const player = game?.player;
   if (!turnNotice.hidden || !game?.draw()) return;
+  startGameSounds('draw', ...(player !== game.player ? ['turn'] : []));
   renderAfterMove(player);
   if (!game.canDraw) boards.querySelector('.active .cell:not(:disabled)')?.focus();
 });
@@ -313,7 +322,10 @@ task.addEventListener('cancel', event => {
   if (!previewingTask) event.preventDefault();
 });
 task.addEventListener('close', () => {
-  if (!task.open) clearTaskMedia();
+  if (!task.open) {
+    clearTaskMedia();
+    setTaskSoundOpen(false);
+  }
 });
 function setTaskReady(ready) {
   taskReady = ready;
@@ -332,7 +344,11 @@ function finishTask() {
   const player = game.player;
   const { index } = game.pending;
   game.completeTask();
+  taskAudio.pause();
   task.close();
+  const resultSound = game.outcome ? (game.outcome.winner !== null ? ['win'] : [])
+    : player !== game.player ? ['turn'] : [];
+  playGameSounds('taskComplete', 'token', ...resultSound);
   renderAfterMove(player, { player, index });
   if (game.outcome) document.querySelector('#reset').focus();
 }
@@ -340,7 +356,11 @@ taskComplete.addEventListener('click', finishTask);
 taskPreviewClose.addEventListener('click', () => {
   if (previewingTask) task.close();
 });
-document.querySelector('#reset').addEventListener('click', restart);
+document.querySelector('#reset').addEventListener('click', () => {
+  restart();
+  if (game) startGameSounds();
+});
+initGameSounds();
 function renderGameSettings() {
   playerNames[0] = settings.player1;
   playerNames[1] = settings.player2;
@@ -370,6 +390,10 @@ window.addEventListener('message', event => {
     receivedTokenUpdate = true;
     applyTokens(event.data.settings);
   }
+  if (event.data?.type === 'bingo:sounds') {
+    receivedSoundUpdate = true;
+    applyGameSounds(event.data.settings);
+  }
   if (event.data?.type === 'bingo:cards') {
     receivedCardUpdate = true;
     applyCardLibrary(event.data.library);
@@ -380,6 +404,7 @@ window.addEventListener('message', event => {
   }
   if (event.data?.type === 'bingo:preview-task' && (!task.open || previewingTask)) {
     showTask(event.data.task, true);
+    playGameSounds('taskOpen');
   }
 });
 if (window.parent !== window) {
@@ -389,6 +414,10 @@ if (window.parent !== window) {
 cardSource?.postMessage({ type: 'bingo:tokens-ready' }, window.origin === 'null' ? '*' : window.origin);
 tokenStorage('readonly').then(settings => {
   if (!receivedTokenUpdate) applyTokens(settings);
+}).catch(() => {});
+cardSource?.postMessage({ type: 'bingo:sounds-ready' }, window.origin === 'null' ? '*' : window.origin);
+soundStorage().then(settings => {
+  if (!receivedSoundUpdate) applyGameSounds(settings);
 }).catch(() => {});
 const loadTasks = readTaskLibrary().then(tasks => {
   if (!receivedTaskUpdate) replaceGameTasks(tasks);

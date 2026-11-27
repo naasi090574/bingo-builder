@@ -1,6 +1,6 @@
 'use strict';
 
-function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
+function mountChoiceTask(task, container, checkButton, mediaUrl, setReady, onAnswer) {
   const options = task.shuffle ? shuffle(task.options, Math.random) : task.options;
   const odd = task.type === 'odd';
   const dragMode = !odd && task.method === 'drag';
@@ -94,10 +94,12 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
   function verify() {
     if (odd && completed) return;
     const incorrect = batch ? [...selected].filter(index => !options[index].correct) : [];
+    const allCorrect = !incorrect.length && options.every((option, index) => !option.correct || selected.has(index));
+    if (batch) onAnswer(allCorrect);
     if (incorrect.length) {
       for (const index of incorrect) flash(index);
       feedback.textContent = 'Попробуй ещё раз.';
-    } else if (options.every((option, index) => !option.correct || selected.has(index))) {
+    } else if (allCorrect) {
       completed = true;
       if (odd) {
         timers.forEach(clearTimeout);
@@ -127,6 +129,7 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady) {
     const instantMistake = !batch && moveToDrop && !options[index].correct;
     if (!moveToDrop) selected.delete(index);
     else if (!odd || !instantMistake) selected.add(index);
+    if (!batch && moveToDrop) onAnswer(!instantMistake);
     if (instantMistake) {
       flash(index);
       feedback.textContent = 'Попробуй ещё раз.';

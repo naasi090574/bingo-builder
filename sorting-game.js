@@ -1,6 +1,6 @@
 'use strict';
 
-function mountSortingTask(task, container, checkButton, mediaUrl, setReady) {
+function mountSortingTask(task, container, checkButton, mediaUrl, setReady, onAnswer) {
   const items = task.shuffle ? shuffle(task.items, Math.random) : task.items;
   const positions = Array(items.length).fill(null);
   const wrong = new Map();
@@ -114,6 +114,7 @@ function mountSortingTask(task, container, checkButton, mediaUrl, setReady) {
     if (completed) return;
     const misplaced = positions.map((target, index) => target !== null && target !== items[index].groupId);
     if (batch) {
+      onAnswer(!misplaced.some(Boolean) && !positions.includes(null));
       misplaced.forEach((bad, index) => { if (bad) flash(index); });
       if (misplaced.some(Boolean)) feedback.textContent = 'Попробуй ещё раз.';
       else if (positions.includes(null)) feedback.textContent = 'Распредели все элементы.';
@@ -140,6 +141,7 @@ function mountSortingTask(task, container, checkButton, mediaUrl, setReady) {
     positions[index] = target;
     clearWrong(index);
     feedback.textContent = '';
+    if (!batch && target !== null) onAnswer(target === items[index].groupId);
     if (!batch && target !== null && target !== items[index].groupId) {
       flash(index);
       feedback.textContent = 'Попробуй ещё раз.';

@@ -1,6 +1,6 @@
 'use strict';
 
-function mountPairsTask(task, container, checkButton, mediaUrl, setReady) {
+function mountPairsTask(task, container, checkButton, mediaUrl, setReady, onAnswer) {
   const batch = task.check === 'batch';
   const drawLine = task.method === 'line';
   const indices = task.pairs.map((_, index) => index);
@@ -96,6 +96,7 @@ function mountPairsTask(task, container, checkButton, mediaUrl, setReady) {
         wrong.push([left, right]);
       }
     }
+    if (entries.length) onAnswer(!wrong.length);
     if (wrong.length) rejectPairs(wrong);
     if (ready()) {
       clearTimeout(feedbackTimer);
