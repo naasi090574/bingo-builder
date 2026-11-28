@@ -4,15 +4,14 @@
 
   .shell {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     width: 100%;
     height: 100vh;
     padding: .35rem .8rem .7rem;
   }
-  .topbar { min-height: 0; padding-bottom: .3rem; }
   .reset { padding: .35rem .75rem; }
   main {
-    --table-columns: minmax(0, 1fr) minmax(0, 22%);
+    --table-columns: minmax(0, 1fr) minmax(0, 22%) minmax(0, 1fr);
     --table-gap: .8rem;
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
@@ -23,8 +22,9 @@
   .intro { margin-bottom: .55rem; }
   #game-title { font-size: var(--fit-size, var(--label-title-size, 2.65rem)); }
   .game-rules { font-size: var(--label-victory-size, 1rem); }
-  .table, .boards { align-items: stretch; min-height: 0; }
-  .boards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+  .table { align-items: stretch; min-height: 0; grid-template-rows: minmax(0, 1fr); }
+  .draw-center { min-height: 0; align-content: start; grid-template-rows: var(--resolved-draw-height, minmax(0, 1fr)) auto; }
+  .game-controls .reset { flex: 0 1 auto; min-width: 0; }
   .board, .draw-panel { min-width: 0; min-height: 0; padding: .65rem; }
   .board { display: grid; grid-template-rows: auto minmax(0, 1fr); }
   .board-heading { gap: .15rem; margin-bottom: .45rem; }

@@ -27,6 +27,7 @@ function fitGameLabels() {
 
   for (const { element, limit } of targets) {
     const select = element instanceof HTMLSelectElement;
+    const singleLine = select || element.matches('.game-rules label');
     labelProbe.textContent = select ? element.selectedOptions[0]?.text : element.textContent;
     if (!labelProbe.textContent) continue;
     const style = getComputedStyle(element);
@@ -38,8 +39,8 @@ function fitGameLabels() {
     const spacing = parseFloat(style.letterSpacing) || 0;
     Object.assign(labelProbe.style, {
       fontFamily: style.fontFamily, fontWeight: style.fontWeight, fontSynthesis: style.fontSynthesis,
-      whiteSpace: select ? 'nowrap' : 'normal',
-      width: select ? 'max-content' : `${width}px`,
+      whiteSpace: singleLine ? 'nowrap' : 'normal',
+      width: singleLine ? 'max-content' : `${width}px`,
     });
     const height = element.matches('.placeholder')
       ? element.parentElement.clientHeight : innerHeight * limit;
@@ -48,7 +49,7 @@ function fitGameLabels() {
       labelProbe.style.letterSpacing = `${spacing * fontSize / size}px`;
       labelProbe.style.lineHeight = String(lineHeight);
       const bounds = labelProbe.getBoundingClientRect();
-      return bounds.height <= height && (!select || bounds.width <= width + size - fontSize);
+      return bounds.height <= height && (!singleLine || bounds.width <= width + (select ? size - fontSize : 0));
     };
     if (fits(size)) continue;
     let low = 4;
@@ -65,13 +66,14 @@ function fitGameLabels() {
 }
 
 const drawPanel = document.querySelector('.draw-panel');
-const drawTable = drawPanel.parentElement;
+const drawCenter = drawPanel.parentElement;
+const drawTable = drawCenter.parentElement;
 const drawPanelControls = [drawPanel.querySelector('#draw-title'), drawPanel.querySelector('#draw'),
   drawPanel.querySelector('.status')];
 
 function fitDrawPanel() {
-  drawPanel.style.removeProperty('height');
-  drawPanel.style.removeProperty('translate');
+  drawCenter.style.removeProperty('--resolved-draw-height');
+  drawCenter.style.removeProperty('translate');
   if (!labelFitLandscape.matches) return;
 
   const style = getComputedStyle(drawPanel);
@@ -81,19 +83,24 @@ function fitDrawPanel() {
   if (!offsetX && !offsetY && heightPercent === 100) return;
 
   const bounds = drawPanel.getBoundingClientRect();
-  const boardsRight = drawTable.querySelector('.boards').getBoundingClientRect().right;
+  const centerBounds = drawCenter.getBoundingClientRect();
+  const leftBoard = drawTable.querySelector('.player-1');
+  const rightBoard = drawTable.querySelector('.player-2');
+  const gutter = 4;
+  const minX = leftBoard ? leftBoard.getBoundingClientRect().right + gutter : gutter;
+  const maxX = rightBoard ? rightBoard.getBoundingClientRect().left - gutter : innerWidth - gutter;
   const selectBottom = document.querySelector('#victory-rule').getBoundingClientRect().bottom;
   const minY = Math.min(0, selectBottom + 4 - bounds.top);
-  const screenBottom = document.documentElement.clientHeight - 2;
+  const controlsSpace = centerBounds.bottom - bounds.bottom;
+  const screenBottom = document.documentElement.clientHeight - 2 - controlsSpace;
   const minHeight = drawPanelControls.reduce((height, element) => height + element.offsetHeight, 0) +
     3 * parseFloat(style.rowGap) + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) +
     parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth) + 24;
-  const x = Math.max(Math.min(0, boardsRight + 2 - bounds.left),
-    Math.min(offsetX, document.documentElement.clientWidth - bounds.right - 2));
+  const x = Math.max(Math.min(0, minX - bounds.left), Math.min(offsetX, Math.max(0, maxX - bounds.right)));
   const y = Math.max(minY, Math.min(offsetY, Math.max(0, screenBottom - bounds.top - minHeight)));
   const height = Math.min(screenBottom - bounds.top - y, Math.max(minHeight, bounds.height * heightPercent / 100));
-  drawPanel.style.height = `${height}px`;
-  drawPanel.style.translate = `${x}px ${y}px`;
+  drawCenter.style.setProperty('--resolved-draw-height', `${height}px`);
+  drawCenter.style.translate = `${x}px ${y}px`;
 }
 
 let pendingLabelFit = 0;
