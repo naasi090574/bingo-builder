@@ -30,7 +30,7 @@ const choiceCheckButton = document.querySelector('#check-choice');
 let disposeInteractiveTask;
 let taskUrls = [];
 let previewingTask = false;
-let previewTaskId;
+let displayedTaskId;
 let interactiveTask = false;
 let taskReady = false;
 let gameTasks = initialTaskLibrary();
@@ -230,7 +230,7 @@ function applyIndividualTaskTypography(typography) {
 function showTask(content, preview = false) {
   clearTaskMedia();
   previewingTask = preview;
-  previewTaskId = preview ? content?.id : undefined;
+  displayedTaskId = content?.id;
   setTaskSoundOpen(true);
   applyIndividualTaskTypography(content?.typography);
   taskText.textContent = typeof content === 'string' ? content : content?.text ?? '';
@@ -436,16 +436,16 @@ window.addEventListener('message', event => {
     replaceGameTasks(event.data.tasks);
   }
   if (event.data?.type === 'bingo:preview-task-typography' && task.open &&
-      previewingTask && previewTaskId && event.data.id === previewTaskId) {
+      displayedTaskId && event.data.id === displayedTaskId) {
     applyIndividualTaskTypography(event.data.typography);
   }
-  if (event.data?.type === 'bingo:open-task-style-preview' && (!task.open || previewingTask)) {
+  if (event.data?.type === 'bingo:open-task-style-preview') {
     const content = event.data.task;
-    if (task.open && previewTaskId === content.id) applyIndividualTaskTypography(content.typography);
-    else showTask(content, true);
+    if (task.open && displayedTaskId === content.id) applyIndividualTaskTypography(content.typography);
+    else if (!task.open || previewingTask) showTask(content, true);
   }
   if (event.data?.type === 'bingo:close-task-style-preview' && task.open &&
-      previewingTask && previewTaskId === event.data.id) task.close();
+      previewingTask && displayedTaskId === event.data.id) task.close();
   if (event.data?.type === 'bingo:preview-task' && (!task.open || previewingTask)) {
     showTask(event.data.task, true);
     playGameSounds('taskOpen');
