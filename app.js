@@ -439,6 +439,13 @@ window.addEventListener('message', event => {
       previewingTask && previewTaskId && event.data.id === previewTaskId) {
     applyIndividualTaskTypography(event.data.typography);
   }
+  if (event.data?.type === 'bingo:open-task-style-preview' && (!task.open || previewingTask)) {
+    const content = event.data.task;
+    if (task.open && previewTaskId === content.id) applyIndividualTaskTypography(content.typography);
+    else showTask(content, true);
+  }
+  if (event.data?.type === 'bingo:close-task-style-preview' && task.open &&
+      previewingTask && previewTaskId === event.data.id) task.close();
   if (event.data?.type === 'bingo:preview-task' && (!task.open || previewingTask)) {
     showTask(event.data.task, true);
     playGameSounds('taskOpen');

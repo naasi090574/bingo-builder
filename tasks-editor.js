@@ -11,19 +11,6 @@ const taskDraftImages = document.querySelector('#task-draft-images');
 const taskAudioName = document.querySelector('#task-audio-name');
 const removeTaskAudio = document.querySelector('#remove-task-audio');
 const individualTaskAppearance = document.querySelector('#individual-task-appearance');
-const taskPromptSample = document.createElement('p');
-taskPromptSample.className = 'task-prompt-sample';
-
-function renderTaskPromptSample() {
-  taskPromptSample.textContent = taskForm.elements.text.value || 'Текст вопроса или инструкции';
-  for (const [field, property] of [['Font', 'fontFamily'], ['Size', 'fontSize'], ['Color', 'color']]) {
-    const value = taskDraft.typography?.task?.[field] ?? appearanceForm.elements['task' + field].value;
-    taskPromptSample.style[property] = typographyValue('task', field, value);
-  }
-  taskPromptSample.style.backgroundColor = appearanceForm.elements.taskBackground.value;
-}
-taskForm.elements.text.addEventListener('input', renderTaskPromptSample);
-
 const individualTypographyFields = individualTaskTypographyKeys.map(key => {
   const group = document.createElement('fieldset');
   group.className = 'appearance-fields';
@@ -48,18 +35,15 @@ const individualTypographyFields = individualTaskTypographyKeys.map(key => {
     else typography[key] = Object.fromEntries(controls.map(control =>
       [control.name.slice(key.length), control.value]));
     taskDraft.typography = Object.keys(typography).length ? typography : undefined;
-    renderTaskPromptSample();
     previewTaskTypography(taskDraft.id, taskDraft.typography);
   }
   group.append(legend, inherit, fields);
-  if (key === 'task') group.append(taskPromptSample);
   group.addEventListener('input', update);
   individualTaskAppearance.append(group);
   return { key, checkbox, fields, controls, output, range };
 });
 
 function renderIndividualTaskAppearance() {
-  renderTaskPromptSample();
   individualTaskAppearance.open = false;
   for (const { key, checkbox, fields, controls, output, range } of individualTypographyFields) {
     const saved = taskDraft.typography?.[key];
@@ -285,6 +269,16 @@ async function validateTaskAudio(file) {
   }
 }
 
+individualTaskAppearance.addEventListener('toggle', () => {
+  if (!taskEditor.open || !individualTaskAppearance.open) return;
+  const saved = taskList.find(task => task.id === taskDraft.id);
+  const content = saved ?? { ...taskDraft, text: taskForm.elements.text.value };
+  frame.contentWindow.postMessage({
+    type: 'bingo:open-task-style-preview',
+    task: { ...content, typography: taskDraft.typography },
+  }, appearanceOrigin());
+});
+
 document.querySelector('#add-task').addEventListener('click', () => openTaskEditor());
 document.querySelector('#cancel-task-edit').addEventListener('click', () => taskEditor.close());
 taskEditor.addEventListener('cancel', event => {
@@ -294,7 +288,11 @@ taskEditor.addEventListener('close', () => {
   if (!taskEditor.open) {
     clearTaskThumbs();
     clearTaskOptionThumbs();
-    previewTaskTypography(taskDraft.id, taskList.find(saved => saved.id === taskDraft.id)?.typography);
+    const saved = taskList.find(task => task.id === taskDraft.id);
+    if (saved) previewTaskTypography(taskDraft.id, saved.typography);
+    else frame.contentWindow.postMessage({
+      type: 'bingo:close-task-style-preview', id: taskDraft.id,
+    }, appearanceOrigin());
   }
 });
 

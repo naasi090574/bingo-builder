@@ -65,13 +65,42 @@
 #individual-task-appearance .choice-checkbox { display: flex; align-items: center; gap: 7px; }
 #individual-task-appearance .choice-checkbox input { width: auto; min-height: auto; accent-color: var(--accent); }
 
-.task-prompt-sample {
+/* Keep the actual game frame in view while the typography controls are open. */
+body:has(#task-editor[open] #individual-task-appearance[open]) {
+  --task-edit-gap: 12px;
+  --task-edit-width: clamp(245px, 29vw, 390px);
+}
+#task-editor:has(#individual-task-appearance[open])::backdrop { background: transparent; }
+#task-editor:has(#individual-task-appearance[open]) {
+  position: fixed;
+  inset: var(--task-edit-gap) auto auto var(--task-edit-gap);
   margin: 0;
-  padding: .65rem;
-  border-radius: 8px;
-  font-weight: 750;
-  line-height: 1.25;
-  text-align: center;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  width: var(--task-edit-width);
+  max-height: calc(100dvh - 2 * var(--task-edit-gap));
+  box-shadow: 0 8px 32px #29214333;
+}
+body:has(#task-editor[open] #individual-task-appearance[open]) .preview {
+  position: fixed;
+  z-index: 2;
+  top: var(--task-edit-gap);
+  left: calc(var(--task-edit-width) + 2 * var(--task-edit-gap));
+  right: var(--task-edit-gap);
+}
+body:has(#task-editor[open] #individual-task-appearance[open]) .preview-stage {
+  width: min(100%, calc((100dvh - 130px) * 16 / 9));
+  margin-inline: auto;
+}
+@media (max-width: 700px) {
+  #task-editor:has(#individual-task-appearance[open]) {
+    inset: 48dvh var(--task-edit-gap) auto;
+    width: auto;
+    max-height: calc(52dvh - var(--task-edit-gap));
+  }
+  body:has(#task-editor[open] #individual-task-appearance[open]) .preview {
+    left: var(--task-edit-gap);
+  }
+  body:has(#task-editor[open] #individual-task-appearance[open]) .preview-header { display: none; }
+  body:has(#task-editor[open] #individual-task-appearance[open]) .preview-stage {
+    width: min(100%, calc((48dvh - 38px) * 16 / 9));
+  }
 }
