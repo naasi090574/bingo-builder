@@ -33,3 +33,17 @@ async function updateTaskLibrary(update) {
     transaction.onabort = () => reject(transaction.error);
   });
 }
+
+function sameMemoryItem(first, second) {
+  return first.text.trim() === second.text.trim() && (
+    (!first.media && !second.media) ||
+    Boolean(first.media?.imageKey && first.media.imageKey === second.media?.imageKey) ||
+    Boolean(first.media?.image && first.media.image === second.media?.image)
+  );
+}
+
+function validMemoryChain(items) {
+  return Array.isArray(items) && items.length >= 2 &&
+    items.every(item => item.text.trim() || item.media) &&
+    items.some(item => !sameMemoryItem(item, items[0]));
+}

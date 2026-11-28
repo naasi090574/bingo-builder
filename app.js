@@ -23,6 +23,7 @@ const interactiveTasks = {
   odd: { label: 'Найди лишнее', mount: mountChoiceTask },
   sorting: { label: 'Рассортируй по группам', mount: mountSortingTask },
   pairs: { label: 'Соедини пары', mount: mountPairsTask },
+  memory: { label: 'Запомни порядок', mount: mountMemoryTask },
   sequence: { label: 'Восстанови последовательность', mount: mountSequenceTask },
   compose: { label: 'Собери слово или предложение', mount: mountSequenceTask },
 };
@@ -260,7 +261,7 @@ function showTask(content, preview = false) {
   if (interactive) {
     choiceArea.hidden = false;
     disposeInteractiveTask = interactive.mount(content, choiceArea, choiceCheckButton, taskMediaUrl, setTaskReady,
-      correct => playGameSounds(correct ? 'taskRight' : 'taskWrong'));
+      correct => playGameSounds(correct ? 'taskRight' : 'taskWrong'), taskText);
   }
   taskBody.hidden = taskText.hidden && taskImages.hidden && choiceArea.hidden;
   if (!task.open) task.showModal();

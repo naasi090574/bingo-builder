@@ -1,0 +1,47 @@
+#task.has-memory { width: 76rem; }
+#task.has-memory .task-sheet { padding: .65rem .9rem; gap: .45rem; }
+#task.has-memory .task-body { gap: .35rem; }
+#task.has-memory .task-images img { height: 8dvh; }
+#task.has-memory #task-choice { justify-items: center; gap: .38rem; }
+.memory-counter { font-size: 1rem; }
+.memory-stage {
+  width: 100%;
+  min-width: 0;
+  --memory-gap: .3rem;
+  --memory-card-height: clamp(1.7rem,
+    calc((53dvh - (var(--memory-rows) - 1) * var(--memory-gap)) / var(--memory-rows)), 10rem);
+}
+.memory-strip {
+  display: grid;
+  grid-template-columns: repeat(var(--memory-columns), minmax(0, 1fr));
+  gap: var(--memory-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#task.has-memory .sequence-grid {
+  grid-template-columns: repeat(var(--memory-columns), minmax(0, 1fr));
+  grid-auto-rows: minmax(var(--memory-card-height), auto);
+}
+#task.has-memory .sequence-board { --sequence-card-height: var(--memory-card-height); }
+#task.has-memory .sequence-pool { min-height: 0; }
+#task.has-memory .sequence-card {
+  height: var(--memory-card-height);
+  min-height: 0;
+  min-width: 0;
+}
+#task.has-memory .sequence-card img {
+  flex: 0 1 auto;
+  min-height: 0;
+  height: calc((var(--memory-card-height) - .7rem) * var(--memory-image-scale));
+  max-width: 100%;
+}
+#task.has-memory .sequence-card > span:not(.sequence-number) {
+  font-size: min(1em, calc(var(--memory-card-height) * .52));
+}
+#task.has-memory .choice-feedback { margin-top: .3rem; text-align: center; }
+#task.has-memory #check-choice {
+  background: var(--choiceCheckBackground, var(--mint));
+  border: var(--choiceCheckBorderWidth, 0px) solid var(--choiceCheckBorder, var(--mint));
+  border-radius: var(--choiceCheckRadius, 10px);
+}

@@ -29,6 +29,7 @@
   <script defer src="sorting-editor.js"></script>
   <script defer src="pairs-editor.js"></script>
   <script defer src="sequence-editor.js"></script>
+  <script defer src="memory-editor.js"></script>
   <script defer src="tokens-editor.js"></script>
   <script defer src="sounds-editor.js"></script>
   <script defer src="projects-editor.js"></script>
@@ -296,6 +297,7 @@
         <button id="add-pairs-task" class="secondary" type="button">Добавить «Соедини пары»</button>
         <button id="add-sequence-task" class="secondary" type="button">Добавить «Восстанови последовательность»</button>
         <button id="add-odd-task" class="secondary" type="button">Добавить «Найди лишнее»</button>
+        <button id="add-memory-task" class="secondary" type="button">Добавить «Запомни порядок»</button>
         <button id="add-compose-task" class="secondary" type="button">Добавить «Собери слово или предложение»</button>
         <p id="task-library-status" role="status"></p>
         <ol id="task-items" class="task-items"></ol>
@@ -455,6 +457,17 @@
           <textarea id="compose-follow-up" rows="3"></textarea>
         </label>
       </div>
+      <section id="memory-draft" hidden>
+        <label>Инструкция для восстановления<textarea id="memory-recall" rows="3"></textarea></label>
+        <label>Порядок цепочек
+          <select id="memory-order"><option value="sequential">Последовательный</option><option value="random">Случайный</option></select>
+        </label>
+        <label>Размер изображений <output id="memory-size-value" for="memory-size"></output>
+          <input id="memory-size" type="range" min="25" max="100" step="5">
+        </label>
+        <div id="memory-chains"></div>
+        <button id="memory-add-chain" class="secondary" type="button">Добавить цепочку</button>
+      </section>
       <details id="individual-task-appearance" class="appearance-group">
         <summary>Индивидуальное оформление</summary>
       </details>

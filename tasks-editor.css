@@ -104,3 +104,15 @@ body:has(#task-editor[open] #individual-task-appearance[open]) .preview-stage {
     width: min(100%, calc((48dvh - 38px) * 16 / 9));
   }
 }
+
+#memory-draft, #memory-chains, #memory-chains fieldset {
+  display: grid;
+  min-width: 0;
+  gap: .55rem;
+}
+#memory-chains fieldset {
+  margin: 0;
+  padding: .55rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}

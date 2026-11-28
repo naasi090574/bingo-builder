@@ -103,3 +103,24 @@ test('board dimming and frame settings round-trip independently of fill opacity'
     assert.equal(legacy.appearance.values.drawSlotBorderOpacity, '100');
   })()`, context);
 });
+
+test('memory chains round-trip with media and require a visibly different order', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    const image = new File(['image payload'], 'кот.png', { type: 'image/png' });
+    const cat = { text: 'Кот', media: { image, name: image.name, imageKey: 'cat' } };
+    data.tasks = [{
+      id: 'memory', type: 'memory', text: 'Запомни', recall: 'Восстанови', chainOrder: 'random',
+      imageSize: 65, chains: [[cat, { text: 'Кит' }, cat], [{ text: 'Сова' }, cat]],
+      images: [], audio: null,
+    }];
+    const [restored] = (await importProjectFile(await exportProjectFile(data))).tasks;
+    assert.equal(restored.recall, 'Восстанови');
+    assert.equal(restored.chainOrder, 'random');
+    assert.equal(restored.imageSize, 65);
+    assert.equal(restored.chains[0].length, 3);
+    assert.equal(await restored.chains[1][1].media.image.text(), 'image payload');
+    data.tasks[0].chains = [[cat, { ...cat }]];
+    await assert.rejects(importProjectFile(await exportProjectFile(data)), /повреждён/);
+  })()`, context);
+});

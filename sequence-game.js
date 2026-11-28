@@ -1,6 +1,6 @@
 'use strict';
 
-function mountSequenceTask(task, container, checkButton, mediaUrl, setReady, onAnswer) {
+function mountSequenceTask(task, container, checkButton, mediaUrl, setReady, onAnswer, { poolOrder, equivalentItems } = {}) {
   const compose = task.type === 'compose';
   const drag = task.method === 'drag';
   const usesSlots = compose || drag;
@@ -9,8 +9,8 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady, onA
   const indices = items.map((_, index) => index);
   const answer = compose ? indices.filter(index => !items[index].extra) : indices;
   const shouldShuffle = !compose || task.shuffle !== false;
-  const order = shouldShuffle ? shuffle(indices, Math.random) : indices;
-  if (shouldShuffle && order.every((index, position) => index === position)) order.push(order.shift());
+  const order = poolOrder ?? (shouldShuffle ? shuffle(indices, Math.random) : indices);
+  if (!poolOrder && shouldShuffle && order.every((index, position) => index === position)) order.push(order.shift());
   const positions = answer.map(() => null);
   const urls = items.map(item => item.media ? mediaUrl(item.media.image) : null);
   let selected = null;
@@ -55,6 +55,7 @@ function mountSequenceTask(task, container, checkButton, mediaUrl, setReady, onA
     if (index === null) return false;
     const expected = items[expectedIndex];
     const actual = items[index];
+    if (equivalentItems) return equivalentItems(actual, expected);
     const sameImage = (!actual.media && !expected.media)
       || (actual.media?.imageKey && actual.media.imageKey === expected.media?.imageKey);
     return sameImage && actual.text.trim() === expected.text.trim();

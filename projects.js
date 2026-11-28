@@ -166,6 +166,9 @@ function validateProjectData(data) {
     sorting: task => list(task.items, item => textEntry(item) && task.groups.some(group => group.id === item.groupId))
       && task.items.length >= 2,
     pairs: task => list(task.pairs, pair => list(pair, textEntry) && pair.length === 2) && task.pairs.length >= 2,
+    memory: task => text(task.recall) && ['sequential', 'random'].includes(task.chainOrder)
+      && Number.isFinite(task.imageSize) && task.imageSize >= 25 && task.imageSize <= 100
+      && list(task.chains, chain => list(chain, textEntry) && validMemoryChain(chain)) && task.chains.length > 0,
     sequence: task => list(task.items, textEntry) && task.items.length >= 2,
     compose: task => list(task.items, textEntry) && task.items.length >= 2 && task.items.some(item => !item.extra),
   };
