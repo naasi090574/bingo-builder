@@ -169,3 +169,29 @@ test('blank game titles and draw panel placement survive project round trips', a
     assert.equal(legacy.appearance.values.drawPanelHeight, '100');
   })()`, context);
 });
+
+test('project names and board headings are independent and legacy titles populate both', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    Object.assign(data.settings, { title: 'Упражнения — март', boardTitle: 'Звуки', showBoardTitle: 'no' });
+    const imported = await importProjectFile(await exportProjectFile(data));
+    assert.equal(imported.settings.title, 'Упражнения — март');
+    assert.equal(imported.settings.boardTitle, 'Звуки');
+    assert.equal(imported.settings.showBoardTitle, 'no');
+
+    data.settings.boardTitle = '';
+    const untitledBoard = await importProjectFile(await exportProjectFile(data));
+    assert.equal(untitledBoard.settings.title, 'Упражнения — март');
+    assert.equal(untitledBoard.settings.boardTitle, '');
+
+    delete data.settings.boardTitle;
+    delete data.settings.showBoardTitle;
+    const legacy = await importProjectFile(await exportProjectFile(data));
+    assert.equal(legacy.settings.title, 'Упражнения — март');
+    assert.equal(legacy.settings.boardTitle, legacy.settings.title);
+    assert.equal(legacy.settings.showBoardTitle, 'yes');
+    const rawRecord = normalizeStoredProject({ id: 'existing-project', data });
+    assert.equal(rawRecord.id, 'existing-project');
+    assert.equal(rawRecord.data.settings.boardTitle, 'Упражнения — март');
+  })()`, context);
+});

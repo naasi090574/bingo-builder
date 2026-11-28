@@ -64,10 +64,16 @@ function showSection() {
   form.hidden = section !== 'settings';
 }
 
+function readEditorGameSettings() {
+  const values = new FormData(form);
+  values.set('showBoardTitle', form.elements.showBoardTitle.checked ? 'yes' : 'no');
+  return readGameSettings(values);
+}
+
 function applySettings(delay = 0) {
-  const settings = readGameSettings(new FormData(form));
+  const settings = readEditorGameSettings();
   const params = new URLSearchParams(Object.entries(settings).filter(([key, value]) =>
-    value !== defaultGameSettings[key]
+    key !== 'title' && value !== defaultGameSettings[key]
   ));
   const address = params.size ? `game.html?${params}` : 'game.html';
   launch.setAttribute('href', address);
@@ -95,7 +101,10 @@ function fitPreview() {
   stage.style.setProperty('--preview-scale', stage.clientWidth / frame.width);
 }
 
-form.addEventListener('input', event => applySettings(event.target.matches('input') ? 300 : 0));
+form.addEventListener('input', event => {
+  const instant = ['boardTitle', 'showBoardTitle'].includes(event.target.name);
+  applySettings(!instant && event.target.matches('input') ? 300 : 0);
+});
 form.addEventListener('change', () => applySettings());
 form.addEventListener('submit', event => {
   event.preventDefault();

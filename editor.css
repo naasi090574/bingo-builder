@@ -222,3 +222,14 @@ h1 { font-size: clamp(1.7rem, 2.8vw, 2.4rem); line-height: 1.12; letter-spacing:
 .appearance-subgroup > summary { font-size: .875rem; }
 
 .label-effect-fields { display: grid; gap: 12px; }
+
+.settings-form .game-title-switch {
+  display: flex;
+  gap: .55rem;
+  align-items: center;
+}
+.game-title-switch input[type="checkbox"] {
+  width: auto;
+  min-height: 0;
+  accent-color: var(--accent);
+}

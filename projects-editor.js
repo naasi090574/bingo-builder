@@ -22,7 +22,7 @@ let projectThumbnailUrls = [];
 
 function captureProject() {
   return {
-    settings: readGameSettings(new FormData(form)),
+    settings: readEditorGameSettings(),
     appearance: { values: Object.fromEntries(new FormData(appearanceForm)), background: backgroundImage },
     cards: library,
     tasks: taskList,
@@ -83,7 +83,9 @@ function restoreProject(draft) {
   activeProjectId = draft.id;
   projectDirty = draft.dirty;
   const { data } = draft;
-  for (const [name, value] of Object.entries(data.settings)) form.elements[name].value = value;
+  const { showBoardTitle, ...settings } = data.settings;
+  for (const [name, value] of Object.entries(settings)) form.elements[name].value = value;
+  form.elements.showBoardTitle.checked = showBoardTitle !== 'no';
   for (const [name, fallback] of Object.entries(defaultAppearance)) {
     appearanceForm.elements[name].value = data.appearance.values[name] ?? fallback;
   }
@@ -137,7 +139,7 @@ function discardProjectChanges() {
 }
 
 function askProjectName(initial) {
-  const answer = prompt('Название игры', initial);
+  const answer = prompt('Название проекта', initial);
   return answer?.trim().slice(0, 60);
 }
 

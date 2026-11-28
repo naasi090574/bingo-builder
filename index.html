@@ -73,8 +73,14 @@
       <h1 id="editor-title" aria-live="polite">Настройки игры</h1>
       <p id="section-description" class="description">Изменения сразу применяются в предпросмотре и начинают новую партию.</p>
       <form id="game-settings" class="settings-form">
-        <label>Название игры
+        <label>Название проекта
           <input name="title" maxlength="60" value="Бинго">
+        </label>
+        <label>Название на игровом поле
+          <input name="boardTitle" maxlength="60" value="Бинго">
+        </label>
+        <label class="game-title-switch">
+          <input name="showBoardTitle" type="checkbox" checked> Показывать название на игровом поле
         </label>
         <label>Имя первого игрока
           <input name="player1" maxlength="32" value="Игрок 1">

@@ -396,10 +396,11 @@ victoryRule.addEventListener('change', () => {
 });
 
 function renderGameTitle() {
-  document.title = settings.title;
   const heading = document.querySelector('#game-title');
-  heading.textContent = settings.title;
-  heading.setAttribute('aria-hidden', String(!settings.title));
+  const visible = settings.showBoardTitle !== 'no' && Boolean(settings.boardTitle);
+  document.title = visible ? settings.boardTitle : '';
+  heading.textContent = settings.boardTitle;
+  heading.setAttribute('aria-hidden', String(!visible));
 }
 
 function renderGameSettings() {
@@ -412,11 +413,14 @@ function renderGameSettings() {
 function applyPreviewSettings(search) {
   const updated = readGameSettings(new URLSearchParams(search));
   if (Object.keys(updated).every(key => updated[key] === settings[key])) return;
-  const onlyTitleChanged = Object.keys(updated).every(key => key === 'title' || updated[key] === settings[key]);
+  const onlyTitleChanged = Object.keys(updated).every(key =>
+    ['title', 'boardTitle', 'showBoardTitle'].includes(key) || updated[key] === settings[key]);
   if (onlyTitleChanged) {
     const heading = document.querySelector('#game-title');
-    if (!updated.title) heading.style.minHeight = `${heading.getBoundingClientRect().height}px`;
-    else heading.style.removeProperty('min-height');
+    if (updated.boardTitle !== settings.boardTitle) {
+      if (!updated.boardTitle) heading.style.minHeight = `${heading.getBoundingClientRect().height}px`;
+      else heading.style.removeProperty('min-height');
+    }
     settings = updated;
     renderGameTitle();
     return;

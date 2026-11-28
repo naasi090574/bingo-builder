@@ -18,12 +18,18 @@ function projectTransaction(stores, mode, work) {
   }));
 }
 
+function normalizeStoredProject(project) {
+  if (project) project.data.settings = readGameSettings(new URLSearchParams(project.data.settings));
+  return project;
+}
+
 function readProject(id) {
-  return projectTransaction(['projects'], 'readonly', tx => tx.objectStore('projects').get(id));
+  return projectTransaction(['projects'], 'readonly', tx => tx.objectStore('projects').get(id)).then(normalizeStoredProject);
 }
 
 function readProjects() {
-  return projectTransaction(['projects'], 'readonly', tx => tx.objectStore('projects').getAll());
+  return projectTransaction(['projects'], 'readonly', tx => tx.objectStore('projects').getAll())
+    .then(projects => projects.map(normalizeStoredProject));
 }
 
 function writeProject(project) {
@@ -42,7 +48,7 @@ function deleteProject(id) {
 }
 
 function readProjectDraft() {
-  return projectTransaction(['draft'], 'readonly', tx => tx.objectStore('draft').get('current'));
+  return projectTransaction(['draft'], 'readonly', tx => tx.objectStore('draft').get('current')).then(normalizeStoredProject);
 }
 
 async function hasLegacyProjectChanges() {
