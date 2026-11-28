@@ -7,6 +7,8 @@ const removeBackground = document.querySelector('#remove-background');
 const backgroundStatus = document.querySelector('#background-status');
 const backgroundMode = appearanceForm.elements.backgroundMode;
 const backgroundColor = appearanceForm.elements.backgroundColor;
+const quickAvatarSize = document.querySelector('#avatar-size-quick');
+const quickAvatarSizeValue = document.querySelector('#avatar-size-quick-value');
 let backgroundImage = null;
 let imageRequest = 0;
 let imageVersion = 0;
@@ -17,6 +19,8 @@ function sendAppearance(target, values) {
 
 function updateAppearance(trackChange = true) {
   const values = Object.fromEntries(new FormData(appearanceForm));
+  quickAvatarSize.value = values.avatarSize;
+  quickAvatarSizeValue.value = `${values.avatarSize} пкс`;
   imageControls.hidden = values.backgroundMode !== 'image';
   backgroundColor.closest('label').hidden = values.backgroundMode !== 'color';
   removeBackground.disabled = !backgroundImage;
@@ -55,6 +59,11 @@ function resetAppearance() {
 
 appearanceForm.addEventListener('input', event => {
   if (event.target !== imageInput) updateAppearance();
+});
+quickAvatarSize.addEventListener('input', event => {
+  event.stopPropagation();
+  appearanceForm.elements.avatarSize.value = quickAvatarSize.value;
+  updateAppearance();
 });
 appearanceForm.addEventListener('submit', event => event.preventDefault());
 appearanceForm.addEventListener('reset', event => {
