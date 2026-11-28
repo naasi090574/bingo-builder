@@ -178,6 +178,10 @@ function validateProjectData(data) {
     sorting: task => list(task.items, item => textEntry(item) && task.groups.some(group => group.id === item.groupId))
       && task.items.length >= 2,
     pairs: task => list(task.pairs, pair => list(pair, textEntry) && pair.length === 2) && task.pairs.length >= 2,
+    reveal: task => ['sequential', 'random'].includes(task.roundOrder) &&
+      list(task.rounds, round => round && text(round.riddle) && typeof round.showRiddle === 'boolean' &&
+        imageEntry(round.answer) && (!round.cover || imageEntry(round.cover)) &&
+        (!round.audio || (text(round.audio.name) && round.audio.file instanceof Blob))) && task.rounds.length > 0,
     magic: task => text(task.after) && ['sequential', 'random'].includes(task.roundOrder)
       && list(task.rounds, round => validMagicRound(round) && imageEntry(round.media)) && task.rounds.length > 0,
     memory: task => text(task.recall) && ['sequential', 'random'].includes(task.chainOrder)

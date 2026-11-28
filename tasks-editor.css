@@ -128,3 +128,15 @@ body:has(#task-editor[open] #individual-task-appearance[open]) .preview-stage {
   border: 1px solid var(--line);
   border-radius: 8px;
 }
+
+#reveal-draft, #reveal-rounds, #reveal-rounds fieldset {
+  display: grid;
+  min-width: 0;
+  gap: .55rem;
+}
+#reveal-rounds fieldset {
+  margin: 0;
+  padding: .55rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}

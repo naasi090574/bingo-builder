@@ -238,3 +238,26 @@ test('player avatars and their appearance round-trip without affecting legacy pr
     assert.equal(restored.appearance.values.avatarOpacity, '35');
   })()`, context);
 });
+
+test('picture reveal rounds preserve hidden riddles and all media', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    const image = new File(['answer image'], 'ответ.png', { type: 'image/png' });
+    const cover = new File(['cover image'], 'обложка.png', { type: 'image/png' });
+    const audio = new File(['audio'], 'загадка.wav', { type: 'audio/wav' });
+    data.tasks = [{ ...data.tasks[0], type: 'reveal', roundOrder: 'random', rounds: [
+      { riddle: 'Загадка', showRiddle: false, answer: { image, name: image.name },
+        cover: { image: cover, name: cover.name }, audio: { file: audio, name: audio.name } },
+      { riddle: '', showRiddle: true, answer: { image, name: image.name }, cover: null, audio: null },
+    ] }];
+    const [task] = (await importProjectFile(await exportProjectFile(data))).tasks;
+    assert.equal(task.roundOrder, 'random');
+    assert.equal(task.rounds[0].showRiddle, false);
+    assert.equal(await task.rounds[0].audio.file.text(), 'audio');
+    assert.equal(await task.rounds[0].cover.image.text(), 'cover image');
+    assert.equal(await task.rounds[1].answer.image.text(), 'answer image');
+    assert.equal(task.rounds[1].cover, null);
+    data.tasks[0].rounds[1].answer = null;
+    await assert.rejects(importProjectFile(await exportProjectFile(data)), /повреждён/);
+  })()`, context);
+});

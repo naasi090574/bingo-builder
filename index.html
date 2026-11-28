@@ -32,6 +32,7 @@
   <script defer src="sequence-editor.js"></script>
   <script defer src="memory-editor.js"></script>
   <script defer src="magic-editor.js"></script>
+  <script defer src="reveal-editor.js"></script>
   <script defer src="tokens-editor.js"></script>
   <script defer src="sounds-editor.js"></script>
   <script defer src="projects-editor.js"></script>
@@ -288,6 +289,19 @@
             <label class="color-setting">Цвет рамки<input type="color" name="activeColor"></label>
           </div>
         </details>
+        <details class="appearance-group">
+          <summary>Открой картинку</summary>
+          <div class="appearance-fields">
+            <label class="color-setting">Цвет закрытой карточки<input type="color" name="revealCoverColor"></label>
+            <label class="color-setting">Цвет вопросительного знака<input type="color" name="revealMarkColor"></label>
+            <label class="range-setting"><span>Размер закрывающей картинки</span><output for="revealCoverSize"></output>
+              <input id="revealCoverSize" name="revealCoverSize" type="range" min="25" max="100" data-unit="%">
+            </label>
+            <label class="range-setting"><span>Размер изображения-отгадки</span><output for="revealAnswerSize"></output>
+              <input id="revealAnswerSize" name="revealAnswerSize" type="range" min="25" max="100" data-unit="%">
+            </label>
+          </div>
+        </details>
         <details class="appearance-group" id="task-appearance">
           <summary>Окно задания</summary>
           <div class="appearance-fields">
@@ -359,6 +373,7 @@
         <button id="add-pairs-task" class="secondary" type="button">Добавить «Соедини пары»</button>
         <button id="add-sequence-task" class="secondary" type="button">Добавить «Восстанови последовательность»</button>
         <button id="add-odd-task" class="secondary" type="button">Добавить «Найди лишнее»</button>
+        <button id="add-reveal-task" class="secondary" type="button">Добавить «Открой картинку»</button>
         <button id="add-magic-task" class="secondary" type="button">Добавить «Волшебное превращение»</button>
         <button id="add-memory-task" class="secondary" type="button">Добавить «Запомни порядок»</button>
         <button id="add-compose-task" class="secondary" type="button">Добавить «Собери слово или предложение»</button>
@@ -530,6 +545,14 @@
           <textarea id="compose-follow-up" rows="3"></textarea>
         </label>
       </div>
+      <section id="reveal-draft" hidden>
+        <button id="reveal-live-preview" class="library-button" type="button">Показать предпросмотр задания</button>
+        <label>Порядок раундов
+          <select id="reveal-order"><option value="sequential">Последовательный</option><option value="random">Случайный</option></select>
+        </label>
+        <div id="reveal-rounds"></div>
+        <button id="reveal-add-round" class="secondary" type="button">Добавить раунд</button>
+      </section>
       <section id="magic-draft" hidden>
         <label>Инструкция после превращения<textarea id="magic-after" rows="3"></textarea></label>
         <label>Порядок раундов

@@ -64,6 +64,7 @@ const interactiveTaskTitles = {
   sequence: 'Восстанови последовательность',
   memory: 'Запомни порядок',
   magic: 'Волшебное превращение',
+  reveal: 'Открой картинку',
   compose: 'Собери слово или предложение',
 };
 let taskDraft;
@@ -219,16 +220,18 @@ function openTaskEditor(task, type = 'oral') {
   if (isSequenceDraft(taskDraft.type)) initializeSequenceDraft(task);
   if (taskDraft.type === 'memory') initializeMemoryDraft(task);
   if (taskDraft.type === 'magic') initializeMagicDraft(task);
+  if (taskDraft.type === 'reveal') initializeRevealDraft(task);
   taskForm.reset();
   taskForm.elements.text.value = taskDraft.text;
   renderIndividualTaskAppearance();
   const isInteractive = Object.hasOwn(interactiveTaskTitles, taskDraft.type);
   document.querySelector('#task-editor-title').textContent = isInteractive
     ? interactiveTaskTitles[taskDraft.type] : 'Устное задание';
-  const questionLabels = { memory: 'Инструкция для запоминания', magic: 'Инструкция до превращения' };
+  const questionLabels = { memory: 'Инструкция для запоминания', magic: 'Инструкция до превращения', reveal: 'Общая инструкция для ребёнка' };
   document.querySelector('#task-question-label').textContent = questionLabels[taskDraft.type] ??
     (isInteractive ? 'Текст вопроса или инструкция' : 'Текст задания');
-  taskImagesInput.closest('.image-picker').parentElement.hidden = taskDraft.type === 'magic';
+  taskImagesInput.closest('.image-picker').parentElement.hidden = ['magic', 'reveal'].includes(taskDraft.type);
+  taskAudioInput.closest('.task-audio-controls').hidden = taskDraft.type === 'reveal';
   document.querySelector('#task-images-label').textContent = isInteractive
     ? 'Добавить иллюстрации к вопросу (необязательно)' : 'Добавить картинки';
   document.querySelector('#task-images-help').hidden = !isInteractive;
@@ -240,6 +243,7 @@ function openTaskEditor(task, type = 'oral') {
   renderSequenceDraft();
   renderMemoryDraft();
   renderMagicDraft();
+  renderRevealDraft();
   taskEditorStatus.textContent = '';
   renderTaskDraftMedia();
   taskEditor.showModal();
@@ -280,6 +284,10 @@ async function validateTaskAudio(file) {
 
 individualTaskAppearance.addEventListener('toggle', () => {
   if (!taskEditor.open || !individualTaskAppearance.open) return;
+  if (taskDraft.type === 'reveal') {
+    refreshRevealDraftPreview();
+    return;
+  }
   const saved = taskList.find(task => task.id === taskDraft.id);
   const content = saved ?? { ...taskDraft, text: taskForm.elements.text.value };
   frame.contentWindow.postMessage({
@@ -298,7 +306,8 @@ taskEditor.addEventListener('close', () => {
     clearTaskThumbs();
     clearTaskOptionThumbs();
     const saved = taskList.find(task => task.id === taskDraft.id);
-    if (saved) previewTaskTypography(taskDraft.id, saved.typography);
+    if (saved?.type === 'reveal') sendRevealPreview(saved, false);
+    else if (saved) previewTaskTypography(taskDraft.id, saved.typography);
     else frame.contentWindow.postMessage({
       type: 'bingo:close-task-style-preview', id: taskDraft.id,
     }, appearanceOrigin());
@@ -341,7 +350,7 @@ removeTaskAudio.addEventListener('click', () => {
 taskForm.addEventListener('submit', event => {
   event.preventDefault();
   taskDraft.text = taskForm.elements.text.value;
-  if (!['sorting', 'pairs', 'sequence', 'odd', 'compose', 'memory', 'magic'].includes(taskDraft.type)
+  if (!['sorting', 'pairs', 'sequence', 'odd', 'compose', 'memory', 'magic', 'reveal'].includes(taskDraft.type)
     && !taskDraft.text.trim() && !taskDraft.images.length && !taskDraft.audio) {
     taskEditorStatus.textContent = 'Добавьте текст, картинку или аудио.';
     return;
@@ -352,6 +361,7 @@ taskForm.addEventListener('submit', event => {
   if (isSequenceDraft(taskDraft.type) && !validateSequenceDraft()) return;
   if (taskDraft.type === 'memory' && !validateMemoryDraft()) return;
   if (taskDraft.type === 'magic' && !validateMagicDraft()) return;
+  if (taskDraft.type === 'reveal' && !validateRevealDraft()) return;
   const task = taskDraft;
   runTaskDraftAction(async () => {
     try {

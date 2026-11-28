@@ -23,6 +23,7 @@ const interactiveTasks = {
   odd: { label: 'Найди лишнее', mount: mountOddTask },
   sorting: { label: 'Рассортируй по группам', mount: mountSortingTask },
   pairs: { label: 'Соедини пары', mount: mountPairsTask },
+  reveal: { label: 'Открой картинку', mount: mountRevealTask },
   magic: { label: 'Волшебное превращение', mount: mountMagicTask },
   memory: { label: 'Запомни порядок', mount: mountMemoryTask },
   sequence: { label: 'Восстанови последовательность', mount: mountSequenceTask },
@@ -282,7 +283,7 @@ function showTask(content, preview = false) {
   }
   taskAudio.hidden = !content?.audio;
   const type = content?.type;
-  if (type === 'compose') choiceArea.before(taskAudio);
+  if (type === 'compose' || type === 'reveal') choiceArea.before(taskAudio);
   else if (taskAudio.parentElement === taskBody) taskBody.after(taskAudio);
   const interactive = Object.hasOwn(interactiveTasks, type) ? interactiveTasks[type] : null;
   interactiveTask = Boolean(interactive);
@@ -494,6 +495,10 @@ window.addEventListener('message', event => {
   if (event.data?.type === 'bingo:preview-task-typography' && task.open &&
       displayedTaskId && event.data.id === displayedTaskId) {
     applyIndividualTaskTypography(event.data.typography);
+  }
+  if (event.data?.type === 'bingo:reveal-draft' &&
+      (task.open ? previewingTask && (event.data.open || displayedTaskId === event.data.task.id) : event.data.open)) {
+    showTask(event.data.task, true);
   }
   if (event.data?.type === 'bingo:open-task-style-preview') {
     const content = event.data.task;
