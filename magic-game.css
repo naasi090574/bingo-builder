@@ -1,0 +1,88 @@
+#task.has-magic {
+  width: 68rem;
+}
+#task.has-magic .task-sheet {
+  padding: .65rem 1rem;
+  gap: .45rem;
+}
+#task.has-magic .task-body {
+  gap: .45rem;
+}
+#task.has-magic #task-choice {
+  justify-items: center;
+  gap: .4rem;
+}
+.magic-counter {
+  margin: 0;
+  text-align: center;
+}
+.magic-picture {
+  position: relative;
+  display: block;
+  width: min(100%, 52rem);
+  height: min(43dvh, 22rem);
+  min-width: 0;
+  border: 0;
+  border-radius: .7rem;
+  padding: 0;
+  isolation: isolate;
+  background: transparent;
+}
+.magic-picture[aria-disabled="true"] { cursor: default; }
+.magic-scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--magic-columns, 1), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--magic-rows, 1), minmax(0, 1fr));
+  justify-items: center;
+  align-items: center;
+  gap: .3rem;
+  pointer-events: none;
+  transition: opacity 350ms ease, transform 430ms ease;
+}
+.magic-scene img {
+  display: block;
+  width: var(--magic-size, 100%);
+  height: var(--magic-size, 100%);
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
+}
+.magic-after-scene { opacity: 0; transform: scale(.78); }
+.is-transformed .magic-before-scene { opacity: 0; transform: scale(.83); }
+.is-transformed .magic-after-scene { opacity: 1; transform: none; }
+.magic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .4rem;
+}
+.magic-actions:has(button[hidden] + button[hidden]) { display: none; }
+.magic-sparks {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.magic-sparks > span {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: .65rem;
+  aspect-ratio: 1;
+  opacity: 0;
+  background: #ffeab3;
+  clip-path: polygon(50% 0, 63% 38%, 100% 50%, 63% 62%, 50% 100%, 37% 62%, 0 50%, 37% 38%);
+}
+.has-sparkles .magic-sparks > span {
+  animation: magic-spark 550ms var(--spark-delay) ease-out both;
+}
+@keyframes magic-spark {
+  0% { opacity: 0; transform: rotate(var(--spark-angle)) translateX(.2rem) scale(.2); }
+  30% { opacity: .95; }
+  100% { opacity: 0; transform: rotate(var(--spark-angle)) translateX(min(17dvh, 8rem)) scale(1.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .magic-scene { transition: none; }
+  .has-sparkles .magic-sparks > span { animation: none; }
+}

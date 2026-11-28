@@ -63,6 +63,7 @@ const interactiveTaskTitles = {
   pairs: 'Соедини пары',
   sequence: 'Восстанови последовательность',
   memory: 'Запомни порядок',
+  magic: 'Волшебное превращение',
   compose: 'Собери слово или предложение',
 };
 let taskDraft;
@@ -217,14 +218,17 @@ function openTaskEditor(task, type = 'oral') {
   if (taskDraft.type === 'pairs') initializePairsDraft(task);
   if (isSequenceDraft(taskDraft.type)) initializeSequenceDraft(task);
   if (taskDraft.type === 'memory') initializeMemoryDraft(task);
+  if (taskDraft.type === 'magic') initializeMagicDraft(task);
   taskForm.reset();
   taskForm.elements.text.value = taskDraft.text;
   renderIndividualTaskAppearance();
   const isInteractive = Object.hasOwn(interactiveTaskTitles, taskDraft.type);
   document.querySelector('#task-editor-title').textContent = isInteractive
     ? interactiveTaskTitles[taskDraft.type] : 'Устное задание';
-  document.querySelector('#task-question-label').textContent = taskDraft.type === 'memory'
-    ? 'Инструкция для запоминания' : (isInteractive ? 'Текст вопроса или инструкция' : 'Текст задания');
+  const questionLabels = { memory: 'Инструкция для запоминания', magic: 'Инструкция до превращения' };
+  document.querySelector('#task-question-label').textContent = questionLabels[taskDraft.type] ??
+    (isInteractive ? 'Текст вопроса или инструкция' : 'Текст задания');
+  taskImagesInput.closest('.image-picker').parentElement.hidden = taskDraft.type === 'magic';
   document.querySelector('#task-images-label').textContent = isInteractive
     ? 'Добавить иллюстрации к вопросу (необязательно)' : 'Добавить картинки';
   document.querySelector('#task-images-help').hidden = !isInteractive;
@@ -235,6 +239,7 @@ function openTaskEditor(task, type = 'oral') {
   renderPairsDraft();
   renderSequenceDraft();
   renderMemoryDraft();
+  renderMagicDraft();
   taskEditorStatus.textContent = '';
   renderTaskDraftMedia();
   taskEditor.showModal();
@@ -336,7 +341,7 @@ removeTaskAudio.addEventListener('click', () => {
 taskForm.addEventListener('submit', event => {
   event.preventDefault();
   taskDraft.text = taskForm.elements.text.value;
-  if (!['sorting', 'pairs', 'sequence', 'odd', 'compose', 'memory'].includes(taskDraft.type)
+  if (!['sorting', 'pairs', 'sequence', 'odd', 'compose', 'memory', 'magic'].includes(taskDraft.type)
     && !taskDraft.text.trim() && !taskDraft.images.length && !taskDraft.audio) {
     taskEditorStatus.textContent = 'Добавьте текст, картинку или аудио.';
     return;
@@ -346,6 +351,7 @@ taskForm.addEventListener('submit', event => {
   if (taskDraft.type === 'pairs' && !validatePairsDraft()) return;
   if (isSequenceDraft(taskDraft.type) && !validateSequenceDraft()) return;
   if (taskDraft.type === 'memory' && !validateMemoryDraft()) return;
+  if (taskDraft.type === 'magic' && !validateMagicDraft()) return;
   const task = taskDraft;
   runTaskDraftAction(async () => {
     try {

@@ -23,6 +23,7 @@ const interactiveTasks = {
   odd: { label: 'Найди лишнее', mount: mountOddTask },
   sorting: { label: 'Рассортируй по группам', mount: mountSortingTask },
   pairs: { label: 'Соедини пары', mount: mountPairsTask },
+  magic: { label: 'Волшебное превращение', mount: mountMagicTask },
   memory: { label: 'Запомни порядок', mount: mountMemoryTask },
   sequence: { label: 'Восстанови последовательность', mount: mountSequenceTask },
   compose: { label: 'Собери слово или предложение', mount: mountSequenceTask },

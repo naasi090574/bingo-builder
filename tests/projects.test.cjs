@@ -195,3 +195,24 @@ test('project names and board headings are independent and legacy titles populat
     assert.equal(rawRecord.data.settings.boardTitle, 'Упражнения — март');
   })()`, context);
 });
+
+test('magic tasks preserve mixed modes and media and reject reversed size settings', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    const image = new File(['magic image'], 'цветок.png', { type: 'image/png' });
+    const media = { image, name: image.name };
+    data.tasks = [{ ...data.tasks[0], type: 'magic', after: 'Назови результат.', roundOrder: 'random', rounds: [
+      { mode: 'multiply', count: 12, media },
+      { mode: 'shrink', beforeSize: 90, afterSize: 40, media },
+      { mode: 'grow', beforeSize: 40, afterSize: 90, media },
+      { mode: 'merge', count: 6, media },
+    ] }];
+    const [restored] = (await importProjectFile(await exportProjectFile(data))).tasks;
+    assert.equal(restored.after, 'Назови результат.');
+    assert.equal(restored.roundOrder, 'random');
+    assert.deepEqual(restored.rounds.map(round => round.mode), ['multiply', 'shrink', 'grow', 'merge']);
+    assert.equal(await restored.rounds[3].media.image.text(), 'magic image');
+    data.tasks[0].rounds[1].afterSize = 100;
+    await assert.rejects(importProjectFile(await exportProjectFile(data)), /повреждён/);
+  })()`, context);
+});

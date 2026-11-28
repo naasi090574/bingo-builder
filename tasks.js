@@ -51,3 +51,22 @@ function validMemoryChain(items) {
 function oddTaskRounds(task) {
   return task.rounds ?? [{ options: task.options, followUp: task.followUp ?? '' }];
 }
+
+const magicModes = Object.freeze({
+  multiply: 'Размножение',
+  shrink: 'Уменьшение',
+  grow: 'Увеличение',
+  merge: 'Из множества предметов в один',
+});
+
+function magicUsesCopies(mode) {
+  return mode === 'multiply' || mode === 'merge';
+}
+
+function validMagicRound(round) {
+  if (!round || !Object.hasOwn(magicModes, round.mode) || !round.media) return false;
+  if (magicUsesCopies(round.mode)) return Number.isInteger(round.count) && round.count >= 2 && round.count <= 24;
+  const { beforeSize, afterSize } = round;
+  return [beforeSize, afterSize].every(size => Number.isInteger(size) && size >= 15 && size <= 100) &&
+    (round.mode === 'shrink' ? beforeSize > afterSize : beforeSize < afterSize);
+}

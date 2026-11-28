@@ -116,3 +116,15 @@ body:has(#task-editor[open] #individual-task-appearance[open]) .preview-stage {
   border: 1px solid var(--line);
   border-radius: 8px;
 }
+
+#magic-draft, #magic-rounds, #magic-rounds fieldset {
+  display: grid;
+  min-width: 0;
+  gap: .55rem;
+}
+#magic-rounds fieldset {
+  margin: 0;
+  padding: .55rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
