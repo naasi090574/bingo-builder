@@ -162,7 +162,12 @@ function validateProjectData(data) {
   const taskDetails = {
     oral: () => true,
     choice: task => list(task.options, textEntry) && task.options.length >= 2 && task.options.some(option => option.correct),
-    odd: task => list(task.options, textEntry) && task.options.length >= 2 && task.options.some(option => option.correct),
+    odd: task => {
+      const rounds = oddTaskRounds(task);
+      return list(rounds, round => round && text(round.followUp ?? '') &&
+        list(round.options, textEntry) &&
+        round.options.length >= 2 && round.options.some(option => option.correct)) && rounds.length > 0;
+    },
     sorting: task => list(task.items, item => textEntry(item) && task.groups.some(group => group.id === item.groupId))
       && task.items.length >= 2,
     pairs: task => list(task.pairs, pair => list(pair, textEntry) && pair.length === 2) && task.pairs.length >= 2,

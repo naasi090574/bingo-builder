@@ -208,7 +208,7 @@ function openTaskEditor(task, type = 'oral') {
   taskDraft = task ? { ...task, images: [...task.images] }
     : { id: newTaskId(), type, text: '', images: [], audio: null };
   if (isChoiceDraft(taskDraft.type)) {
-    taskDraft.options = task ? task.options.map(option => ({ ...option })) : [newChoiceOption(), newChoiceOption()];
+    initializeChoiceDraft(task);
     taskDraft.method ??= 'click';
     taskDraft.check ??= 'instant';
     taskDraft.shuffle ??= false;

@@ -22,6 +22,12 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady, onAns
   pool.setAttribute('role', 'group');
   pool.setAttribute('aria-label', 'Варианты ответа');
   pool.style.setProperty('--choice-columns', options.length > 4 ? Math.ceil(options.length / 2) : options.length);
+  if (odd && options.length > 10) {
+    const columns = Math.ceil(Math.sqrt(options.length * 1.6));
+    pool.dataset.many = '';
+    pool.style.setProperty('--choice-columns', columns);
+    pool.style.setProperty('--odd-option-rows', Math.ceil(options.length / columns));
+  }
   layout.append(pool);
 
   let drop;
@@ -215,4 +221,49 @@ function mountChoiceTask(task, container, checkButton, mediaUrl, setReady, onAns
     timers.forEach(clearTimeout);
     checkButton.removeEventListener('click', verify);
   };
+}
+
+function mountOddTask(task, container, checkButton, mediaUrl, setReady, onAnswer) {
+  const rounds = oddTaskRounds(task);
+  const counter = document.createElement('p');
+  counter.className = 'odd-round-counter';
+  counter.setAttribute('role', 'status');
+  const stage = document.createElement('div');
+  stage.className = 'odd-round-stage';
+  const next = document.createElement('button');
+  next.type = 'button';
+  next.className = 'task-action odd-next-round';
+  next.textContent = 'Следующий раунд';
+  container.append(counter, stage, next);
+
+  let index = 0;
+  let disposeRound;
+  const urls = new Map();
+  function roundMediaUrl(blob) {
+    if (!urls.has(blob)) urls.set(blob, mediaUrl(blob));
+    return urls.get(blob);
+  }
+
+  function showRound() {
+    disposeRound?.();
+    stage.replaceChildren();
+    next.hidden = true;
+    setReady(false);
+    counter.textContent = `Раунд ${index + 1} из ${rounds.length}`;
+    const { options, followUp } = rounds[index];
+    disposeRound = mountChoiceTask({ ...task, options, followUp }, stage, checkButton, roundMediaUrl, correct => {
+      const final = index === rounds.length - 1;
+      next.hidden = !correct || final;
+      setReady(correct && final);
+      if (!next.hidden) next.focus();
+    }, onAnswer);
+  }
+
+  next.addEventListener('click', () => {
+    index++;
+    showRound();
+    stage.querySelector('button')?.focus();
+  });
+  showRound();
+  return () => disposeRound?.();
 }

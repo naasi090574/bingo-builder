@@ -124,3 +124,26 @@ test('memory chains round-trip with media and require a visibly different order'
     await assert.rejects(importProjectFile(await exportProjectFile(data)), /повреждён/);
   })()`, context);
 });
+
+test('odd tasks preserve legacy options and round-specific answers, media and follow-ups', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    const image = new File(['round image'], 'картинка.png', { type: 'image/png' });
+    const options = [{ text: 'Яблоко' }, { text: 'Кот', correct: true }];
+    const legacy = { ...data.tasks[0], type: 'odd', options, followUp: 'Почему?' };
+    const grouped = { ...legacy, id: 'odd-rounds', rounds: [
+      { options, followUp: 'Назови фрукты.' },
+      { options: [{ text: '', media: { image, name: image.name }, correct: true }, { text: 'Лев' }],
+        followUp: 'Назови животных.' },
+    ] };
+    data.tasks = [legacy, grouped];
+    const restored = (await importProjectFile(await exportProjectFile(data))).tasks;
+    assert.equal(oddTaskRounds(restored[0])[0].followUp, 'Почему?');
+    const rounds = oddTaskRounds(restored[1]);
+    assert.equal(rounds[0].options[1].correct, true);
+    assert.equal(rounds[1].followUp, 'Назови животных.');
+    assert.equal(await rounds[1].options[0].media.image.text(), 'round image');
+    grouped.rounds[1].options[0].correct = false;
+    await assert.rejects(importProjectFile(await exportProjectFile(data)), /повреждён/);
+  })()`, context);
+});

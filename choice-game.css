@@ -110,7 +110,7 @@
   --answer-image-height: clamp(3rem, 26dvh, 15rem);
 }
 #task.has-odd:has(.choice-options:not([data-count="2"])):has(#task-audio:not([hidden]), .odd-follow-up:not([hidden])) {
-  --answer-image-height: clamp(2.75rem, 14dvh, 10rem);
+  --answer-image-height: clamp(2.25rem, 9dvh, 9rem);
 }
 #task.has-odd .task-sheet { gap: .35rem; padding: .55rem .85rem; }
 #task.has-odd .task-body { gap: .4rem; }
@@ -119,8 +119,18 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr));
   gap: .3rem;
 }
-#task.has-odd .task-images img { height: 10dvh; }
+#task.has-odd .task-images img { height: 8dvh; }
 #task.has-odd #task-audio { height: 2rem; }
 #task.has-odd .choice-option[aria-disabled="true"] { cursor: default; }
 #task.has-odd .choice-feedback:empty { display: none; }
 #task.has-odd .odd-follow-up { padding: .25rem 0; }
+
+.odd-round-counter { margin: 0; text-align: center; }
+.odd-round-stage { display: grid; min-width: 0; gap: .35rem; }
+.odd-next-round { justify-self: center; }
+#task.has-odd .choice-options[data-many] {
+  grid-template-columns: repeat(var(--choice-columns), minmax(0, 1fr));
+}
+#task.has-odd .choice-options[data-many] img {
+  height: min(var(--answer-image-height), max(1.25rem, calc(49dvh / var(--odd-option-rows) - 1.8rem)));
+}

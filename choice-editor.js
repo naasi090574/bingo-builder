@@ -10,6 +10,12 @@ const choiceShuffle = document.querySelector('#choice-shuffle');
 const choiceDropDraft = document.querySelector('#choice-drop-draft');
 const choiceDraftOptions = document.querySelector('#choice-draft-options');
 const choiceAddOption = document.querySelector('#choice-add-option');
+const oddRoundControls = document.querySelector('#odd-round-controls');
+const oddRoundSelect = document.querySelector('#odd-round');
+const oddRemoveRound = document.querySelector('#odd-remove-round');
+const oddEarlierRound = document.querySelector('#odd-earlier-round');
+const oddLaterRound = document.querySelector('#odd-later-round');
+let oddRoundIndex = 0;
 let taskOptionThumbUrls = [];
 
 function isChoiceDraft(type) {
@@ -17,11 +23,34 @@ function isChoiceDraft(type) {
 }
 
 function choiceOptionLimit() {
-  return taskDraft.type === 'odd' ? 10 : 8;
+  return taskDraft.type === 'odd' ? Infinity : 8;
 }
 
 function newChoiceOption() {
   return { text: '', correct: false, media: null };
+}
+
+function emptyOddRound() {
+  return { options: [newChoiceOption(), newChoiceOption()], followUp: '' };
+}
+
+function copyOddRound(round) {
+  return { followUp: round.followUp ?? '', options: round.options.map(option => ({ ...option })) };
+}
+
+function initializeChoiceDraft(task) {
+  if (taskDraft.type === 'odd') {
+    taskDraft.rounds = task ? oddTaskRounds(task).map(copyOddRound) : [emptyOddRound()];
+    delete taskDraft.options;
+    delete taskDraft.followUp;
+    oddRoundIndex = 0;
+  } else {
+    taskDraft.options = task ? task.options.map(option => ({ ...option })) : [newChoiceOption(), newChoiceOption()];
+  }
+}
+
+function activeChoiceOptions() {
+  return taskDraft.type === 'odd' ? taskDraft.rounds[oddRoundIndex].options : taskDraft.options;
 }
 
 function clearTaskOptionThumbs() {
@@ -74,7 +103,17 @@ function renderChoiceDraft() {
   const odd = taskDraft.type === 'odd';
   choiceMethodField.hidden = odd;
   oddFollowUpField.hidden = !odd;
-  oddFollowUp.value = taskDraft.followUp ?? '';
+  oddRoundControls.hidden = !odd;
+  if (odd) {
+    const rounds = taskDraft.rounds;
+    oddRoundSelect.replaceChildren(...rounds.map((_, index) =>
+      new Option(`Раунд ${index + 1} из ${rounds.length}`, String(index))));
+    oddRoundSelect.value = String(oddRoundIndex);
+    oddFollowUp.value = rounds[oddRoundIndex].followUp;
+    oddRemoveRound.disabled = rounds.length === 1;
+    oddEarlierRound.disabled = oddRoundIndex === 0;
+    oddLaterRound.disabled = oddRoundIndex === rounds.length - 1;
+  }
   choiceMethod.value = taskDraft.method;
   choiceCheckMode.value = taskDraft.check;
   choiceShuffle.checked = taskDraft.shuffle;
@@ -82,7 +121,8 @@ function renderChoiceDraft() {
   choiceDropDraft.replaceChildren(...(choiceDropDraft.hidden ? [] : [
     taskOptionImageField(taskDraft.dropImage, 'Картинка принимающей области', image => { taskDraft.dropImage = image; }),
   ]));
-  choiceDraftOptions.replaceChildren(...taskDraft.options.map((option, index) => {
+  const options = activeChoiceOptions();
+  choiceDraftOptions.replaceChildren(...options.map((option, index) => {
     const row = document.createElement('fieldset');
     const legend = document.createElement('legend');
     legend.textContent = `Вариант ${index + 1}`;
@@ -107,41 +147,76 @@ function renderChoiceDraft() {
     const move = (delta, text, label) => {
       const button = libraryButton(text, `${label} вариант ${index + 1}`, () => {
         const next = index + delta;
-        [taskDraft.options[index], taskDraft.options[next]] = [taskDraft.options[next], taskDraft.options[index]];
+        [options[index], options[next]] = [options[next], options[index]];
         renderChoiceDraft();
       });
-      button.disabled = !taskDraft.options[index + delta];
+      button.disabled = !options[index + delta];
       return button;
     };
     const remove = libraryButton('Удалить вариант', `Удалить вариант ${index + 1}`, () => {
-      taskDraft.options.splice(index, 1);
+      options.splice(index, 1);
       renderChoiceDraft();
     });
-    remove.disabled = taskDraft.options.length <= 2;
+    remove.disabled = options.length <= 2;
     actions.append(move(-1, '↑', 'Поднять'), move(1, '↓', 'Опустить'), remove);
     row.append(legend, textLabel, correctLabel,
       taskOptionImageField(option.media, 'Добавить картинку ответа', image => { option.media = image; }, index + 1),
       actions);
     return row;
   }));
-  choiceAddOption.disabled = taskDraft.options.length >= choiceOptionLimit();
+  choiceAddOption.disabled = options.length >= choiceOptionLimit();
 }
 
 function validateChoiceDraft() {
-  if (taskDraft.options.some(option => !option.text.trim() && !option.media)) {
-    taskEditorStatus.textContent = 'Добавьте текст или картинку для каждого варианта.';
-    return false;
-  }
-  if (!taskDraft.options.some(option => option.correct)) {
-    taskEditorStatus.textContent = taskDraft.type === 'odd'
-      ? 'Отметьте хотя бы один лишний элемент.' : 'Отметьте хотя бы один правильный вариант.';
+  const odd = taskDraft.type === 'odd';
+  const rounds = odd ? taskDraft.rounds : [{ options: taskDraft.options }];
+  for (const [index, { options }] of rounds.entries()) {
+    const missingContent = options.some(option => !option.text.trim() && !option.media);
+    const missingAnswer = !options.some(option => option.correct);
+    if (!missingContent && !missingAnswer) continue;
+    if (odd) {
+      oddRoundIndex = index;
+      renderChoiceDraft();
+    }
+    const message = missingContent ? 'Добавьте текст или картинку для каждого варианта.'
+      : (odd ? 'Отметьте хотя бы один лишний элемент.' : 'Отметьте хотя бы один правильный вариант.');
+    taskEditorStatus.textContent = odd ? `Раунд ${index + 1}. ${message}` : message;
     return false;
   }
   return true;
 }
 
 document.querySelector('#add-odd-task').addEventListener('click', () => openTaskEditor(null, 'odd'));
-oddFollowUp.addEventListener('input', () => { taskDraft.followUp = oddFollowUp.value; });
+oddFollowUp.addEventListener('input', () => { taskDraft.rounds[oddRoundIndex].followUp = oddFollowUp.value; });
+oddRoundSelect.addEventListener('change', () => {
+  oddRoundIndex = Number(oddRoundSelect.value);
+  renderChoiceDraft();
+});
+document.querySelector('#odd-add-round').addEventListener('click', () => {
+  taskDraft.rounds.push(emptyOddRound());
+  oddRoundIndex = taskDraft.rounds.length - 1;
+  renderChoiceDraft();
+});
+document.querySelector('#odd-duplicate-round').addEventListener('click', () => {
+  const rounds = taskDraft.rounds;
+  rounds.splice(oddRoundIndex + 1, 0, copyOddRound(rounds[oddRoundIndex]));
+  oddRoundIndex++;
+  renderChoiceDraft();
+});
+oddRemoveRound.addEventListener('click', () => {
+  taskDraft.rounds.splice(oddRoundIndex, 1);
+  oddRoundIndex = Math.min(oddRoundIndex, taskDraft.rounds.length - 1);
+  renderChoiceDraft();
+});
+function moveOddRound(offset) {
+  const rounds = taskDraft.rounds;
+  const next = oddRoundIndex + offset;
+  [rounds[oddRoundIndex], rounds[next]] = [rounds[next], rounds[oddRoundIndex]];
+  oddRoundIndex = next;
+  renderChoiceDraft();
+}
+oddEarlierRound.addEventListener('click', () => moveOddRound(-1));
+oddLaterRound.addEventListener('click', () => moveOddRound(1));
 document.querySelector('#add-choice-task').addEventListener('click', () => openTaskEditor(null, 'choice'));
 choiceMethod.addEventListener('change', () => {
   taskDraft.method = choiceMethod.value;
@@ -150,7 +225,8 @@ choiceMethod.addEventListener('change', () => {
 choiceCheckMode.addEventListener('change', () => { taskDraft.check = choiceCheckMode.value; });
 choiceShuffle.addEventListener('change', () => { taskDraft.shuffle = choiceShuffle.checked; });
 choiceAddOption.addEventListener('click', () => {
-  if (taskDraft.options.length >= choiceOptionLimit()) return;
-  taskDraft.options.push(newChoiceOption());
+  const options = activeChoiceOptions();
+  if (options.length >= choiceOptionLimit()) return;
+  options.push(newChoiceOption());
   renderChoiceDraft();
 });

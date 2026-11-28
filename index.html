@@ -409,6 +409,16 @@
         </label>
         <label class="choice-checkbox"><input id="choice-shuffle" type="checkbox">Перемешивать варианты</label>
         <div id="choice-drop-draft" hidden></div>
+        <div id="odd-round-controls" hidden>
+          <label>Раунд <select id="odd-round"></select></label>
+          <div class="library-actions">
+            <button id="odd-add-round" class="library-button" type="button">Добавить раунд</button>
+            <button id="odd-duplicate-round" class="library-button" type="button">Дублировать раунд</button>
+            <button id="odd-remove-round" class="library-button" type="button">Удалить раунд</button>
+            <button id="odd-earlier-round" class="library-button" type="button" aria-label="Поднять раунд">↑</button>
+            <button id="odd-later-round" class="library-button" type="button" aria-label="Опустить раунд">↓</button>
+          </div>
+        </div>
         <h3 class="choice-options-heading">Варианты ответа</h3>
         <div id="choice-draft-options"></div>
         <button id="choice-add-option" class="secondary" type="button">Добавить вариант</button>

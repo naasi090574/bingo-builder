@@ -47,3 +47,7 @@ function validMemoryChain(items) {
     items.every(item => item.text.trim() || item.media) &&
     items.some(item => !sameMemoryItem(item, items[0]));
 }
+
+function oddTaskRounds(task) {
+  return task.rounds ?? [{ options: task.options, followUp: task.followUp ?? '' }];
+}
