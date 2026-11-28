@@ -30,6 +30,7 @@ const choiceCheckButton = document.querySelector('#check-choice');
 let disposeInteractiveTask;
 let taskUrls = [];
 let previewingTask = false;
+let previewTaskId;
 let interactiveTask = false;
 let taskReady = false;
 let gameTasks = initialTaskLibrary();
@@ -229,6 +230,7 @@ function applyIndividualTaskTypography(typography) {
 function showTask(content, preview = false) {
   clearTaskMedia();
   previewingTask = preview;
+  previewTaskId = preview ? content?.id : undefined;
   setTaskSoundOpen(true);
   applyIndividualTaskTypography(content?.typography);
   taskText.textContent = typeof content === 'string' ? content : content?.text ?? '';
@@ -432,6 +434,10 @@ window.addEventListener('message', event => {
   if (event.data?.type === 'bingo:tasks' && Array.isArray(event.data.tasks)) {
     receivedTaskUpdate = true;
     replaceGameTasks(event.data.tasks);
+  }
+  if (event.data?.type === 'bingo:preview-task-typography' && task.open &&
+      previewingTask && previewTaskId && event.data.id === previewTaskId) {
+    applyIndividualTaskTypography(event.data.typography);
   }
   if (event.data?.type === 'bingo:preview-task' && (!task.open || previewingTask)) {
     showTask(event.data.task, true);

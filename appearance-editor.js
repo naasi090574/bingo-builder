@@ -175,6 +175,12 @@ function addLabelControls(choiceGroups) {
     const fields = document.createElement('div');
     fields.className = 'appearance-fields';
     fields.innerHTML = typographyFields(key) + (gameLabelKeys.includes(key) ? gameLabelEffectFields(key) : '');
+    if (key === 'task') {
+      const help = document.createElement('p');
+      help.className = 'task-field-help';
+      help.textContent = 'Применяется к заданиям с общим оформлением. Чтобы применить эти параметры к конкретному заданию, включите «Использовать общие настройки» в его индивидуальном оформлении.';
+      fields.append(help);
+    }
     if (turn) {
       fields.insertAdjacentHTML('beforeend', `
         <label class="color-setting">Цвет фона<input type="color" name="${key}Background"></label>

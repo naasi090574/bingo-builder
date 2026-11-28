@@ -220,6 +220,17 @@ h2 { margin: 0; font-size: clamp(1rem, 1.6vw, 1.35rem); }
   display: block;
   object-fit: contain;
 }
+#task:not([data-interactive-type]) .task-body:has(.task-images:not([hidden])) {
+  grid-template-rows: minmax(0, 1fr);
+}
+#task:not([data-interactive-type]) .task-body:has(.task-text:not([hidden])):has(.task-images:not([hidden])) {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+#task:not([data-interactive-type]) .task-images {
+  min-height: 0;
+  grid-auto-rows: minmax(0, 1fr);
+}
+#task:not([data-interactive-type]) .task-images img { max-height: 100%; }
 #task-audio { width: min(100%, 36rem); height: 2.75rem; flex-shrink: 0; }
 .task-action {
   flex-shrink: 0;

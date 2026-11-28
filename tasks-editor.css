@@ -64,3 +64,14 @@
 }
 #individual-task-appearance .choice-checkbox { display: flex; align-items: center; gap: 7px; }
 #individual-task-appearance .choice-checkbox input { width: auto; min-height: auto; accent-color: var(--accent); }
+
+.task-prompt-sample {
+  margin: 0;
+  padding: .65rem;
+  border-radius: 8px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: center;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
