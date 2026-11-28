@@ -113,10 +113,14 @@ body[data-background="transparent"] {
 .board::after {
   z-index: 2;
   background: black;
-  opacity: 0;
   transition: opacity 300ms ease;
 }
-.board.waiting::after { opacity: var(--board-dim, 25%); }
+.board.waiting { --waiting-shade: var(--board-dim, 25%); }
+.board::after { opacity: var(--waiting-shade, 0%); }
+.board-avatar {
+  filter: brightness(calc(100% - var(--waiting-shade, 0%)));
+  transition: filter 300ms ease;
+}
 .board .badge { position: relative; z-index: 3; }
 .draw-slot::after {
   inset: 0;
@@ -124,7 +128,7 @@ body[data-background="transparent"] {
     var(--draw-slot-border, #50617a) var(--draw-slot-border-opacity, 100%), transparent);
 }
 @media (prefers-reduced-motion: reduce) {
-  .board::after { transition: none; }
+  .board::after, .board-avatar { transition: none; }
 }
 .cell {
   --cell-background: var(--chosen-cell, #26374b);

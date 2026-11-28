@@ -127,8 +127,8 @@ h1 { overflow-wrap: anywhere; }
   place-items: center;
   container-type: size;
   position: relative;
-  /* Paint after the board frame and below the waiting-player tint. */
-  z-index: 1;
+  /* The avatar has its own dimming so its overhang is shaded evenly. */
+  z-index: 3;
 }
 .player-2 .board-avatar-slot { grid-column: 2; }
 .board-avatar {
