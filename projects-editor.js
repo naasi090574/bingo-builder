@@ -188,7 +188,7 @@ async function downloadProject(data) {
   const link = document.createElement('a');
   link.href = url;
   const filename = data.settings.title.replace(/[<>:"/\\|?*\x00-\x1f]/g, '-');
-  link.download = `${filename}.bingo.json`;
+  link.download = `${filename || 'bingo'}.bingo.json`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -199,7 +199,7 @@ function renderProjectCard(project) {
   const card = document.createElement('article');
   card.className = 'project-card';
   const heading = document.createElement('h2');
-  heading.textContent = title;
+  heading.textContent = title || 'Без названия';
   const metadata = document.createElement('p');
   const date = document.createElement('time');
   date.dateTime = new Date(modified).toISOString();

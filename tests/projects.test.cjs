@@ -147,3 +147,25 @@ test('odd tasks preserve legacy options and round-specific answers, media and fo
     await assert.rejects(importProjectFile(await exportProjectFile(data)), /повреждён/);
   })()`, context);
 });
+
+test('blank game titles and draw panel placement survive project round trips', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    assert.equal(readGameSettings(new URLSearchParams()).title, defaultGameSettings.title);
+    assert.equal(readGameSettings(new URLSearchParams('title=++')).title, '');
+    data.settings.title = '';
+    Object.assign(data.appearance.values, {
+      drawPanelOffsetX: '-12', drawPanelOffsetY: '25', drawPanelHeight: '70',
+    });
+    const restored = await importProjectFile(await exportProjectFile(data));
+    assert.equal(restored.settings.title, '');
+    for (const key of ['drawPanelOffsetX', 'drawPanelOffsetY', 'drawPanelHeight']) {
+      assert.equal(restored.appearance.values[key], data.appearance.values[key]);
+      delete data.appearance.values[key];
+    }
+    const legacy = await importProjectFile(await exportProjectFile(data));
+    assert.equal(legacy.appearance.values.drawPanelOffsetX, '0');
+    assert.equal(legacy.appearance.values.drawPanelOffsetY, '0');
+    assert.equal(legacy.appearance.values.drawPanelHeight, '100');
+  })()`, context);
+});

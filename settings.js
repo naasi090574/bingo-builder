@@ -28,7 +28,7 @@ function readGameSettings(params) {
   const victory = params.get('victory');
 
   return {
-    title: readText('title', 60),
+    title: params.get('title')?.trim().slice(0, 60) ?? defaultGameSettings.title,
     player1: readText('player1', 32),
     player2: readText('player2', 32),
     size: [2, 3, 4, 5].includes(size) ? size : defaultGameSettings.size,

@@ -395,17 +395,33 @@ victoryRule.addEventListener('change', () => {
   render();
 });
 
+function renderGameTitle() {
+  document.title = settings.title;
+  const heading = document.querySelector('#game-title');
+  heading.textContent = settings.title;
+  heading.setAttribute('aria-hidden', String(!settings.title));
+}
+
 function renderGameSettings() {
   playerNames[0] = settings.player1;
   playerNames[1] = settings.player2;
-  document.title = settings.title;
-  document.querySelector('#game-title').textContent = settings.title;
+  renderGameTitle();
   renderVictoryRule(settings.victory);
 }
 
 function applyPreviewSettings(search) {
   const updated = readGameSettings(new URLSearchParams(search));
   if (Object.keys(updated).every(key => updated[key] === settings[key])) return;
+  const onlyTitleChanged = Object.keys(updated).every(key => key === 'title' || updated[key] === settings[key]);
+  if (onlyTitleChanged) {
+    const heading = document.querySelector('#game-title');
+    if (!updated.title) heading.style.minHeight = `${heading.getBoundingClientRect().height}px`;
+    else heading.style.removeProperty('min-height');
+    settings = updated;
+    renderGameTitle();
+    return;
+  }
+  document.querySelector('#game-title').style.removeProperty('min-height');
   settings = updated;
   if (task.open) task.close();
   renderGameSettings();

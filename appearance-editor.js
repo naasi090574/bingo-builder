@@ -200,3 +200,10 @@ addLabelControls({
   ...addInteractiveAppearance('#sorting-appearance', sortingAppearanceGroups),
 });
 resetAppearance();
+
+document.querySelector('#reset-draw-panel-layout').addEventListener('click', () => {
+  for (const field of ['drawPanelOffsetX', 'drawPanelOffsetY', 'drawPanelHeight']) {
+    appearanceForm.elements[field].value = defaultAppearance[field];
+  }
+  updateAppearance();
+});

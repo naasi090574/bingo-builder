@@ -29,7 +29,7 @@ function displayPublication(publication) {
 
 function refreshPublicationProjects(selected = publicationProject.value) {
   const previous = publicationProject.value;
-  publicationProject.replaceChildren(...savedProjects.map(project => new Option(project.data.settings.title, project.id)));
+  publicationProject.replaceChildren(...savedProjects.map(project => new Option(project.data.settings.title || 'Без названия', project.id)));
   if (savedProjects.some(project => project.id === selected)) publicationProject.value = selected;
   publicationUpload.disabled = !savedProjects.length;
   if (previous !== publicationProject.value) displayPublication(null);

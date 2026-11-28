@@ -191,6 +191,16 @@
         <details class="appearance-group">
           <summary>Выпавшая карточка</summary>
           <div class="appearance-fields">
+            <label class="range-setting"><span>Вертикальное смещение панели</span><output for="drawPanelOffsetY"></output>
+              <input id="drawPanelOffsetY" name="drawPanelOffsetY" type="range" min="-80" max="80" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Горизонтальное смещение панели</span><output for="drawPanelOffsetX"></output>
+              <input id="drawPanelOffsetX" name="drawPanelOffsetX" type="range" min="-24" max="24" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Высота панели</span><output for="drawPanelHeight"></output>
+              <input id="drawPanelHeight" name="drawPanelHeight" type="range" min="60" max="115" data-unit="%">
+            </label>
+            <button id="reset-draw-panel-layout" class="secondary" type="button">Сбросить положение и высоту</button>
             <label class="color-setting">Цвет фона блока<input type="color" name="drawPanelColor"></label>
             <label class="range-setting"><span>Непрозрачность блока</span><output for="drawPanelOpacity"></output>
               <input id="drawPanelOpacity" name="drawPanelOpacity" type="range" min="0" max="100" data-unit="%">

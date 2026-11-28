@@ -64,12 +64,45 @@ function fitGameLabels() {
   }
 }
 
+const drawPanel = document.querySelector('.draw-panel');
+const drawTable = drawPanel.parentElement;
+const drawPanelControls = [drawPanel.querySelector('#draw-title'), drawPanel.querySelector('#draw'),
+  drawPanel.querySelector('.status')];
+
+function fitDrawPanel() {
+  drawPanel.style.removeProperty('height');
+  drawPanel.style.removeProperty('translate');
+  if (!labelFitLandscape.matches) return;
+
+  const style = getComputedStyle(drawPanel);
+  const offsetX = parseFloat(style.getPropertyValue('--draw-panel-x')) || 0;
+  const offsetY = parseFloat(style.getPropertyValue('--draw-panel-y')) || 0;
+  const heightPercent = parseFloat(style.getPropertyValue('--draw-panel-height')) || 100;
+  if (!offsetX && !offsetY && heightPercent === 100) return;
+
+  const bounds = drawPanel.getBoundingClientRect();
+  const boardsRight = drawTable.querySelector('.boards').getBoundingClientRect().right;
+  const selectBottom = document.querySelector('#victory-rule').getBoundingClientRect().bottom;
+  const minY = Math.min(0, selectBottom + 4 - bounds.top);
+  const screenBottom = document.documentElement.clientHeight - 2;
+  const minHeight = drawPanelControls.reduce((height, element) => height + element.offsetHeight, 0) +
+    3 * parseFloat(style.rowGap) + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) +
+    parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth) + 24;
+  const x = Math.max(Math.min(0, boardsRight + 2 - bounds.left),
+    Math.min(offsetX, document.documentElement.clientWidth - bounds.right - 2));
+  const y = Math.max(minY, Math.min(offsetY, Math.max(0, screenBottom - bounds.top - minHeight)));
+  const height = Math.min(screenBottom - bounds.top - y, Math.max(minHeight, bounds.height * heightPercent / 100));
+  drawPanel.style.height = `${height}px`;
+  drawPanel.style.translate = `${x}px ${y}px`;
+}
+
 let pendingLabelFit = 0;
 function scheduleGameLabelFit() {
   if (pendingLabelFit) return;
   pendingLabelFit = requestAnimationFrame(() => {
     pendingLabelFit = 0;
     fitGameLabels();
+    fitDrawPanel();
   });
 }
 new MutationObserver(scheduleGameLabelFit).observe(document.querySelector('.shell'), {
