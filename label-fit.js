@@ -2,7 +2,7 @@
 
 // Preserve room for the boards and the drawn card when several labels are enlarged at once.
 const labelFitTargets = [
-  ['#game-title', 0.18], ['.board-heading h2', 0.16], ['.winner-badge', 0.10],
+  ['#game-title', 0.18], ['.board-heading h2', 0.16], ['.winner-badge, .has-avatar .badge', 0.10],
   ['.game-rules label', 0.12], ['.game-rules select', 0.09],
   ['#draw-title', 0.15], ['#status', 0.23], ['#draw', 0.13], ['#reset', 0.11], ['.placeholder', 0.09],
 ];
@@ -27,7 +27,7 @@ function fitGameLabels() {
 
   for (const { element, limit } of targets) {
     const select = element instanceof HTMLSelectElement;
-    const singleLine = select || element.matches('.game-rules label');
+    const singleLine = select || element.matches('.game-rules label, .has-avatar h2, .has-avatar .badge');
     labelProbe.textContent = select ? element.selectedOptions[0]?.text : element.textContent;
     if (!labelProbe.textContent) continue;
     const style = getComputedStyle(element);
@@ -109,6 +109,11 @@ function scheduleGameLabelFit() {
   pendingLabelFit = requestAnimationFrame(() => {
     pendingLabelFit = 0;
     fitGameLabels();
+    const headings = [...document.querySelectorAll('.board-heading')];
+    if (headings.length === 2) {
+      const height = Math.min(...headings.map(heading => heading.clientHeight));
+      headings[0].closest('#boards').style.setProperty('--avatar-heading-limit', `${height}px`);
+    }
     fitDrawPanel();
   });
 }

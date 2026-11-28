@@ -48,6 +48,7 @@ let receivedCardUpdate = false;
 let tokenSettings = normalizeTokenSettings();
 let tokenImageUrls = [];
 let receivedTokenUpdate = false;
+const avatarUrls = [null, null];
 let receivedSoundUpdate = false;
 
 function applyTokens(settings) {
@@ -90,6 +91,34 @@ function cardContent(card) {
   return content;
 }
 
+function renderBoardAvatar(heading, player) {
+  heading.querySelector('.board-avatar-slot')?.remove();
+  const url = avatarUrls[player];
+  heading.classList.toggle('has-avatar', Boolean(url));
+  if (!url) return;
+
+  const slot = document.createElement('span');
+  slot.className = 'board-avatar-slot';
+  const frame = document.createElement('span');
+  frame.className = 'board-avatar';
+  const image = document.createElement('img');
+  image.alt = '';
+  image.src = url;
+  frame.append(image);
+  slot.append(frame);
+  heading.append(slot);
+}
+
+function applyAvatars(avatars) {
+  avatarUrls.forEach((url, player) => {
+    if (url) URL.revokeObjectURL(url);
+    const image = avatars?.[player]?.image;
+    avatarUrls[player] = image instanceof Blob ? URL.createObjectURL(image) : null;
+    const heading = boards.children[player]?.querySelector('.board-heading');
+    if (heading) renderBoardAvatar(heading, player);
+  });
+}
+
 function renderBoard(cells, player, newMark) {
   const { outcome } = game;
   const currentPlayer = outcome?.winner ?? game.player;
@@ -110,7 +139,11 @@ function renderBoard(cells, player, newMark) {
   const badge = document.createElement('span');
   badge.className = won || tied ? 'badge winner-badge' : 'badge';
   badge.textContent = tied ? 'Ничья' : won ? 'Бинго!' : active ? 'Сейчас ходит' : 'Ожидает ход';
-  heading.append(title, badge);
+  const identity = document.createElement('div');
+  identity.className = 'board-identity';
+  identity.append(title, badge);
+  heading.append(identity);
+  renderBoardAvatar(heading, player);
 
   const grid = document.createElement('div');
   grid.className = 'grid';
@@ -441,6 +474,7 @@ window.addEventListener('message', event => {
       typeof event.data.search === 'string') {
     applyPreviewSettings(event.data.search);
   }
+  if (event.data?.type === 'bingo:avatars') applyAvatars(event.data.avatars);
   if (event.data?.type === 'bingo:tokens') {
     receivedTokenUpdate = true;
     applyTokens(event.data.settings);
@@ -478,6 +512,7 @@ function applyProjectGame(data) {
   renderGameSettings();
   applyAppearance({ values: data.appearance.values, image: data.appearance.background, imageVersion: 1 });
   applyTokens(data.tokens);
+  applyAvatars(data.avatars);
   applyGameSounds(data.sounds);
   replaceGameTasks(data.tasks);
   applyCardLibrary(data.cards);
@@ -496,6 +531,7 @@ if (publishedGameId !== null) {
     window.parent.postMessage({ type: 'bingo:settings-ready' },
       window.origin === 'null' ? '*' : window.origin);
   }
+  cardSource?.postMessage({ type: 'bingo:avatars-ready' }, appearanceOrigin());
   cardSource?.postMessage({ type: 'bingo:tokens-ready' }, window.origin === 'null' ? '*' : window.origin);
   tokenStorage('readonly').then(settings => {
     if (!savedProjectId && !receivedTokenUpdate) applyTokens(settings);

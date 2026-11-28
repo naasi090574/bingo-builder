@@ -28,6 +28,8 @@
   .board, .draw-panel { min-width: 0; min-height: 0; padding: .65rem; }
   .board { display: grid; grid-template-rows: auto minmax(0, 1fr); }
   .board-heading { gap: .15rem; margin-bottom: .45rem; }
+  .board-heading.has-avatar :is(h2, .badge) { white-space: nowrap; }
+  .board-heading.has-avatar .badge[style*="--fit-size"] { font-size: var(--fit-size); }
   .board-heading h2 { font-size: var(--fit-size, var(--label-player-size, 1.35rem)); }
   .badge { font-size: var(--label-activeBadge-size, 1rem); }
   .board:not(.active) .badge { font-size: var(--label-idleBadge-size, 1rem); }

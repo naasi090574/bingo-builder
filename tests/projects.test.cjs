@@ -216,3 +216,25 @@ test('magic tasks preserve mixed modes and media and reject reversed size settin
     await assert.rejects(importProjectFile(await exportProjectFile(data)), /повреждён/);
   })()`, context);
 });
+
+test('player avatars and their appearance round-trip without affecting legacy projects', async () => {
+  await vm.runInContext(`(async () => {
+    const data = freshProjectData();
+    delete data.avatars;
+    delete data.appearance.values.avatarSize;
+    const legacy = await importProjectFile(await exportProjectFile(data));
+    assert.deepEqual(legacy.avatars, [null, null]);
+    assert.equal(legacy.appearance.values.avatarSize, '56');
+
+    const image = new File(['avatar bytes'], 'герой.png', { type: 'image/png' });
+    data.avatars = [null, { image, name: image.name }];
+    Object.assign(data.appearance.values, { avatarSize: '36', avatarZoom: '110', avatarOpacity: '35' });
+    const restored = await importProjectFile(await exportProjectFile(data));
+    assert.equal(restored.avatars[0], null);
+    assert.equal(restored.avatars[1].name, 'герой.png');
+    assert.equal(await restored.avatars[1].image.text(), 'avatar bytes');
+    assert.equal(restored.appearance.values.avatarSize, '36');
+    assert.equal(restored.appearance.values.avatarZoom, '110');
+    assert.equal(restored.appearance.values.avatarOpacity, '35');
+  })()`, context);
+});

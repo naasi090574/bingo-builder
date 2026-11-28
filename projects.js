@@ -93,6 +93,7 @@ function replaceProjectDraft(draft, imported = null) {
 function freshProjectData() {
   return {
     settings: { ...defaultGameSettings },
+    avatars: [null, null],
     appearance: { values: { ...defaultAppearance }, background: null },
     cards: initialCardLibrary(),
     tasks: initialTaskLibrary(),
@@ -193,6 +194,9 @@ function validateProjectData(data) {
       && (task.type !== 'sorting' || (list(task.groups, group => textEntry(group) && text(group.id)) && task.groups.length >= 2))
       && taskDetails[task.type](task))) throw invalidProject();
 
+  if (data.avatars !== undefined && (!list(data.avatars, avatar => avatar === null || imageEntry(avatar)) ||
+      data.avatars.length !== 2)) throw invalidProject();
+  data.avatars ??= [null, null];
   data.settings = readGameSettings(new URLSearchParams(data.settings));
   data.appearance.values = Object.fromEntries(Object.entries(defaultAppearance).map(([key, fallback]) =>
     [key, typeof data.appearance.values[key] === 'string' ? data.appearance.values[key] : fallback]));

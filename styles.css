@@ -113,7 +113,48 @@ h1 { overflow-wrap: anywhere; }
 .board, .draw-panel { border: 1px solid var(--border); border-radius: 20px; padding: clamp(12px, 1.6vw, 23px); background: var(--panel); }
 .board { --accent: var(--mint); }
 .player-2 { --accent: #aebcff; }
-.board-heading { display: grid; justify-items: center; gap: 5px; margin-bottom: 12px; text-align: center; }
+.board-heading { display: grid; gap: 5px; margin-bottom: 12px; text-align: center; }
+.board-identity { display: grid; justify-items: center; align-content: center; gap: inherit; min-width: 0; grid-row: 1; }
+.board-heading.has-avatar {
+  --avatar-column: min(var(--avatar-size, 56px), 28%);
+  grid-template-columns: var(--avatar-column) minmax(0, 1fr);
+}
+.player-2 .board-heading.has-avatar { grid-template-columns: minmax(0, 1fr) var(--avatar-column); }
+.player-1 .has-avatar .board-identity { grid-column: 2; }
+.board-avatar-slot {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  container-type: size;
+}
+.player-2 .board-avatar-slot { grid-column: 2; }
+.board-avatar {
+  display: grid;
+  place-items: center;
+  width: min(100cqw, 100cqh, var(--avatar-heading-limit, 100cqh));
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--avatar-background, #26374b) var(--avatar-opacity, 100%), transparent);
+  position: relative;
+}
+.board-avatar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 min(var(--avatar-border-width, 2px), 20cqh, 20cqw) var(--avatar-border, #50617a);
+  pointer-events: none;
+}
+.board-avatar img {
+  display: block;
+  position: absolute;
+  width: var(--avatar-zoom, 100%);
+  height: var(--avatar-zoom, 100%);
+  object-fit: contain;
+}
+.board-heading.has-avatar :is(h2, .badge) { max-width: 100%; }
+
 h2 { margin: 0; font-size: clamp(1rem, 1.6vw, 1.35rem); }
 .badge { border-radius: 20px; padding: 4px 9px; background: #29354b; color: #d1daea; font-size: .875rem; }
 .active .badge { background: color-mix(in srgb, var(--accent) 18%, var(--panel)); color: var(--accent); }

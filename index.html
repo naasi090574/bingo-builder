@@ -23,6 +23,7 @@
   <script defer src="publication-client.js"></script>
   <script defer src="editor.js"></script>
   <script defer src="appearance-editor.js"></script>
+  <script defer src="avatar-editor.js"></script>
   <script defer src="cards-editor.js"></script>
   <script defer src="tasks-editor.js"></script>
   <script defer src="choice-editor.js"></script>
@@ -86,9 +87,29 @@
         <label>Имя первого игрока
           <input name="player1" maxlength="32" value="Игрок 1">
         </label>
+        <div class="avatar-editor-row" data-player-avatar="0">
+          <img alt="" hidden>
+          <div class="library-actions">
+            <label class="secondary image-picker"><span>Загрузить героя</span>
+              <input type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" aria-label="Изображение героя первого игрока">
+            </label>
+            <button type="button" class="library-button" hidden>Удалить</button>
+          </div>
+          <p role="status"></p>
+        </div>
         <label>Имя второго игрока
           <input name="player2" maxlength="32" value="Игрок 2">
         </label>
+        <div class="avatar-editor-row" data-player-avatar="1">
+          <img alt="" hidden>
+          <div class="library-actions">
+            <label class="secondary image-picker"><span>Загрузить героя</span>
+              <input type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" aria-label="Изображение героя второго игрока">
+            </label>
+            <button type="button" class="library-button" hidden>Удалить</button>
+          </div>
+          <p role="status"></p>
+        </div>
         <label>Размер игрового поля
           <select name="size">
             <option value="2">2 × 2</option>
@@ -194,6 +215,25 @@
         </details>
         <details class="appearance-group" id="turn-settings">
           <summary>Индикаторы хода</summary>
+        </details>
+        <details class="appearance-group">
+          <summary>Аватарки игроков</summary>
+          <div class="appearance-fields">
+            <label class="color-setting">Цвет рамки<input name="avatarBorder" type="color"></label>
+            <label class="color-setting">Цвет фона<input name="avatarBackground" type="color"></label>
+            <label class="range-setting"><span>Размер аватарок</span><output for="avatarSize"></output>
+              <input id="avatarSize" name="avatarSize" type="range" min="20" max="96" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Толщина рамки</span><output for="avatarBorderWidth"></output>
+              <input id="avatarBorderWidth" name="avatarBorderWidth" type="range" min="0" max="8" data-unit=" пкс">
+            </label>
+            <label class="range-setting"><span>Непрозрачность фона</span><output for="avatarOpacity"></output>
+              <input id="avatarOpacity" name="avatarOpacity" type="range" min="0" max="100" data-unit="%">
+            </label>
+            <label class="range-setting"><span>Масштаб изображения</span><output for="avatarZoom"></output>
+              <input id="avatarZoom" name="avatarZoom" type="range" min="50" max="160" data-unit="%">
+            </label>
+          </div>
         </details>
         <details class="appearance-group">
           <summary>Выпавшая карточка</summary>

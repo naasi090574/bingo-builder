@@ -23,6 +23,7 @@ let projectThumbnailUrls = [];
 function captureProject() {
   return {
     settings: readEditorGameSettings(),
+    avatars: [...editorAvatars],
     appearance: { values: Object.fromEntries(new FormData(appearanceForm)), background: backgroundImage },
     cards: library,
     tasks: taskList,
@@ -72,6 +73,7 @@ function publishProjectSettings() {
   notifyTaskViews();
   broadcastTokens();
   broadcastSounds();
+  broadcastAvatars();
   for (const popup of appearancePopups) {
     popup.postMessage({ type: 'bingo:preview-settings', search: new URL(launch.href).search }, appearanceOrigin());
     broadcastTokens(popup);
@@ -86,6 +88,7 @@ function restoreProject(draft) {
   const { showBoardTitle, ...settings } = data.settings;
   for (const [name, value] of Object.entries(settings)) form.elements[name].value = value;
   form.elements.showBoardTitle.checked = showBoardTitle !== 'no';
+  restoreAvatars(data.avatars);
   for (const [name, fallback] of Object.entries(defaultAppearance)) {
     appearanceForm.elements[name].value = data.appearance.values[name] ?? fallback;
   }
@@ -119,7 +122,7 @@ async function openProjectDraft(draft, imported) {
 
 function projectOperation(action) {
   if (!projectsReady || projectBusy) return;
-  if (document.querySelector('#token-settings input[type=file]:disabled, #sound-settings input[type=file]:disabled, #background-image:disabled')) {
+  if (document.querySelector('#token-settings input[type=file]:disabled, #sound-settings input[type=file]:disabled, #background-image:disabled, .avatar-editor-row input:disabled')) {
     projectStatus.textContent = 'Дождитесь окончания загрузки файла.';
     return;
   }
