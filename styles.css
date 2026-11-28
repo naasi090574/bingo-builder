@@ -116,7 +116,7 @@ h1 { overflow-wrap: anywhere; }
 .board-heading { display: grid; gap: 5px; margin-bottom: 12px; text-align: center; }
 .board-identity { display: grid; justify-items: center; align-content: center; gap: inherit; min-width: 0; grid-row: 1; }
 .board-heading.has-avatar {
-  --avatar-column: min(var(--avatar-size, 56px), 28%);
+  --avatar-column: min(var(--avatar-size, 56px), 42%);
   grid-template-columns: var(--avatar-column) minmax(0, 1fr);
 }
 .player-2 .board-heading.has-avatar { grid-template-columns: minmax(0, 1fr) var(--avatar-column); }
@@ -126,24 +126,30 @@ h1 { overflow-wrap: anywhere; }
   display: grid;
   place-items: center;
   container-type: size;
+  position: relative;
 }
 .player-2 .board-avatar-slot { grid-column: 2; }
 .board-avatar {
   display: grid;
   place-items: center;
-  width: min(100cqw, 100cqh, var(--avatar-heading-limit, 100cqh));
+  --avatar-diameter: min(100cqw, var(--avatar-space, 100cqh));
+  width: var(--avatar-diameter);
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 50%;
   background: color-mix(in srgb, var(--avatar-background, #26374b) var(--avatar-opacity, 100%), transparent);
-  position: relative;
+  position: absolute;
+  left: 50%;
+  --avatar-anchor: var(--avatar-anchor-height, 100cqh);
+  top: min(calc((var(--avatar-anchor) - var(--avatar-diameter)) / 2), calc(var(--avatar-anchor) - var(--avatar-diameter)));
+  translate: -50% 0;
 }
 .board-avatar::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 0 min(var(--avatar-border-width, 2px), 20cqh, 20cqw) var(--avatar-border, #50617a);
+  box-shadow: inset 0 0 0 min(var(--avatar-border-width, 2px), calc(var(--avatar-diameter) / 5)) var(--avatar-border, #50617a);
   pointer-events: none;
 }
 .board-avatar img {

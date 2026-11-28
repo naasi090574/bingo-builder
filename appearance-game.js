@@ -38,7 +38,7 @@ const appearanceScales = {
   cellRadius: ['--cell-radius', 0, 40, 'px'],
   activeBadgeOpacity: ['--active-badge-fill', 0, 100, '%'],
   idleBadgeOpacity: ['--idle-badge-fill', 0, 100, '%'],
-  avatarSize: ['--avatar-size', 20, 96, 'px'],
+  avatarSize: ['--avatar-size', 20, 180, 'px'],
   avatarBorderWidth: ['--avatar-border-width', 0, 8, 'px'],
   avatarOpacity: ['--avatar-opacity', 0, 100, '%'],
   avatarZoom: ['--avatar-zoom', 50, 160, '%'],

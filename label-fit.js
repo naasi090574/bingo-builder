@@ -103,17 +103,38 @@ function fitDrawPanel() {
   drawCenter.style.translate = `${x}px ${y}px`;
 }
 
+// Larger circles can grow above the heading without affecting the grid tracks.
+function fitBoardAvatars() {
+  const slots = [...document.querySelectorAll('.board-avatar-slot')];
+  if (!slots.length) return;
+  const obstacles = [...document.querySelectorAll('#game-title[aria-hidden="false"], .game-rules label, #victory-rule, .draw-center')]
+    .map(element => element.getBoundingClientRect());
+  const staggered = Math.abs(
+    (document.querySelector('.player-1')?.offsetTop ?? 0) -
+    (document.querySelector('.player-2')?.offsetTop ?? 0)) > 2;
+  const boundsBySlot = slots.map(slot => slot.getBoundingClientRect());
+  const anchorHeight = Math.min(...boundsBySlot.map(bounds => bounds.height));
+  const sizes = boundsBySlot.map(bounds => {
+    if (staggered) return Math.min(bounds.width, bounds.height);
+    let top = 4;
+    for (const obstacle of obstacles) {
+      if (obstacle.left < bounds.right + 4 && obstacle.right > bounds.left - 4 &&
+          obstacle.bottom <= bounds.top) top = Math.max(top, obstacle.bottom + 4);
+    }
+    return Math.min(bounds.width, Math.max(bounds.height, bounds.top + anchorHeight - top));
+  });
+  const style = slots[0].closest('#boards').style;
+  style.setProperty('--avatar-space', `${Math.floor(Math.min(...sizes))}px`);
+  style.setProperty('--avatar-anchor-height', `${anchorHeight}px`);
+}
+
 let pendingLabelFit = 0;
 function scheduleGameLabelFit() {
   if (pendingLabelFit) return;
   pendingLabelFit = requestAnimationFrame(() => {
     pendingLabelFit = 0;
     fitGameLabels();
-    const headings = [...document.querySelectorAll('.board-heading')];
-    if (headings.length === 2) {
-      const height = Math.min(...headings.map(heading => heading.clientHeight));
-      headings[0].closest('#boards').style.setProperty('--avatar-heading-limit', `${height}px`);
-    }
+    fitBoardAvatars();
     fitDrawPanel();
   });
 }
